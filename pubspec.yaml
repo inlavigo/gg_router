@@ -1,5 +1,5 @@
 name: gg_lite_route
-description: A light weight routing system for flutter based on Navigator 2.0.
+description: A light weight routing system based on Navigator 2.0.
 version: 0.0.1+1
 author: Gabriel Gatzsche
 homepage: "https://github.com/gatzsche/gg_lite_route"
@@ -12,7 +12,6 @@ dependencies:
   flutter:
     sdk: flutter
   gg_value: ^0.0.9+3
-  gg_once_per_cycle: ^0.0.1+2
 
 dev_dependencies:
   flutter_test:
