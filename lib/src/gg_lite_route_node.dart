@@ -43,7 +43,7 @@ class GgLiteRouteNode {
   /// Marks this node as active or inactive.
   ///
   /// - [isActive] = true: Also the parent nodes are set to active.
-  /// - [isAct] = false: Also all child nodes are set to inactive.
+  /// - [isActive] = false: Also all child nodes are set to inactive.
   set isActive(bool isActive) {
     if (_isActive.value == isActive) {
       return;
@@ -116,6 +116,7 @@ class GgLiteRouteNode {
   // ######################
 
   // ...........................................................................
+  /// Returns a list containing all active descendands.
   List<GgLiteRouteNode> get activeDescendands {
     GgLiteRouteNode? activeChild = _activeChild.value;
 
@@ -129,6 +130,7 @@ class GgLiteRouteNode {
   }
 
   // ...........................................................................
+  /// A stream informing when the active descendands change.
   Stream<List<GgLiteRouteNode>> get activeDescendandsDidChange =>
       _activeDescendands.stream;
 
@@ -167,6 +169,7 @@ class GgLiteRouteNode {
   // children
 
   // ...........................................................................
+  /// Returns a list with the node's children.
   final _children = Map<String, GgLiteRouteNode>();
   _initChildren() {
     _dispose.add(() {
