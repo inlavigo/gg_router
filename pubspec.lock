@@ -44,7 +44,7 @@ packages:
     source: hosted
     version: "1.15.0"
   fake_async:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: fake_async
       url: "https://pub.dartlang.org"
@@ -60,6 +60,20 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  gg_once_per_cycle:
+    dependency: "direct main"
+    description:
+      name: gg_once_per_cycle
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1+2"
+  gg_value:
+    dependency: "direct main"
+    description:
+      name: gg_value
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.9+3"
   matcher:
     dependency: transitive
     description:
@@ -81,6 +95,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.0"
+  pedantic:
+    dependency: "direct dev"
+    description:
+      name: pedantic
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.10.0"
   sky_engine:
     dependency: transitive
     description: flutter
