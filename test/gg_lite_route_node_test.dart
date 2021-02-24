@@ -136,6 +136,30 @@ main() {
     });
 
     // #########################################################################
+    group('descendand(path)', () {
+      test('should the descendand maching the path', () {
+        init();
+        final result =
+            root.descendand(path: ['child-a0', 'child-b', 'child-c']);
+        expect(result, childC);
+      });
+
+      test('should create the descendand if not existing', () {
+        init();
+        final result = root.descendand(path: ['x', 'y']);
+        expect(result.name, 'y');
+        expect(result.parent!.name, 'x');
+        expect(result.parent!.parent!.name, 'root');
+      });
+
+      test('should return the element itself, if path is empty', () {
+        init();
+        final result = root.descendand(path: []);
+        expect(result, root);
+      });
+    });
+
+    // #########################################################################
     group('activeChild', () {
       test('should return null, if no child is active', () {
         init();

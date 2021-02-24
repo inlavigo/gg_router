@@ -88,6 +88,17 @@ class GgLiteRouteNode {
     return child;
   }
 
+  // ...........................................................................
+  /// Returns descendand that matches the path. Creates the node when needed.
+  GgLiteRouteNode descendand({required List<String> path}) {
+    var result = this;
+    path.forEach((element) {
+      result = result.child(name: element);
+    });
+
+    return result;
+  }
+
   // ######################
   // Active child
   // ######################
@@ -133,25 +144,11 @@ class GgLiteRouteNode {
   // ...........................................................................
   /// Creates and activates children according to the segments in [path]
   set activeChildPath(List<String> path) {
-    // ...............................
-    // If path is empty, all children are set to inactive
-    bool pathIsEmpty = path.length == 0;
-    if (pathIsEmpty) {
-      _activeChild.value?.isActive = false;
-      return;
+    final node = descendand(path: path);
+    node.isActive = true;
+    if (path.isEmpty) {
+      activeChild?.isActive = false;
     }
-
-    // .............
-    // Activate self
-    isActive = true;
-
-    // .................
-    // Activate children
-    var c = this;
-    path.forEach((segment) {
-      c = c.child(name: segment);
-      c.isActive = true;
-    });
   }
 
   // ######################
