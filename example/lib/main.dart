@@ -27,18 +27,23 @@ class GgLiteRouteExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: GgLiteRoute(
-        name: 'blue',
-        child: Container(
-          color: Colors.blue,
+    return FutureBuilder(
+      future: Future.delayed(Duration(seconds: 3)),
+      builder: (context, snapshot) {
+        return Container(
+          color: Colors.white,
           child: GgLiteRoute(
-            name: 'yellow',
-            child: Container(color: Colors.yellow),
+            name: 'blue',
+            child: Container(
+              color: Colors.blue,
+              child: GgLiteRoute(
+                name: 'yellow',
+                child: Container(color: Colors.yellow),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
