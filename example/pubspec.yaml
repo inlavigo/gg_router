@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  gg_lite_route:
+    path: ../
 
 dev_dependencies:
   flutter_test:

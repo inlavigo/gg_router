@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gg_lite_route/gg_lite_route.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,6 +17,8 @@ class MyApp extends StatelessWidget {
       home: GgLiteRouteExample(),
     );
   }
+
+  static final liteRouteRootKey = GlobalKey();
 }
 
 // .............................................................................
@@ -25,7 +28,17 @@ class GgLiteRouteExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.green,
+      color: Colors.white,
+      child: GgLiteRoute(
+        name: 'blue',
+        child: Container(
+          color: Colors.blue,
+          child: GgLiteRoute(
+            name: 'yellow',
+            child: Container(color: Colors.yellow),
+          ),
+        ),
+      ),
     );
   }
 }
