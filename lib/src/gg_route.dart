@@ -2,63 +2,16 @@
 // Copyright (c) 2019 - 2021 Dr. Gabriel Gatzsche. All Rights Reserved.
 //
 // Use of this source code is governed by terms that can be
-// found in the LICENSE file in the root of this repository.
+// found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
 import 'package:gg_route/gg_route.dart';
 
 // #############################################################################
-class GgRouteInformationParser extends RouteInformationParser<Uri> {
-  @override
-  Future<Uri> parseRouteInformation(RouteInformation routeInformation) async {
-    if (routeInformation.location == null) {
-      return Uri();
-    }
-    final uri = Uri.parse(routeInformation.location!);
-    return uri;
-  }
 
-  @override
-  RouteInformation restoreRouteInformation(Uri configuration) {
-    return RouteInformation(location: '/a/b');
-  }
-}
-
-// #############################################################################
-class GgRouterDelegate extends RouterDelegate<Uri>
-    with ChangeNotifier, PopNavigatorRouterDelegateMixin<Uri> {
+class _GgRouteCore extends InheritedWidget {
   // ...........................................................................
-  GgRouterDelegate({required this.child})
-      : navigatorKey = GlobalKey<NavigatorState>();
-
-  // ...........................................................................
-  final GlobalKey<NavigatorState> navigatorKey;
-  Widget child;
-
-  // ...........................................................................
-  @override
-  Widget build(BuildContext context) {
-    return child;
-  }
-
-  // ...........................................................................
-  @override
-  Uri get currentConfiguration {
-    print('currentConfiguration');
-    return Uri();
-  }
-
-  // ...........................................................................
-  @override
-  Future<void> setNewRoutePath(Uri path) async {
-    print('setNewRoutePath $path');
-  }
-}
-
-// #############################################################################
-class GgRouteCore extends InheritedWidget {
-  // ...........................................................................
-  GgRouteCore({
+  _GgRouteCore({
     Key? key,
     required this.name,
     required Widget child,
@@ -77,8 +30,8 @@ class GgRouteCore extends InheritedWidget {
   }
 
   // ...........................................................................
-  static GgRouteCore? of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<GgRouteCore>();
+  static _GgRouteCore? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<_GgRouteCore>();
   }
 }
 
@@ -106,7 +59,7 @@ class _GgRouteState extends State<GgRoute> {
 
     _initNode(context);
 
-    final core = GgRouteCore(
+    final core = _GgRouteCore(
       name: widget.name,
       child: widget.child,
       node: node!,
@@ -121,7 +74,7 @@ class _GgRouteState extends State<GgRoute> {
   // ...........................................................................
   _initNode(BuildContext context) {
     if (node == null) {
-      final existingParentNode = GgRouteCore.of(context)?.node;
+      final existingParentNode = _GgRouteCore.of(context)?.node;
 
       final parentNode = existingParentNode ?? GgRouteNode(name: '_root');
 
