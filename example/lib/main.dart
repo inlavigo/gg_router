@@ -43,29 +43,24 @@ class GgRouteExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: Future.delayed(Duration(seconds: 3)),
-      builder: (context, snapshot) {
-        return Container(
-          color: Colors.white,
+    return Container(
+      color: Colors.white,
 
-          // .................
-          // Create blue route
+      // .................
+      // Create blue route
+      child: GgRoute(
+        name: 'blue',
+        child: Container(
+          color: Colors.blue,
+
+          // .........................
+          // Create yellow child route
           child: GgRoute(
-            name: 'blue',
-            child: Container(
-              color: Colors.blue,
-
-              // .........................
-              // Create yellow child route
-              child: GgRoute(
-                name: 'yellow',
-                child: Container(color: Colors.yellow),
-              ),
-            ),
+            name: 'yellow',
+            child: Container(color: Colors.yellow),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
