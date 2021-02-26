@@ -39,15 +39,14 @@ jobs:
       # Run widget tests for our flutter project.
       - run: flutter test
 
-      # Build apk.
-      - run: cd example
-      - run: flutter build apk
-      - run: cd ..
+      - name: Test example
+        working-directory: ./example
+        run: flutter test
 
-      # Build ipa.
-      - run: cd example
-      - run: flutter build ipa
-      - run: cd ..
+      # Build apk.
+      - name: Build APK
+        working-directory: ./example
+        run: flutter build apk
       # Upload generated apk to the artifacts.
       # - uses: actions/upload-artifact@v1
       #   with:
