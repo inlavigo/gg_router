@@ -1,29 +1,41 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:gg_lite_route/gg_lite_route.dart';
+import 'package:gg_route/gg_route.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 // .............................................................................
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'GgLiteRouteExample',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: GgLiteRouteExample(),
-    );
-  }
+  _MyAppState createState() => _MyAppState();
 
-  static final liteRouteRootKey = GlobalKey();
+  static final RouteRootKey = GlobalKey();
 }
 
 // .............................................................................
-class GgLiteRouteExample extends StatelessWidget {
-  GgLiteRouteExample({Key? key}) : super(key: key);
+class _MyAppState extends State<MyApp> {
+  final _routerDelegate = GgRouterDelegate(child: GgRouteExample());
+  final _routeInformationParser = GgRouteInformationParser();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: 'GgRouteExample',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      routerDelegate: _routerDelegate,
+      routeInformationParser: _routeInformationParser,
+    );
+  }
+}
+
+// .............................................................................
+class GgRouteExample extends StatelessWidget {
+  GgRouteExample({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +44,17 @@ class GgLiteRouteExample extends StatelessWidget {
       builder: (context, snapshot) {
         return Container(
           color: Colors.white,
-          child: GgLiteRoute(
+
+          // .................
+          // Create blue route
+          child: GgRoute(
             name: 'blue',
             child: Container(
               color: Colors.blue,
-              child: GgLiteRoute(
+
+              // .........................
+              // Create yellow child route
+              child: GgRoute(
                 name: 'yellow',
                 child: Container(color: Colors.yellow),
               ),

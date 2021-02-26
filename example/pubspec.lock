@@ -60,7 +60,7 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  gg_lite_route:
+  gg_route:
     dependency: "direct main"
     description:
       path: ".."

@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.gg_lite_route_example">
+    package="com.example.gg_route_example">
    <application
-        android:label="gg_lite_route_example"
+        android:label="gg_route_example"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

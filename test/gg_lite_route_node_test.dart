@@ -1,27 +1,27 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gg_lite_route/gg_lite_route.dart';
+import 'package:gg_route/gg_route.dart';
 
 main() {
-  late GgLiteRouteNode root;
-  late GgLiteRouteNode childA0;
-  late GgLiteRouteNode childA1;
-  late GgLiteRouteNode childB;
-  late GgLiteRouteNode childC;
+  late GgRouteNode root;
+  late GgRouteNode childA0;
+  late GgRouteNode childA1;
+  late GgRouteNode childB;
+  late GgRouteNode childC;
 
   init() {
-    root = exampleLiteRouteNode(name: 'root');
-    childA0 = exampleLiteRouteNode(name: 'child-a0', parent: root);
-    childA1 = exampleLiteRouteNode(name: 'child-a1', parent: root);
-    childB = exampleLiteRouteNode(name: 'child-b', parent: childA0);
-    childC = exampleLiteRouteNode(name: 'child-c', parent: childB);
+    root = exampleRouteNode(name: 'root');
+    childA0 = exampleRouteNode(name: 'child-a0', parent: root);
+    childA1 = exampleRouteNode(name: 'child-a1', parent: root);
+    childB = exampleRouteNode(name: 'child-b', parent: childA0);
+    childC = exampleRouteNode(name: 'child-c', parent: childB);
   }
 
   dispose() {
     root.dispose();
   }
 
-  group('GgLiteRouteNode', () {
+  group('GgRouteNode', () {
     // #########################################################################
     group('name', () {
       test('should return the name of the node', () {
@@ -183,7 +183,7 @@ main() {
             init();
 
             // Listen to activeChildDidChange
-            GgLiteRouteNode? activeChild;
+            GgRouteNode? activeChild;
             final s = root.activeChildDidChange.listen((c) => activeChild = c);
 
             // Initially no child is active
@@ -238,7 +238,7 @@ main() {
           init();
 
           // Listen to active descendands
-          List<GgLiteRouteNode>? activeDescendands;
+          List<GgRouteNode>? activeDescendands;
           var updateCounter = 0;
           final s = root.activeDescendandsDidChange.listen((event) {
             activeDescendands = event;
