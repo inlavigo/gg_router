@@ -1,4 +1,8 @@
-import 'dart:developer';
+// @license
+// Copyright (c) 2019 - 2021 Dr. Gabriel Gatzsche. All Rights Reserved.
+//
+// Use of this source code is governed by terms that can be
+// found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
 import 'package:gg_route/gg_route.dart';
@@ -12,7 +16,7 @@ class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 
-  static final RouteRootKey = GlobalKey();
+  static final routeRootKey = GlobalKey();
 }
 
 // .............................................................................
