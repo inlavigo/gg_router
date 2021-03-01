@@ -4,7 +4,7 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -21,63 +21,35 @@ main() {
     late GgRouteInformationParser routeInformationParser;
     late GgRouterDelegate routerDelegate;
 
-    late Widget hierarchyAB;
-    late Widget hierarchyAC;
-
-    late GgRouteNode root;
-    late GgRouteNode nodeA;
-    late GgRouteNode nodeB;
-    GgRouteNode? nodeC;
-
-    late StreamController<bool> showHierarchyAC;
+    late GgRouteNode lastBuiltNode;
 
     // .........................................................................
     setUp(WidgetTester tester) async {
       // ..............................
+      final builder = Builder(builder: (context) {
+        lastBuiltNode = GgRouteCore.of(context)!.node;
+        return Container();
+      });
+
+      // ..............................
       // Create a widget hierarchy /a/b
-      hierarchyAB = GgRoute(
-        name: 'a',
-        child: GgRoute(
-          name: 'b',
-          child: Builder(builder: (context) {
-            nodeB = GgRouteCore.of(context)!.node;
-            nodeA = nodeB.parent!;
-            root = nodeA.parent!;
-            return Container();
+      final widget = GgRoute(
+        {
+          'a0': GgRoute({
+            'a10': builder,
+            'a11': builder,
           }),
-        ),
-      );
-
-      // ..............................
-      // Create a widget hierarchy /a/c
-      hierarchyAC = GgRoute(
-        name: 'a',
-        child: GgRoute(
-          name: 'c',
-          child: Builder(builder: (context) {
-            nodeC = GgRouteCore.of(context)!.node;
-            nodeA = nodeB.parent!;
-            root = nodeA.parent!;
-            return Container();
-          }),
-        ),
-      );
-
-      // ..............................
-      // Create switcher
-      showHierarchyAC = StreamController<bool>();
-      final switcher = StreamBuilder(
-        stream: showHierarchyAC.stream,
-        builder: (context, snapshot) {
-          bool showHierarchyAC = snapshot.hasData && snapshot.data == true;
-          return showHierarchyAC ? hierarchyAC : hierarchyAB;
+          'b0': GgRoute({
+            'b10': builder,
+            'b11': builder,
+          })
         },
       );
 
       // ........................
       // Create a router delegate
       routeInformationParser = GgRouteInformationParser();
-      routerDelegate = GgRouterDelegate(child: switcher);
+      routerDelegate = GgRouterDelegate(child: widget);
 
       // .....................
       // Initialize the widget
@@ -90,14 +62,13 @@ main() {
 
       // ..................................
       // Create a GgEasyWidgetTest instance
-      final ggRouteFinder = find.byWidget(hierarchyAB);
+      final ggRouteFinder = find.byWidget(widget);
       ggRoute = GgEasyWidgetTest(ggRouteFinder, tester);
     }
 
     // .........................................................................
     tearDown(WidgetTester tester) async {
       await tester.pumpAndSettle();
-      showHierarchyAC.close();
     }
 
     // .........................................................................
@@ -110,31 +81,29 @@ main() {
       expect(ggRoute.height, 600);
 
       // ................................................
-      // Check if a node hierarchy /a/b/ has been created
-      expect(root.pathString, '/');
-      expect(nodeA.pathString, '/a');
-      expect(nodeB.pathString, '/a/b');
+      // Check if a node hierarchy /a0/a10/ has been created
+      expect(lastBuiltNode.pathString, '/a0/a10');
 
-      // The path /a/b should be active
-      expect(root.activeChildPath.join('/'), 'a/b');
-      expect(root.isActive, true);
-      expect(nodeA.isActive, true);
-      expect(nodeB.isActive, true);
-
-      // ................................
-      // Switch to the hierarchy /a/b1/c1
-      showHierarchyAC.add(true);
+      // Now activate /a0/a11 and check if node the hierarchy was rebuilt
+      lastBuiltNode.parent!.child(name: 'a11').isActive = true;
       await tester.pumpAndSettle();
+      expect(lastBuiltNode.pathString, '/a0/a11');
 
-      // Check if node hierarchy /a/c has been created
-      expect(nodeC, isNotNull);
-      expect(nodeC!.parent, nodeA);
+      // Now activate /b0 -> /b0/b10 should become active
+      lastBuiltNode.parent!.parent!.child(name: 'b0').isActive = true;
+      await tester.pumpAndSettle();
+      expect(lastBuiltNode.pathString, '/b0/b10');
 
-      // Check if path a/c is active
-      expect(root.activeChildPath.join('/'), 'a/c');
+      // Now activate /b11 -> /b0/b11 should become active
+      lastBuiltNode.parent!.child(name: 'b11').isActive = true;
+      await tester.pumpAndSettle();
+      expect(lastBuiltNode.pathString, '/b0/b11');
 
-      // Check if node b is not active anymore
-      expect(nodeB.isActive, false);
+      // Now let's activate a unknown child. ->
+      lastBuiltNode.parent!.child(name: 'unknown').isActive = true;
+      await tester.pumpAndSettle();
+      final textWidget = tester.widget(find.byType(Text)) as Text;
+      expect(textWidget.data, 'Error 404 Not Found');
 
       await tearDown(tester);
     });

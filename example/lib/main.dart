@@ -58,6 +58,8 @@ class _GgRouteExampleState extends State<GgRouteExample> {
 
   @override
   Widget build(BuildContext context) {
+    return Container();
+/*
     if (_switched) {
       print('Building Blue - Yellow container');
       return Container(
@@ -100,5 +102,6 @@ class _GgRouteExampleState extends State<GgRouteExample> {
         ),
       );
     }
+    */
   }
 }
