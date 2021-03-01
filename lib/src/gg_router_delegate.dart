@@ -5,12 +5,24 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
+import 'package:gg_route/src/gg_route_core.dart';
 
-class GgRouterDelegate extends RouterDelegate<Uri>
-    with ChangeNotifier, PopNavigatorRouterDelegateMixin<Uri> {
+import './gg_route_node.dart';
+
+class GgRouterDelegate extends RouterDelegate<RouteInformation>
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
   // ...........................................................................
   GgRouterDelegate({required this.child})
-      : navigatorKey = GlobalKey<NavigatorState>();
+      : navigatorKey = GlobalKey<NavigatorState>() {
+    _listenToRouteChanges();
+  }
+
+// ...........................................................................
+  @override
+  void dispose() {
+    _dispose.reversed.forEach((element) => element());
+    super.dispose();
+  }
 
   // ...........................................................................
   final GlobalKey<NavigatorState> navigatorKey;
@@ -19,19 +31,31 @@ class GgRouterDelegate extends RouterDelegate<Uri>
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
-    return child;
+    return GgRouteCore(child: child, node: _root);
   }
 
   // ...........................................................................
   @override
-  Uri get currentConfiguration {
-    print('currentConfiguration');
-    return Uri();
+  RouteInformation get currentConfiguration {
+    return RouteInformation(location: _root.activeChildPath.join('/'));
   }
 
   // ...........................................................................
   @override
-  Future<void> setNewRoutePath(Uri path) async {
-    print('setNewRoutePath $path');
+  Future<void> setNewRoutePath(RouteInformation route) async {}
+
+  // ######################
+  // Private
+  // ######################
+
+  // ...........................................................................
+  final List<Function()> _dispose = [];
+  final _root = GgRouteNode(name: '');
+
+  // ...........................................................................
+  _listenToRouteChanges() {
+    _root.activeDescendandsDidChange.listen((event) {
+      notifyListeners();
+    });
   }
 }

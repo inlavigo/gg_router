@@ -60,6 +60,18 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_web_plugins:
+    dependency: "direct main"
+    description: flutter
+    source: sdk
+    version: "0.0.0"
+  gg_easy_widget_test:
+    dependency: "direct dev"
+    description:
+      name: gg_easy_widget_test
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1"
   gg_value:
     dependency: "direct main"
     description:
@@ -67,6 +79,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.9+3"
+  js:
+    dependency: transitive
+    description:
+      name: js
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.3"
   matcher:
     dependency: transitive
     description:

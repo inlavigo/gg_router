@@ -10,7 +10,7 @@ main() {
   late GgRouteNode childC;
 
   init() {
-    root = exampleRouteNode(name: 'root');
+    root = exampleRouteNode(name: '');
     childA0 = exampleRouteNode(name: 'child-a0', parent: root);
     childA1 = exampleRouteNode(name: 'child-a1', parent: root);
     childB = exampleRouteNode(name: 'child-b', parent: childA0);
@@ -26,11 +26,17 @@ main() {
     group('name', () {
       test('should return the name of the node', () {
         init();
-        expect(root.name, 'root');
+        expect(root.name, '');
         expect(childA0.name, 'child-a0');
         expect(childB.name, 'child-b');
         expect(childC.name, 'child-c');
         dispose();
+      });
+
+      test('should throw an exception if name of an root note is not ""', () {
+        init();
+        expect(
+            () => GgRouteNode(name: 'root', parent: null), throwsArgumentError);
       });
     });
 
@@ -149,7 +155,7 @@ main() {
         final result = root.descendand(path: ['x', 'y']);
         expect(result.name, 'y');
         expect(result.parent!.name, 'x');
-        expect(result.parent!.parent!.name, 'root');
+        expect(result.parent!.parent!.name, '');
       });
 
       test('should return the element itself, if path is empty', () {
@@ -270,6 +276,49 @@ main() {
 
           s.cancel();
         });
+      });
+    });
+
+    // #########################################################################
+    group('get path', () {
+      test(
+          'should return a list of path segments starting with the root and '
+          'ending with the nodes name itself.', () {
+        init();
+        expect(root.path, []);
+        expect(childA0.path, ['child-a0']);
+        expect(childB.path, ['child-a0', 'child-b']);
+        expect(childC.path, ['child-a0', 'child-b', 'child-c']);
+      });
+    });
+
+    // #########################################################################
+    group('get pathString', () {
+      test(
+          'should return a list of path segments starting with the root and '
+          'ending with the nodes name itself.', () {
+        init();
+        expect(root.pathString, '/');
+        expect(childA0.pathString, '/child-a0');
+        expect(childB.pathString, '/child-a0/child-b');
+        expect(childC.pathString, '/child-a0/child-b/child-c');
+      });
+    });
+
+    // #########################################################################
+    group('get pathHashCode', () {
+      test(
+          'should return a hash which is same for all nodes having the same path ',
+          () {
+        init();
+        expect(root.pathHashCode, root.pathHashCode);
+        expect(root.pathHashCode, isNot(childA0.pathHashCode));
+
+        final root1 = GgRouteNode(name: root.name);
+        expect(root.pathHashCode, root1.pathHashCode);
+
+        final childA11 = GgRouteNode(name: childA1.name, parent: root1);
+        expect(childA11.pathHashCode, childA1.pathHashCode);
       });
     });
 

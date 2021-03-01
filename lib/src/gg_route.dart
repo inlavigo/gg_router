@@ -2,83 +2,52 @@
 // Copyright (c) 2019 - 2021 Dr. Gabriel Gatzsche. All Rights Reserved.
 //
 // Use of this source code is governed by terms that can be
-// found in the LICENSE file in the root of this package.
+// found in the LICENSE file in the root of this repository.
 
 import 'package:flutter/material.dart';
 import 'package:gg_route/gg_route.dart';
+import 'package:gg_route/src/gg_route_core.dart';
 
 // #############################################################################
-
-class _GgRouteCore extends InheritedWidget {
-  // ...........................................................................
-  _GgRouteCore({
+class GgRoute extends StatelessWidget {
+  const GgRoute({
     Key? key,
+    required this.child,
     required this.name,
-    required Widget child,
-    required this.node,
-  }) : super(key: key, child: child);
-
-  // final Widget child;
-  final String name;
-
-  final GgRouteNode node;
+  }) : super(key: key);
 
   // ...........................................................................
-  @override
-  bool updateShouldNotify(covariant InheritedWidget oldWidget) {
-    return false;
-  }
-
-  // ...........................................................................
-  static _GgRouteCore? of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_GgRouteCore>();
-  }
-}
-
-// #############################################################################
-
-class GgRoute extends StatefulWidget {
-  GgRoute({Key? key, required this.child, required this.name})
-      : super(key: key);
-
   final Widget child;
   final String name;
-
-  @override
-  _GgRouteState createState() => _GgRouteState();
-}
-
-// #############################################################################
-class _GgRouteState extends State<GgRoute> {
-  GgRouteNode? node;
 
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
-    // Get parent lite route
+    final node = _node(context);
 
-    _initNode(context);
-
-    final core = _GgRouteCore(
-      name: widget.name,
-      child: widget.child,
-      node: node!,
+    final core = GgRouteCore(
+      child: child,
+      node: node,
     );
+
+    node.isActive = true;
 
     return core;
   }
 
   // ...........................................................................
-  bool get isRoot => node!.parent == null;
-
-  // ...........................................................................
-  _initNode(BuildContext context) {
-    if (node == null) {
-      final existingParentNode = _GgRouteCore.of(context)?.node;
-
-      final parentNode = existingParentNode ?? GgRouteNode(name: '_root');
-
-      node = parentNode.child(name: widget.name);
+  GgRouteNode _node(BuildContext context) {
+    final parent = GgRouteCore.of(context)?.node;
+    late GgRouteNode result;
+    if (parent == null) {
+      throw FormatException('Did not find an instance of GgRouterDelegate.\n'
+          'Please wrap your GgRoute into a MaterialApp.router(...) and '
+          'assign an instance of GgRouterDelegate to "routerDelegate".\n'
+          'For more details look into "gg_router/example/main.dart".');
+    } else {
+      result = parent.child(name: name);
     }
+
+    return result;
   }
 }

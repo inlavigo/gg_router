@@ -13,6 +13,7 @@ class GgRouteNode {
     this.parent,
   }) {
     _initParent();
+    _initPath();
     _initChildren();
     _initIsActive();
     _initActiveChild();
@@ -139,6 +140,21 @@ class GgRouteNode {
   // ######################
 
   // ...........................................................................
+  /// Returns the own path until root
+  late List<String> path;
+
+  // ...........................................................................
+  late String pathString;
+
+  // ...........................................................................
+  /// Returns the hash of the own path
+  late int pathHashCode;
+
+  // ######################
+  // Active Child Path
+  // ######################
+
+  // ...........................................................................
   /// Returns the path of active children.
   List<String> get activeChildPath =>
       activeDescendands.map((e) => e.name).toList();
@@ -162,7 +178,22 @@ class GgRouteNode {
   // ########
   // parent
   _initParent() {
+    if (parent == null) {
+      if (name != '') {
+        throw ArgumentError(
+          'This node is a root node because parent is null. '
+          'Root notes must have an empty name, .e. ""',
+        );
+      }
+    }
     parent?._children[name] = this;
+  }
+
+  // ...........................................................................
+  _initPath() {
+    path = parent == null ? [] : [...parent!.path, name];
+    pathString = '/' + path.join('/');
+    pathHashCode = pathString.hashCode;
   }
 
   // ########

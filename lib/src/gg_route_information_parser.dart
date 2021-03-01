@@ -7,20 +7,18 @@
 import 'package:flutter/material.dart';
 
 // .............................................................................
-class GgRouteInformationParser extends RouteInformationParser<Uri> {
+class GgRouteInformationParser
+    extends RouteInformationParser<RouteInformation> {
   // ...........................................................................
   @override
-  Future<Uri> parseRouteInformation(RouteInformation routeInformation) async {
-    if (routeInformation.location == null) {
-      return Uri();
-    }
-    final uri = Uri.parse(routeInformation.location!);
-    return uri;
+  Future<RouteInformation> parseRouteInformation(
+      RouteInformation routeInformation) async {
+    return routeInformation;
   }
 
   // ...........................................................................
   @override
-  RouteInformation restoreRouteInformation(Uri configuration) {
-    return RouteInformation(location: '/a/b');
+  RouteInformation restoreRouteInformation(RouteInformation configuration) {
+    return configuration;
   }
 }
