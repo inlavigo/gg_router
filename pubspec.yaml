@@ -1,5 +1,5 @@
 name: gg_router
-description: A light weight routing system based on Navigator 2.0.
+description: GgRouter - Super Simple Routing and Navigation for Flutter
 version: 0.0.1+1
 author: Gabriel Gatzsche
 homepage: "https://github.com/gatzsche/gg_router"

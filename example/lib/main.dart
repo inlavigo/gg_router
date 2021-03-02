@@ -13,16 +13,9 @@ void main() {
   runApp(MyApp());
 }
 
-// .............................................................................
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
+class MyApp extends StatelessWidget {
+  MyApp({Key? key}) : super(key: key);
 
-  static final routeRootKey = GlobalKey();
-}
-
-// .............................................................................
-class _MyAppState extends State<MyApp> {
   final _routerDelegate = GgRouterDelegate(
       child: Scaffold(
     body: GgRouterExample(),
@@ -37,6 +30,7 @@ class _MyAppState extends State<MyApp> {
         primaryColor: Colors.white,
         textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 2),
       ),
+      debugShowCheckedModeBanner: false,
       routerDelegate: _routerDelegate,
       routeInformationParser: _routeInformationParser,
     );
@@ -44,16 +38,9 @@ class _MyAppState extends State<MyApp> {
 }
 
 // .............................................................................
+class GgRouterExample extends StatelessWidget {
+  const GgRouterExample({Key? key}) : super(key: key);
 
-class GgRouterExample extends StatefulWidget {
-  GgRouterExample({Key? key}) : super(key: key);
-
-  @override
-  _GgRouterExampleState createState() => _GgRouterExampleState();
-}
-
-class _GgRouterExampleState extends State<GgRouterExample> {
-  // ...........................................................................
   @override
   Widget build(BuildContext context) {
     return Column(
