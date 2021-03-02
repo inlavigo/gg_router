@@ -32,22 +32,31 @@ class GgRoute extends StatelessWidget {
     final result = StreamBuilder<GgRouteNode?>(
       stream: parentNode.activeChildDidChange,
       builder: (context, snapShot) {
-        final activeChildNode = parentNode.activeChild;
+        var activeChildNode = parentNode.activeChild;
+        Widget activeChildWidget;
 
-        // If no active child is available, return an empty container.
+        // If no active child is available, take child with route "" or "."
         if (activeChildNode == null) {
-          return Container();
+          final defaultWidget = children[''] ?? children['.'];
+          if (defaultWidget != null) {
+            return defaultWidget;
+          }
         }
+
+        // If no default widget is available, activate the first route
+        if (activeChildNode == null) {
+          activeChildNode = parentNode.child(name: children.keys.first);
+          activeChildNode.isActive = true;
+          activeChildWidget = children.values.first;
+        }
+
         // Otherwise create a GgRouteCore for the active child and return it.
         else {
-          final activeChildWidget =
+          activeChildWidget =
               children[activeChildNode.name] ?? Text('Error 404 Not Found');
-
-          final routeCore =
-              GgRouteCore(child: activeChildWidget, node: activeChildNode);
-
-          return routeCore;
         }
+
+        return GgRouteCore(child: activeChildWidget, node: activeChildNode);
       },
     );
 

@@ -42,6 +42,7 @@ main() {
     late TestRouteInformationProvider routeInformationProvider;
 
     late GgEasyWidgetTest a0Button;
+    late GgEasyWidgetTest a0OnlyButton;
     late GgEasyWidgetTest b0Button;
 
     // .........................................................................
@@ -70,6 +71,14 @@ main() {
             TextButton(
               key: ValueKey('b0/b10 Button'),
               onPressed: () => context.selectRoute('b0/b10'),
+              child: Container(),
+            ),
+
+            // ...............................
+            // A button selecting route a0
+            TextButton(
+              key: ValueKey('a0/ Button'),
+              onPressed: () => context.selectRoute('a0/'),
               child: Container(),
             ),
 
@@ -118,6 +127,8 @@ main() {
       // Get reference to buttons
       a0Button =
           GgEasyWidgetTest(find.byKey(ValueKey('a0/a11 Button')), tester);
+      a0OnlyButton =
+          GgEasyWidgetTest(find.byKey(ValueKey('a0/ Button')), tester);
       b0Button =
           GgEasyWidgetTest(find.byKey(ValueKey('b0/b10 Button')), tester);
     }
