@@ -19,7 +19,7 @@ main() {
 
     // .........................................................................
     setUp(WidgetTester tester) async {
-      node = GgRouterNode(name: 'root');
+      node = GgRouterNode(name: '');
 
       final widget = GgRouterCore(
         child: child,
