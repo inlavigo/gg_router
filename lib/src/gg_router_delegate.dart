@@ -42,7 +42,11 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
   // ...........................................................................
   @override
-  Future<void> setNewRoutePath(RouteInformation route) async {}
+  Future<void> setNewRoutePath(RouteInformation route) async {
+    if (route.location != null) {
+      _root.activeChildPath = route.location!.split('/');
+    }
+  }
 
   // ######################
   // Private
