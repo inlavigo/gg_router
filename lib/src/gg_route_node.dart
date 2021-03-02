@@ -126,7 +126,7 @@ class GgRouteNode {
   GgRouteNode descendand({required List<String> path}) {
     var result = this;
     path.forEach((element) {
-      if (element == '.') {
+      if (element == '.' || element == '') {
         result = result;
       } else if (element == '..') {
         if (result.parent == null) {
@@ -339,8 +339,7 @@ class GgRouteNode {
   // navigate
   _navigateTo(String path) {
     final startElement = path.startsWith('/') ? root : this;
-    final pathComponents =
-        path.split('/').where((element) => element.isNotEmpty).toList();
+    final pathComponents = path.split('/');
     startElement.activeChildPath = pathComponents;
   }
 }

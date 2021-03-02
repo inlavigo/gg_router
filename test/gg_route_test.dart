@@ -64,7 +64,7 @@ main() {
             // A button selecting route a0/a11
             TextButton(
               key: ValueKey('a0/a11 Button'),
-              onPressed: () => context.selectRoute('a0/a11'),
+              onPressed: () => context.navigateTo('a0/a11'),
               child: Container(),
             ),
 
@@ -72,7 +72,7 @@ main() {
             // A button selecting route b0/b11
             TextButton(
               key: ValueKey('b0/b10 Button'),
-              onPressed: () => context.selectRoute('b0/b10'),
+              onPressed: () => context.navigateTo('b0/b10'),
               child: Container(),
             ),
 
@@ -80,7 +80,7 @@ main() {
             // A button selecting route a0
             TextButton(
               key: ValueKey('a0/ Button'),
-              onPressed: () => context.selectRoute('a0/'),
+              onPressed: () => context.navigateTo('a0/'),
               child: Container(),
             ),
 
@@ -95,7 +95,7 @@ main() {
                       return TextButton(
                         key: ValueKey('backButton'),
                         onPressed: () {
-                          context.selectRoute('.');
+                          context.navigateTo('.');
                         },
                         child: Container(),
                       );

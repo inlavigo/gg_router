@@ -79,7 +79,7 @@ class GgRoute extends StatelessWidget {
 
 // #############################################################################
 extension GgContextRouteExtension on BuildContext {
-  void selectRoute(String path) {
+  void navigateTo(String path) {
     final parent = GgRoute.parent(context: this);
     parent.navigateTo(path);
   }

@@ -219,6 +219,11 @@ main() {
         init();
         expect(() => root.descendand(path: ['..']), throwsArgumentError);
       });
+
+      test('should ignore empty path segments', () {
+        init();
+        expect(root.descendand(path: ['', '', 'child-a1']), childA1);
+      });
     });
 
     // #########################################################################

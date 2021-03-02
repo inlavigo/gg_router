@@ -23,7 +23,10 @@ class MyApp extends StatefulWidget {
 
 // .............................................................................
 class _MyAppState extends State<MyApp> {
-  final _routerDelegate = GgRouterDelegate(child: GgRouteExample());
+  final _routerDelegate = GgRouterDelegate(
+      child: Scaffold(
+    body: GgRouteExample(),
+  ));
   final _routeInformationParser = GgRouteInformationParser();
 
   @override
@@ -31,7 +34,8 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp.router(
       title: 'GgRouteExample',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Colors.white,
+        textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 2),
       ),
       routerDelegate: _routerDelegate,
       routeInformationParser: _routeInformationParser,
@@ -49,59 +53,80 @@ class GgRouteExample extends StatefulWidget {
 }
 
 class _GgRouteExampleState extends State<GgRouteExample> {
-  bool _switched = false;
-
-  _GgRouteExampleState() {
-    Future.delayed(Duration(seconds: 3))
-        .then((value) => setState(() => _switched = true));
-  }
-
+  // ...........................................................................
   @override
   Widget build(BuildContext context) {
-    return Container();
-/*
-    if (_switched) {
-      print('Building Blue - Yellow container');
-      return Container(
-        color: Colors.white,
+    return Column(
+      children: [
+        // ......................................
+        // Define /yellow, /green, /red
+        GgRoute({
+          '': _box(Colors.black),
+          'yellow': _box(Colors.yellow),
+          'green': _box(Colors.green),
+          'red': _box(Colors.red,
+              child: Column(
+                // ..................................................
+                // Define /red, /red/hello, /red/world
+                children: [
+                  GgRoute({
+                    '': _text(''),
+                    'hello': _text('hello'),
+                    'world': _text('world'),
+                  }),
 
-        // .................
-        // Create blue route
-        child: GgRoute(
-          name: 'blue',
-          child: Container(
-            color: Colors.blue,
+                  // ...................................
+                  // Define buttons to switch sub routes
+                  Container(
+                    color: Color(0xDDFFFFFF),
+                    child: Row(
+                      children: [
+                        _naviButton('./hello', './hello'),
+                        _naviButton('./world', './world'),
+                        _naviButton('../yellow', '../yellow'),
+                        _naviButton('/green', '/green'),
+                      ],
+                    ),
+                  )
+                ],
+              )),
+        }),
 
-            // .........................
-            // Create yellow child route
-            child: GgRoute(
-              name: 'yellow',
-              child: Container(color: Colors.yellow),
-            ),
-          ),
+        // ...................
+        // Define buttons to switch routes main routes
+        Row(
+          children: [
+            _naviButton('Green', '/green'),
+            _naviButton('Yellow', '/yellow'),
+            _naviButton('Red', '/red'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ...........................................................................
+  Widget _box(Color color, {Widget? child}) {
+    return Expanded(
+        child: Container(
+      color: color,
+      child: child,
+    ));
+  }
+
+  // ...........................................................................
+  Widget _text(String text) => Expanded(child: Center(child: Text(text)));
+
+  // ...........................................................................
+  Widget _naviButton(String buttonText, String route) {
+    return Builder(builder: (context) {
+      return Padding(
+        padding: EdgeInsets.all(20),
+        child: TextButton(
+          onPressed: () => context.navigateTo(route),
+          child: Text(buttonText),
         ),
       );
-    } else {
-      return Container(
-        color: Colors.white,
-
-        // .................
-        // Create blue route
-        child: GgRoute(
-          name: 'orange',
-          child: Container(
-            color: Colors.orange,
-
-            // .........................
-            // Create yellow child route
-            child: GgRoute(
-              name: 'red',
-              child: Container(color: Colors.red),
-            ),
-          ),
-        ),
-      );
-    }
-    */
+    });
   }
 }
