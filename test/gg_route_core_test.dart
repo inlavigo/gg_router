@@ -7,21 +7,21 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
-import 'package:gg_route/gg_route.dart';
-import 'package:gg_route/src/gg_route_core.dart';
+import 'package:gg_router/gg_router.dart';
+import 'package:gg_router/src/gg_route_core.dart';
 
 main() {
-  group('GgRouteCore', () {
+  group('GgRouterCore', () {
     // .........................................................................
-    late GgEasyWidgetTest<GgRouteCore, dynamic> ggRouteCore;
+    late GgEasyWidgetTest<GgRouterCore, dynamic> ggRouteCore;
     final child = Container();
-    late GgRouteNode node;
+    late GgRouterNode node;
 
     // .........................................................................
     setUp(WidgetTester tester) async {
-      node = GgRouteNode(name: 'root');
+      node = GgRouterNode(name: 'root');
 
-      final widget = GgRouteCore(
+      final widget = GgRouterCore(
         child: child,
         node: node,
       );

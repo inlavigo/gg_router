@@ -5,7 +5,7 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
-import 'package:gg_route/gg_route.dart';
+import 'package:gg_router/gg_router.dart';
 import 'configure_nonweb.dart' if (dart.library.html) 'configure_web.dart';
 
 void main() {
@@ -25,14 +25,14 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _routerDelegate = GgRouterDelegate(
       child: Scaffold(
-    body: GgRouteExample(),
+    body: GgRouterExample(),
   ));
   final _routeInformationParser = GgRouteInformationParser();
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'GgRouteExample',
+      title: 'GgRouterExample',
       theme: ThemeData(
         primaryColor: Colors.white,
         textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 2),
@@ -45,14 +45,14 @@ class _MyAppState extends State<MyApp> {
 
 // .............................................................................
 
-class GgRouteExample extends StatefulWidget {
-  GgRouteExample({Key? key}) : super(key: key);
+class GgRouterExample extends StatefulWidget {
+  GgRouterExample({Key? key}) : super(key: key);
 
   @override
-  _GgRouteExampleState createState() => _GgRouteExampleState();
+  _GgRouterExampleState createState() => _GgRouterExampleState();
 }
 
-class _GgRouteExampleState extends State<GgRouteExample> {
+class _GgRouterExampleState extends State<GgRouterExample> {
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
@@ -60,7 +60,7 @@ class _GgRouteExampleState extends State<GgRouteExample> {
       children: [
         // ......................................
         // Define /yellow, /green, /red
-        GgRoute({
+        GgRouter({
           '': _box(Colors.black),
           'yellow': _box(Colors.yellow),
           'green': _box(Colors.green),
@@ -69,7 +69,7 @@ class _GgRouteExampleState extends State<GgRouteExample> {
                 // ..................................................
                 // Define /red, /red/hello, /red/world
                 children: [
-                  GgRoute({
+                  GgRouter({
                     '': _text(''),
                     'hello': _text('hello'),
                     'world': _text('world'),

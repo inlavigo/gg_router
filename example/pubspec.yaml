@@ -1,5 +1,5 @@
-name: gg_route_example
-description: A GgRoute Demonstrator.
+name: gg_router_example
+description: A GgRouter Demonstrator.
 publish_to: "none"
 version: 1.0.0+1
 
@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  gg_route:
+  gg_router:
     path: ../
 
 dev_dependencies:

@@ -1,8 +1,8 @@
-name: gg_route
+name: gg_router
 description: A light weight routing system based on Navigator 2.0.
 version: 0.0.1+1
 author: Gabriel Gatzsche
-homepage: "https://github.com/gatzsche/gg_route"
+homepage: "https://github.com/gatzsche/gg_router"
 
 environment:
   sdk: ">=2.12.0-0 <3.0.0"

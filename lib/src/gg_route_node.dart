@@ -9,12 +9,12 @@ import 'package:gg_value/gg_value.dart';
 import 'package:flutter/foundation.dart';
 
 /// RouteNode represents a node in a route tree.
-class GgRouteNode {
+class GgRouterNode {
   // ########################
   // Constructor & Destructor
   // ########################
 
-  GgRouteNode({
+  GgRouterNode({
     required this.name,
     this.parent,
   }) {
@@ -46,10 +46,10 @@ class GgRouteNode {
 
   // ...........................................................................
   /// The parent node.
-  final GgRouteNode? parent;
+  final GgRouterNode? parent;
 
   // ...........................................................................
-  GgRouteNode get root {
+  GgRouterNode get root {
     var result = this;
     while (result.parent != null) {
       result = result.parent!;
@@ -101,14 +101,14 @@ class GgRouteNode {
   // ######################
 
   // ...........................................................................
-  Iterable<GgRouteNode> get children => _children.values;
+  Iterable<GgRouterNode> get children => _children.values;
 
   // ...........................................................................
   /// Returns a child node with [name]. If none exists, one is created.
-  GgRouteNode child({required String name}) {
+  GgRouterNode child({required String name}) {
     var child = _children[name];
     if (child == null) {
-      child = GgRouteNode(name: name, parent: this);
+      child = GgRouterNode(name: name, parent: this);
       _children[name] = child;
     }
     return child;
@@ -123,7 +123,7 @@ class GgRouteNode {
   /// Returns descendand that matches the path. Creates the node when needed.
   /// - `.` addresses node itself
   /// - `..` addresses parent node
-  GgRouteNode descendand({required List<String> path}) {
+  GgRouterNode descendand({required List<String> path}) {
     var result = this;
     path.forEach((element) {
       if (element == '.' || element == '') {
@@ -147,11 +147,11 @@ class GgRouteNode {
 
   // ...........................................................................
   /// Returns the active child or null, if no child is active.
-  GgRouteNode? get activeChild => _activeChild.value;
+  GgRouterNode? get activeChild => _activeChild.value;
 
   // ...........................................................................
   /// Informs if the active child did change.
-  Stream<GgRouteNode?> get activeChildDidChange => _activeChild.stream;
+  Stream<GgRouterNode?> get activeChildDidChange => _activeChild.stream;
 
   // ######################
   // Active Descendands
@@ -159,10 +159,10 @@ class GgRouteNode {
 
   // ...........................................................................
   /// Returns a list containing all active descendands.
-  List<GgRouteNode> get activeDescendands {
-    GgRouteNode? activeChild = _activeChild.value;
+  List<GgRouterNode> get activeDescendands {
+    GgRouterNode? activeChild = _activeChild.value;
 
-    final List<GgRouteNode> result = [];
+    final List<GgRouterNode> result = [];
     while (activeChild != null) {
       result.add(activeChild);
       activeChild = activeChild.activeChild;
@@ -173,7 +173,7 @@ class GgRouteNode {
 
   // ...........................................................................
   /// A stream informing when the active descendands change.
-  Stream<List<GgRouteNode>> get activeDescendandsDidChange =>
+  Stream<List<GgRouterNode>> get activeDescendandsDidChange =>
       _activeDescendands.stream;
 
   // ######################
@@ -261,7 +261,7 @@ class GgRouteNode {
 
   // ...........................................................................
   /// Returns a list with the node's children.
-  final _children = Map<String, GgRouteNode>();
+  final _children = Map<String, GgRouterNode>();
   _initChildren() {
     _dispose.add(() {
       List.from(_children.values).forEach((child) {
@@ -273,7 +273,7 @@ class GgRouteNode {
 
   // ...........................................................................
   /// Removes the child
-  void _removeChild(GgRouteNode child) {
+  void _removeChild(GgRouterNode child) {
     final existingChild = _children[child.name];
     assert(identical(child, existingChild));
     _children.remove(child.name);
@@ -293,13 +293,13 @@ class GgRouteNode {
   // ###########
   // activeChild
   // ...........................................................................
-  final _activeChild = GgValue<GgRouteNode?>(seed: null);
+  final _activeChild = GgValue<GgRouterNode?>(seed: null);
   _initActiveChild() {
     _dispose.add(() => _activeChild.dispose());
   }
 
   // ...........................................................................
-  _childBecameActive(GgRouteNode child) {
+  _childBecameActive(GgRouterNode child) {
     if (_activeChild.value == child) {
       return;
     }
@@ -311,7 +311,7 @@ class GgRouteNode {
   }
 
   // ...........................................................................
-  _childBecameInactive(GgRouteNode child) {
+  _childBecameInactive(GgRouterNode child) {
     if (_activeChild.value != child) {
       return;
     }
@@ -324,7 +324,7 @@ class GgRouteNode {
 
   // ...........................................................................
   final _activeDescendands =
-      GgValue<List<GgRouteNode>>(seed: [], compare: listEquals);
+      GgValue<List<GgRouterNode>>(seed: [], compare: listEquals);
 
   _initActiveDescendands() {
     _dispose.add(() => _activeDescendands.dispose());
@@ -348,9 +348,9 @@ class GgRouteNode {
 /// Creates an lite route sample node.
 final exampleRouteNode = ({
   String? name,
-  GgRouteNode? parent,
+  GgRouterNode? parent,
 }) =>
-    GgRouteNode(
+    GgRouterNode(
       name: name ?? 'node',
       parent: parent,
     );

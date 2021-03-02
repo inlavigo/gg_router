@@ -4,14 +4,12 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
-import 'package:gg_route/gg_route.dart';
-import 'package:gg_route/src/gg_route_core.dart';
+import 'package:gg_router/gg_router.dart';
+import 'package:gg_router/src/gg_route_core.dart';
 
 // #############################################################################
 class TestRouteInformationProvider extends RouteInformationProvider
@@ -33,14 +31,14 @@ class TestRouteInformationProvider extends RouteInformationProvider
 // #############################################################################
 
 main() {
-  group('GgRoute', () {
+  group('GgRouter', () {
     // .........................................................................
-    late GgEasyWidgetTest<GgRoute, dynamic> ggRoute;
+    late GgEasyWidgetTest<GgRouter, dynamic> ggRoute;
 
     late GgRouteInformationParser routeInformationParser;
     late GgRouterDelegate routerDelegate;
 
-    late GgRouteNode lastBuiltNode;
+    late GgRouterNode lastBuiltNode;
     late TestRouteInformationProvider routeInformationProvider;
 
     late GgEasyWidgetTest a0Button;
@@ -51,7 +49,7 @@ main() {
     setUp(WidgetTester tester) async {
       // ..............................
       final builder = Builder(builder: (context) {
-        lastBuiltNode = GgRouteCore.of(context)!.node;
+        lastBuiltNode = GgRouterCore.of(context)!.node;
         return Container();
       });
 
@@ -86,7 +84,7 @@ main() {
 
             // ..........
             // The routes
-            GgRoute(
+            GgRouter(
               {
                 '': builder,
                 'a0': Column(
@@ -100,14 +98,14 @@ main() {
                         child: Container(),
                       );
                     }),
-                    GgRoute({
+                    GgRouter({
                       '': builder,
                       'a10': builder,
                       'a11': builder,
                     }),
                   ],
                 ),
-                'b0': GgRoute({
+                'b0': GgRouter({
                   'b10': builder,
                   'b11': builder,
                 })

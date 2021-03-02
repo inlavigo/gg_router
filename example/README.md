@@ -1,4 +1,4 @@
-# gg_route_example
+# gg_router_example
 
 A new Flutter project.
 

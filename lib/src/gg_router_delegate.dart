@@ -5,7 +5,7 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
-import 'package:gg_route/src/gg_route_core.dart';
+import 'package:gg_router/src/gg_route_core.dart';
 
 import './gg_route_node.dart';
 
@@ -31,7 +31,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
-    return GgRouteCore(child: child, node: _root);
+    return GgRouterCore(child: child, node: _root);
   }
 
   // ...........................................................................
@@ -54,7 +54,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
   // ...........................................................................
   final List<Function()> _dispose = [];
-  final _root = GgRouteNode(name: '');
+  final _root = GgRouterNode(name: '');
 
   // ...........................................................................
   _listenToRouteChanges() {

@@ -7,9 +7,9 @@
 import 'package:flutter/material.dart';
 import './gg_route_node.dart';
 
-class GgRouteCore extends InheritedWidget {
+class GgRouterCore extends InheritedWidget {
   // ...........................................................................
-  GgRouteCore({
+  GgRouterCore({
     required Widget child,
     required this.node,
   }) : super(
@@ -17,7 +17,7 @@ class GgRouteCore extends InheritedWidget {
           child: child,
         );
 
-  final GgRouteNode node;
+  final GgRouterNode node;
 
   // ...........................................................................
   @override
@@ -26,7 +26,7 @@ class GgRouteCore extends InheritedWidget {
   }
 
   // ...........................................................................
-  static GgRouteCore? of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<GgRouteCore>();
+  static GgRouterCore? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<GgRouterCore>();
   }
 }

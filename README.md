@@ -1,2 +1,2 @@
-# gg_route
+# gg_router
 A lightweight routing system for flutter
