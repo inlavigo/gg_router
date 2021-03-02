@@ -23,11 +23,6 @@ class GgRoute extends StatelessWidget {
 
     assert(children.length > 0);
 
-    // If no child is active currently, activate default child
-    if (parentNode.activeChild == null) {
-      parentNode.child(name: children.keys.first).isActive = true;
-    }
-
     // Create a stream builder rebuilding the tree on active child change.
     final result = StreamBuilder<GgRouteNode?>(
       stream: parentNode.activeChildDidChange,

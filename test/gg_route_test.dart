@@ -4,6 +4,8 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -86,10 +88,25 @@ main() {
             // The routes
             GgRoute(
               {
-                'a0': GgRoute({
-                  'a10': builder,
-                  'a11': builder,
-                }),
+                '': builder,
+                'a0': Column(
+                  children: [
+                    Builder(builder: (context) {
+                      return TextButton(
+                        key: ValueKey('backButton'),
+                        onPressed: () {
+                          context.selectRoute('.');
+                        },
+                        child: Container(),
+                      );
+                    }),
+                    GgRoute({
+                      '': builder,
+                      'a10': builder,
+                      'a11': builder,
+                    }),
+                  ],
+                ),
                 'b0': GgRoute({
                   'b10': builder,
                   'b11': builder,
@@ -150,11 +167,16 @@ main() {
       // ................................................
       // Test if node hierarchy is synchronized correctly
 
-      // Check if a node hierarchy /a0/a10/ has been created
-      expect(lastBuiltNode.pathString, '/a0/a10');
+      // By default the default route should be selected
+      expect(lastBuiltNode.pathString, '/');
+
+      // Now activate /a0 and check if node the hierarchy was rebuilt
+      lastBuiltNode.child(name: 'a0').isActive = true;
+      await tester.pumpAndSettle();
+      expect(lastBuiltNode.pathString, '/a0');
 
       // Now activate /a0/a11 and check if node the hierarchy was rebuilt
-      lastBuiltNode.parent!.child(name: 'a11').isActive = true;
+      lastBuiltNode.child(name: 'a11').isActive = true;
       await tester.pumpAndSettle();
       expect(lastBuiltNode.pathString, '/a0/a11');
 
@@ -207,13 +229,24 @@ main() {
       await setUp(tester);
 
       // ...............
-      // Press a0 Button -> Should activate '/a0/a11'
+      // Press a0 button -> should activate '/a0/a11'
       await a0Button.press();
       expect(lastBuiltNode.pathString, '/a0/a11');
+
+      // Press back button -> should activate '/a0'
+      final backButton =
+          GgEasyWidgetTest(find.byKey(ValueKey('backButton')), tester);
+      await backButton.press();
+      expect(lastBuiltNode.pathString, '/a0');
 
       // Press b0 Button -> Should activate '/b0/b10'
       await b0Button.press();
       expect(lastBuiltNode.pathString, '/b0/b10');
+
+      // ...............
+      // Press a0Only Button -> Should activate '/a0'
+      await a0OnlyButton.press();
+      expect(lastBuiltNode.pathString, '/a0');
     });
   });
 }
