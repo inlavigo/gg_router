@@ -41,6 +41,13 @@ main() {
     });
 
     // #########################################################################
+    group('toString', () {
+      test('should return the path of the node', () {
+        expect(childC.toString(), childC.pathString);
+      });
+    });
+
+    // #########################################################################
     group('parent', () {
       test('should return null for root and parent for child nodes', () {
         init();

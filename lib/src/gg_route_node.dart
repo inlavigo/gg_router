@@ -30,6 +30,12 @@ class GgRouteNode {
   /// Call this function when the node is about to be disposed.
   dispose() => _dispose.reversed.forEach((d) => d());
 
+  // ...........................................................................
+  @override
+  String toString() {
+    return pathString;
+  }
+
   // ######################
   // Name & Parent
   // ######################
@@ -240,7 +246,12 @@ class GgRouteNode {
 
   // ...........................................................................
   _initPath() {
-    path = parent == null ? [] : [...parent!.path, name];
+    path = parent == null
+        ? []
+        : [
+            ...parent!.path,
+            if (name.isNotEmpty) name,
+          ];
     pathString = '/' + path.join('/');
     pathHashCode = pathString.hashCode;
   }
