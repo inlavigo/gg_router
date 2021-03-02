@@ -61,10 +61,12 @@ class GgRoute extends StatelessWidget {
     final parent = GgRouteCore.of(context)?.node;
 
     if (parent == null) {
-      throw ArgumentError('Did not find an instance of GgRouterDelegate.\n'
-          'Please wrap your GgRoute into a MaterialApp.router(...) and '
-          'assign an instance of GgRouterDelegate to "routerDelegate".\n'
-          'For more details look into "gg_router/example/main.dart".');
+      throw ArgumentError(
+        'Did not find an instance of GgRouterDelegate.\n'
+        'Please wrap your GgRoute into a MaterialApp.router(...) and '
+        'assign an instance of GgRouterDelegate to "routerDelegate".\n'
+        'For more details look into "gg_router/example/main.dart".',
+      );
     }
 
     return parent;
@@ -73,10 +75,8 @@ class GgRoute extends StatelessWidget {
 
 // #############################################################################
 extension GgContextRouteExtension on BuildContext {
-  void selectRoute(String relativePath) {
-    final segments = relativePath.split('/');
-
+  void selectRoute(String path) {
     final parent = GgRoute.parent(context: this);
-    parent.activeChildPath = segments;
+    parent.navigateTo(path);
   }
 }

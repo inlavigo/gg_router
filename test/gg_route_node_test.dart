@@ -52,6 +52,26 @@ main() {
     });
 
     // #########################################################################
+    group('root', () {
+      test('should return the root node in the hierachy', () {
+        init();
+        expect(root.root, root);
+        expect(childA0.root, root);
+        expect(childB.root, root);
+        expect(childC.root, root);
+      });
+    });
+
+    // #########################################################################
+    group('isRoot', () {
+      test('Returns true if node is root node, otherwise false', () {
+        init();
+        expect(root.isRoot, true);
+        expect(childC.isRoot, false);
+      });
+    });
+
+    // #########################################################################
     group('isActive', () {
       test('should be false by default', () {
         init();
@@ -171,6 +191,26 @@ main() {
         init();
         final result = root.descendand(path: []);
         expect(result, root);
+      });
+
+      test('should return the parent element, if path segment is ".."', () {
+        init();
+        expect(childC.descendand(path: ['..', '..']), childA0);
+        expect(
+          childC.descendand(path: ['..', '..', '..', 'child-a1']),
+          childA1,
+        );
+      });
+
+      test('should return the element itself, if path segment is "."', () {
+        init();
+        expect(childC.descendand(path: ['.']), childC);
+        expect(childC.descendand(path: ['.', '..']), childB);
+      });
+
+      test('should throw an exception if parent is not existing', () {
+        init();
+        expect(() => root.descendand(path: ['..']), throwsArgumentError);
       });
     });
 
@@ -381,7 +421,7 @@ main() {
         expect(childC.isActive, false);
       });
 
-      test('should create new path child nodes if not existing', () {
+      test('should create new child nodes, if not existing', () {
         init();
         root.activeChildPath = ['x', 'y', 'z'];
         final x = root.child(name: 'x');
@@ -392,6 +432,52 @@ main() {
         expect(x.isActive, true);
         expect(y.isActive, true);
         expect(z.isActive, true);
+      });
+
+      test('should disable children that are not selected', () {
+        init();
+        childC.isActive = true;
+        expect(root.activeChildPath.join('/'), 'child-a0/child-b/child-c');
+        root.activeChildPath = ['child-a0', 'child-b'];
+        expect(root.activeChildPath.join('/'), 'child-a0/child-b');
+      });
+
+      test('should handle ".." as parent segment', () {
+        init();
+        childC.activeChildPath = ['..', '..', '..', 'child-a1'];
+        expect(root.activeChildPath.join('/'), 'child-a1');
+      });
+
+      test('should handle "." the element itself', () {
+        init();
+        childC.activeChildPath = ['.', '..', 'child-b'];
+      });
+    });
+
+    // #########################################################################
+    group('navigateTo(path)', () {
+      test('Should activate the given relative path', () {
+        init();
+        root.navigateTo('child-a0/child-b/child-c');
+        expect(root.activeChildPathString, 'child-a0/child-b/child-c');
+      });
+
+      test('Should activate the given absolute path', () {
+        init();
+        childC.navigateTo('/child-a1');
+        expect(root.activeChildPathString, 'child-a1');
+      });
+
+      test('Should interpret ".." as parent element', () {
+        init();
+        childC.navigateTo('../../');
+        expect(root.activeChildPathString, 'child-a0');
+      });
+
+      test('Should interpret "." as the element itself', () {
+        init();
+        childB.navigateTo('./child-c');
+        expect(root.activeChildPathString, 'child-a0/child-b/child-c');
       });
     });
   });

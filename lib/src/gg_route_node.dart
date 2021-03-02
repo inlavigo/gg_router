@@ -42,6 +42,19 @@ class GgRouteNode {
   /// The parent node.
   final GgRouteNode? parent;
 
+  // ...........................................................................
+  GgRouteNode get root {
+    var result = this;
+    while (result.parent != null) {
+      result = result.parent!;
+    }
+
+    return result;
+  }
+
+  // ...........................................................................
+  bool get isRoot => parent == null;
+
   // ######################
   // isActive
   // ######################
@@ -102,10 +115,21 @@ class GgRouteNode {
 
   // ...........................................................................
   /// Returns descendand that matches the path. Creates the node when needed.
+  /// - `.` addresses node itself
+  /// - `..` addresses parent node
   GgRouteNode descendand({required List<String> path}) {
     var result = this;
     path.forEach((element) {
-      result = result.child(name: element);
+      if (element == '.') {
+        result = result;
+      } else if (element == '..') {
+        if (result.parent == null) {
+          throw ArgumentError('Invalid path "${path.join('/')}"');
+        }
+        result = result.parent!;
+      } else {
+        result = result.child(name: element);
+      }
     });
 
     return result;
@@ -162,7 +186,7 @@ class GgRouteNode {
   late int pathHashCode;
 
   // ######################
-  // Active Child Path
+  // Navigation
   // ######################
 
   // ...........................................................................
@@ -172,13 +196,27 @@ class GgRouteNode {
 
   // ...........................................................................
   /// Creates and activates children according to the segments in [path]
+  /// - `..` addresses parent node
+  /// - `.` addresses node itself
   set activeChildPath(List<String> path) {
     final node = descendand(path: path);
     node.isActive = true;
+    node.activeChild?.isActive = false;
     if (path.isEmpty) {
       activeChild?.isActive = false;
     }
   }
+
+  // ...........................................................................
+  String get activeChildPathString => activeChildPath.join('/');
+
+  // ...........................................................................
+  /// Activates the path in the node hierarchy.
+  /// - [path] can be absolute, e.g. `/a/b/c`
+  /// - [path] can be relative, e.g. `b/c` or `./b/c`
+  /// - [path] can address parent element, e.g. `../`
+  /// - [path] can address root, e.g. `/`
+  void navigateTo(String path) => _navigateTo(path);
 
   // ######################
   // Private
@@ -284,6 +322,15 @@ class GgRouteNode {
   _updateActiveDescendands() {
     _activeDescendands.value = activeDescendands;
     parent?._updateActiveDescendands();
+  }
+
+  // ################
+  // navigate
+  _navigateTo(String path) {
+    final startElement = path.startsWith('/') ? root : this;
+    final pathComponents =
+        path.split('/').where((element) => element.isNotEmpty).toList();
+    startElement.activeChildPath = pathComponents;
   }
 }
 
