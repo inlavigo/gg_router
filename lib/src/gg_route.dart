@@ -5,8 +5,8 @@
 // found in the LICENSE file in the root of this repository.
 
 import 'package:flutter/material.dart';
-import 'package:gg_route/gg_route.dart';
-import 'package:gg_route/src/gg_route_core.dart';
+import './gg_route_core.dart';
+import './gg_route_node.dart';
 
 // #############################################################################
 class GgRoute extends StatelessWidget {
@@ -19,7 +19,7 @@ class GgRoute extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Get parent node
-    final parentNode = _parent(context: context);
+    final parentNode = parent(context: context);
 
     assert(children.length > 0);
 
@@ -55,13 +55,13 @@ class GgRoute extends StatelessWidget {
   }
 
   // ...........................................................................
-  static GgRouteNode _parent({
+  static GgRouteNode parent({
     required BuildContext context,
   }) {
     final parent = GgRouteCore.of(context)?.node;
 
     if (parent == null) {
-      throw FormatException('Did not find an instance of GgRouterDelegate.\n'
+      throw ArgumentError('Did not find an instance of GgRouterDelegate.\n'
           'Please wrap your GgRoute into a MaterialApp.router(...) and '
           'assign an instance of GgRouterDelegate to "routerDelegate".\n'
           'For more details look into "gg_router/example/main.dart".');
@@ -69,23 +69,14 @@ class GgRoute extends StatelessWidget {
 
     return parent;
   }
+}
 
-  // ...........................................................................
-  static GgRouteNode node({
-    required BuildContext context,
-    required String name,
-  }) {
-    final parent = GgRouteCore.of(context)?.node;
-    late GgRouteNode result;
-    if (parent == null) {
-      throw FormatException('Did not find an instance of GgRouterDelegate.\n'
-          'Please wrap your GgRoute into a MaterialApp.router(...) and '
-          'assign an instance of GgRouterDelegate to "routerDelegate".\n'
-          'For more details look into "gg_router/example/main.dart".');
-    } else {
-      result = parent.child(name: name);
-    }
+// #############################################################################
+extension GgContextRouteExtension on BuildContext {
+  void selectRoute(String relativePath) {
+    final segments = relativePath.split('/');
 
-    return result;
+    final parent = GgRoute.parent(context: this);
+    parent.activeChildPath = segments;
   }
 }

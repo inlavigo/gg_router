@@ -142,6 +142,15 @@ main() {
     });
 
     // #########################################################################
+    group('hasChild(name)', () {
+      test('should return when child with name exists, otherwise false', () {
+        init();
+        expect(root.hasChild(name: 'child-a0'), true);
+        expect(root.hasChild(name: 'child-aX'), false);
+      });
+    });
+
+    // #########################################################################
     group('descendand(path)', () {
       test('should the descendand maching the path', () {
         init();

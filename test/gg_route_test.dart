@@ -41,6 +41,9 @@ main() {
     late GgRouteNode lastBuiltNode;
     late TestRouteInformationProvider routeInformationProvider;
 
+    late GgEasyWidgetTest a0Button;
+    late GgEasyWidgetTest b0Button;
+
     // .........................................................................
     setUp(WidgetTester tester) async {
       // ..............................
@@ -51,16 +54,40 @@ main() {
 
       // ..............................
       // Create a widget hierarchy /a/b
-      final widget = GgRoute(
-        {
-          'a0': GgRoute({
-            'a10': builder,
-            'a11': builder,
-          }),
-          'b0': GgRoute({
-            'b10': builder,
-            'b11': builder,
-          })
+      final widget = Builder(
+        builder: (context) {
+          return Column(children: [
+            // ...............................
+            // A button selecting route a0/a11
+            TextButton(
+              key: ValueKey('a0/a11 Button'),
+              onPressed: () => context.selectRoute('a0/a11'),
+              child: Container(),
+            ),
+
+            // ...............................
+            // A button selecting route b0/b11
+            TextButton(
+              key: ValueKey('b0/b10 Button'),
+              onPressed: () => context.selectRoute('b0/b10'),
+              child: Container(),
+            ),
+
+            // ..........
+            // The routes
+            GgRoute(
+              {
+                'a0': GgRoute({
+                  'a10': builder,
+                  'a11': builder,
+                }),
+                'b0': GgRoute({
+                  'b10': builder,
+                  'b11': builder,
+                })
+              },
+            ),
+          ]);
         },
       );
 
@@ -86,6 +113,13 @@ main() {
       // Create a GgEasyWidgetTest instance
       final ggRouteFinder = find.byWidget(widget);
       ggRoute = GgEasyWidgetTest(ggRouteFinder, tester);
+
+      // ........................
+      // Get reference to buttons
+      a0Button =
+          GgEasyWidgetTest(find.byKey(ValueKey('a0/a11 Button')), tester);
+      b0Button =
+          GgEasyWidgetTest(find.byKey(ValueKey('b0/b10 Button')), tester);
     }
 
     // .........................................................................
@@ -152,6 +186,23 @@ main() {
       expect(lastBuiltNode.pathString, '/a0/a10');
 
       await tearDown(tester);
+    });
+
+    // .........................................................................
+    testWidgets('should allow to switch routes using other widgets',
+        (WidgetTester tester) async {
+      // .................
+      // Create the widget
+      await setUp(tester);
+
+      // ...............
+      // Press a0 Button -> Should activate '/a0/a11'
+      await a0Button.press();
+      expect(lastBuiltNode.pathString, '/a0/a11');
+
+      // Press b0 Button -> Should activate '/b0/b10'
+      await b0Button.press();
+      expect(lastBuiltNode.pathString, '/b0/b10');
     });
   });
 }
