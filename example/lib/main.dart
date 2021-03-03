@@ -4,8 +4,6 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
 import 'configure_nonweb.dart' if (dart.library.html) 'configure_web.dart';
@@ -39,6 +37,7 @@ class GgRouterExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final router = context.router;
     return MaterialApp(
       title: "GgRouterExample",
       home: Scaffold(
@@ -46,15 +45,15 @@ class GgRouterExample extends StatelessWidget {
           title: Text('GgRouter'),
           actions: <Widget>[
             TextButton(
-              onPressed: () => context.navigateTo('sports'),
+              onPressed: () => router.navigateTo('sports'),
               child: _text('Sports', context),
             ),
             TextButton(
-              onPressed: () => context.navigateTo('transportation'),
+              onPressed: () => router.navigateTo('transportation'),
               child: _text('Transportation', context),
             ),
             TextButton(
-              onPressed: () => context.navigateTo('places'),
+              onPressed: () => router.navigateTo('places'),
               child: _text('Places', context),
             ),
             Container(
@@ -66,12 +65,13 @@ class GgRouterExample extends StatelessWidget {
           {
             'sports': Builder(
               builder: (context) {
+                final router = context.router;
                 return Scaffold(
                   bottomNavigationBar: StreamBuilder(
-                      stream: context.onActiveChildChange,
+                      stream: router.onActiveChildChange,
                       builder: (context, snapshot) {
                         final activeChildRouteSegment =
-                            context.activeChildRouteSegment ?? 'basketball';
+                            router.activeChildRouteSegment ?? 'basketball';
 
                         final index = ['basketball', 'football', 'handball']
                             .indexOf(activeChildRouteSegment);
@@ -95,13 +95,13 @@ class GgRouterExample extends StatelessWidget {
                           onTap: (index) {
                             switch (index) {
                               case 0:
-                                context.navigateTo('basketball');
+                                router.navigateTo('basketball');
                                 break;
                               case 1:
-                                context.navigateTo('football');
+                                router.navigateTo('football');
                                 break;
                               case 2:
-                                context.navigateTo('handball');
+                                router.navigateTo('handball');
                                 break;
                             }
                           },

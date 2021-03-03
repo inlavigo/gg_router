@@ -9,7 +9,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
-import 'package:gg_router/src/gg_route_core.dart';
 
 // #############################################################################
 class TestRouteInformationProvider extends RouteInformationProvider
@@ -53,11 +52,12 @@ main() {
   setUp(WidgetTester tester) async {
     // ..............................
     final builder = Builder(builder: (context) {
-      lastBuiltNode = GgRouterCore.of(context)!.node;
-      routeSegment = context.routeSegment;
-      childRouteSegment = context.activeChildRouteSegment;
-      routePath = context.routePath;
-      indexOfActiveRouteSegment = context.routeIndex;
+      final router = context.router;
+      lastBuiltNode = router.node;
+      routeSegment = context.router.routeSegment;
+      childRouteSegment = context.router.activeChildRouteSegment;
+      routePath = context.router.routePath;
+      indexOfActiveRouteSegment = context.router.routeIndex;
       return Container();
     });
 
@@ -65,12 +65,13 @@ main() {
     // Create a widget hierarchy /a/b
     final widget = Builder(
       builder: (context) {
+        final router = context.router;
         return Column(children: [
           // ...............................
           // A button selecting route a0/a11
           TextButton(
             key: ValueKey('a0/a11 Button'),
-            onPressed: () => context.navigateTo('a0/a11'),
+            onPressed: () => context.router.navigateTo('a0/a11'),
             child: Container(),
           ),
 
@@ -78,7 +79,7 @@ main() {
           // A button selecting route b0/b11
           TextButton(
             key: ValueKey('b0/b10 Button'),
-            onPressed: () => context.navigateTo('b0/b10'),
+            onPressed: () => context.router.navigateTo('b0/b10'),
             child: Container(),
           ),
 
@@ -86,7 +87,7 @@ main() {
           // A button selecting route a0
           TextButton(
             key: ValueKey('a0/ Button'),
-            onPressed: () => context.navigateTo('a0/'),
+            onPressed: () => router.navigateTo('a0/'),
             child: Container(),
           ),
 
@@ -102,7 +103,7 @@ main() {
                       return TextButton(
                         key: ValueKey('backButton'),
                         onPressed: () {
-                          context.navigateTo('.');
+                          context.router.navigateTo('.');
                         },
                         child: Container(),
                       );

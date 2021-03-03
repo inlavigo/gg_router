@@ -84,33 +84,44 @@ class GgRouter extends StatelessWidget {
 }
 
 // #############################################################################
-extension GgContextRouteExtension on BuildContext {
+class GgRouterContext {
+  const GgRouterContext({required this.context});
+
+  final BuildContext context;
+
+  GgRouterNode get node => GgRouter.node(context: context);
+
   void navigateTo(String path) {
-    final node = GgRouter.node(context: this);
+    final node = GgRouter.node(context: context);
     node.navigateTo(path);
   }
 
   String? get routeSegment {
-    final node = GgRouter.node(context: this);
+    final node = GgRouter.node(context: context);
     return node.name;
   }
 
   String? get activeChildRouteSegment {
-    final node = GgRouter.node(context: this);
+    final node = GgRouter.node(context: context);
     return node.activeChild?.name;
   }
 
   int get routeIndex {
-    return GgRouterCore.of(this)?.index ?? -1;
+    return GgRouterCore.of(context)?.index ?? -1;
   }
 
   String get routePath {
-    final node = GgRouter.node(context: this);
+    final node = GgRouter.node(context: context);
     return node.pathString;
   }
 
   Stream<void> get onActiveChildChange {
-    final node = GgRouter.node(context: this);
+    final node = GgRouter.node(context: context);
     return node.activeChildDidChange;
   }
+}
+
+// #############################################################################
+extension GgContextRouteExtension on BuildContext {
+  GgRouterContext get router => GgRouterContext(context: this);
 }
