@@ -123,6 +123,7 @@ class GgRouterNode {
   /// Returns descendand that matches the path. Creates the node when needed.
   /// - `.` addresses node itself
   /// - `..` addresses parent node
+  /// - '_LAST_' - addresses child that was last active
   GgRouterNode descendand({required List<String> path}) {
     var result = this;
     path.forEach((element) {
@@ -133,6 +134,16 @@ class GgRouterNode {
           throw ArgumentError('Invalid path "${path.join('/')}"');
         }
         result = result.parent!;
+      } else if (element == '_LAST_') {
+        GgRouterNode? previousActiveChild = result._previousActiveChild;
+
+        if (path.last == element) {
+          while (previousActiveChild?._previousActiveChild != null) {
+            previousActiveChild = previousActiveChild!._previousActiveChild;
+          }
+        }
+
+        result = previousActiveChild ?? result;
       } else {
         result = result.child(name: element);
       }
@@ -207,7 +218,9 @@ class GgRouterNode {
   set activeChildPath(List<String> path) {
     final node = descendand(path: path);
     node.isActive = true;
+
     node.activeChild?.isActive = false;
+    node._resetPreviouslyActiveChild();
     if (path.isEmpty) {
       activeChild?.isActive = false;
     }
@@ -294,6 +307,8 @@ class GgRouterNode {
   // activeChild
   // ...........................................................................
   final _activeChild = GgValue<GgRouterNode?>(seed: null);
+  GgRouterNode? _previousActiveChild;
+
   _initActiveChild() {
     _dispose.add(() => _activeChild.dispose());
   }
@@ -307,7 +322,14 @@ class GgRouterNode {
     isActive = true;
     _activeChild.value?.isActive = false;
     _activeChild.value = child;
+    _previousActiveChild = child;
+
     _updateActiveDescendands();
+  }
+
+  // ...........................................................................
+  _resetPreviouslyActiveChild() {
+    _previousActiveChild = null;
   }
 
   // ...........................................................................

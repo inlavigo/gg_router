@@ -37,25 +37,15 @@ class GgRouterExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final router = context.router;
     return MaterialApp(
       title: "GgRouterExample",
       home: Scaffold(
         appBar: AppBar(
           title: Text('GgRouter'),
           actions: <Widget>[
-            TextButton(
-              onPressed: () => router.navigateTo('sports'),
-              child: _text('Sports', context),
-            ),
-            TextButton(
-              onPressed: () => router.navigateTo('transportation'),
-              child: _text('Transportation', context),
-            ),
-            TextButton(
-              onPressed: () => router.navigateTo('places'),
-              child: _text('Places', context),
-            ),
+            _routeButton('Sports', 'sports'),
+            _routeButton('Transportation', 'transportation'),
+            _routeButton('Places', 'places'),
             Container(
               width: 50,
             ),
@@ -73,14 +63,15 @@ class GgRouterExample extends StatelessWidget {
   }
 
   // ...........................................................................
-  Widget _text(String text, BuildContext context) {
+  Widget _text(String text, BuildContext context, bool isActive) {
     final theme = Theme.of(context);
     final onPrimary = theme.colorScheme.onPrimary;
+    final onPrimaryInactive = onPrimary.withAlpha(120);
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Text(
         text,
-        style: TextStyle(color: onPrimary),
+        style: TextStyle(color: isActive ? onPrimary : onPrimaryInactive),
       ),
     );
   }
@@ -96,6 +87,49 @@ class GgRouterExample extends StatelessWidget {
             color: Colors.grey.shade400,
           ),
         );
+      },
+    );
+  }
+
+  // ...........................................................................
+  Widget _routeButton(String title, String route) {
+    return Builder(builder: (context) {
+      final router = context.router;
+
+      return StreamBuilder(
+        stream: router.onActiveChildChange,
+        builder: (context, snapshot) {
+          final isActive = router.activeChildRouteSegment == route;
+          return TextButton(
+            onPressed: () => router.navigateTo('$route/_LAST_'),
+            child: _text(title, context, isActive),
+          );
+        },
+      );
+    });
+  }
+
+  // ...........................................................................
+  Builder get _dialog {
+    return Builder(
+      builder: (context) {
+        return Dialog(
+            child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  context.router.navigateTo('..');
+                },
+              ),
+            ),
+            Center(
+              child: Text('Let\'s play basketball.'),
+            ),
+          ],
+        ));
       },
     );
   }
@@ -134,13 +168,13 @@ class GgRouterExample extends StatelessWidget {
                   onTap: (index) {
                     switch (index) {
                       case 0:
-                        router.navigateTo('basketball');
+                        router.navigateTo('basketball/_LAST_');
                         break;
                       case 1:
-                        router.navigateTo('football');
+                        router.navigateTo('football/_LAST_');
                         break;
                       case 2:
-                        router.navigateTo('handball');
+                        router.navigateTo('handball/_LAST_');
                         break;
                     }
                   },
@@ -148,7 +182,19 @@ class GgRouterExample extends StatelessWidget {
               }),
           body: GgRouter(
             {
-              'basketball': _bigIcon(Icons.sports_basketball),
+              'basketball': Builder(
+                builder: (context) {
+                  return GgOverlayRouter(
+                    base: Listener(
+                      child: _bigIcon(Icons.sports_basketball),
+                      onPointerUp: (_) => context.router.navigateTo('dialog'),
+                    ),
+                    overlays: {
+                      'dialog': _dialog,
+                    },
+                  );
+                },
+              ),
               'football': _bigIcon(Icons.sports_football),
               'handball': _bigIcon(Icons.sports_handball),
             },

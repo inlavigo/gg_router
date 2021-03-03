@@ -224,6 +224,40 @@ main() {
         init();
         expect(root.descendand(path: ['', '', 'child-a1']), childA1);
       });
+
+      test(
+          'path == "_LAST_" returns the previously active child, when available',
+          () {
+        init();
+        // Set childA0 active -> last active child is childA0
+        childA0.isActive = true;
+        expect(root.descendand(path: ['_LAST_']), childA0);
+
+        // Set childA0 inactive -> last active child is still childA0
+        childA0.isActive = false;
+        expect(root.descendand(path: ['_LAST_']), childA0);
+
+        // Set childA1 active
+        childA1.isActive = true;
+        expect(root.descendand(path: ['_LAST_']), childA1);
+
+        // Set childA1 inactive -> last active child is still childA1
+        childA1.isActive = false;
+        expect(root.descendand(path: ['_LAST_']), childA1);
+
+        // ................................................................
+        // Set childC active -> last active child of root should be childAC
+        childC.isActive = true;
+        expect(root.descendand(path: ['_LAST_']), childC);
+
+        // Now lets switch to childA1 branch -> childC should not be active anymore
+        childA1.isActive = true;
+        expect(childC.isActive, false);
+
+        // Now lets navigate to childA0/_LAST_ -> childC should be active again
+        root.navigateTo('child-a0/_LAST_');
+        expect(childC.isActive, true);
+      });
     });
 
     // #########################################################################
