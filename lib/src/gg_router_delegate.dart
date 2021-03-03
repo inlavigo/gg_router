@@ -31,7 +31,11 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
-    return GgRouterCore(child: child, node: _root);
+    return GgRouterCore(
+      child: child,
+      node: _root,
+      index: 0,
+    );
   }
 
   // ...........................................................................

@@ -12,12 +12,14 @@ class GgRouterCore extends InheritedWidget {
   GgRouterCore({
     required Widget child,
     required this.node,
+    required this.index,
   }) : super(
           key: ValueKey(node.pathHashCode),
           child: child,
         );
 
   final GgRouterNode node;
+  final int index;
 
   // ...........................................................................
   @override

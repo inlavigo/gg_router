@@ -31,63 +31,72 @@ class TestRouteInformationProvider extends RouteInformationProvider
 // #############################################################################
 
 main() {
-  group('GgRouter', () {
-    // .........................................................................
-    late GgEasyWidgetTest<GgRouter, dynamic> ggRoute;
+  // .........................................................................
+  late GgEasyWidgetTest<GgRouter, dynamic> ggRoute;
 
-    late GgRouteInformationParser routeInformationParser;
-    late GgRouterDelegate routerDelegate;
+  late GgRouteInformationParser routeInformationParser;
+  late GgRouterDelegate routerDelegate;
 
-    late GgRouterNode lastBuiltNode;
-    late TestRouteInformationProvider routeInformationProvider;
+  late GgRouterNode lastBuiltNode;
+  late String? routeSegment;
+  late String? childRouteSegment;
+  late String routePath;
+  late int indexOfActiveRouteSegment;
 
-    late GgEasyWidgetTest a0Button;
-    late GgEasyWidgetTest a0OnlyButton;
-    late GgEasyWidgetTest b0Button;
+  late TestRouteInformationProvider routeInformationProvider;
 
-    // .........................................................................
-    setUp(WidgetTester tester) async {
-      // ..............................
-      final builder = Builder(builder: (context) {
-        lastBuiltNode = GgRouterCore.of(context)!.node;
-        return Container();
-      });
+  late GgEasyWidgetTest a0Button;
+  late GgEasyWidgetTest a0OnlyButton;
+  late GgEasyWidgetTest b0Button;
 
-      // ..............................
-      // Create a widget hierarchy /a/b
-      final widget = Builder(
-        builder: (context) {
-          return Column(children: [
-            // ...............................
-            // A button selecting route a0/a11
-            TextButton(
-              key: ValueKey('a0/a11 Button'),
-              onPressed: () => context.navigateTo('a0/a11'),
-              child: Container(),
-            ),
+  // .........................................................................
+  setUp(WidgetTester tester) async {
+    // ..............................
+    final builder = Builder(builder: (context) {
+      lastBuiltNode = GgRouterCore.of(context)!.node;
+      routeSegment = context.routeSegment;
+      childRouteSegment = context.activeChildRouteSegment;
+      routePath = context.routePath;
+      indexOfActiveRouteSegment = context.routeIndex;
+      return Container();
+    });
 
-            // ...............................
-            // A button selecting route b0/b11
-            TextButton(
-              key: ValueKey('b0/b10 Button'),
-              onPressed: () => context.navigateTo('b0/b10'),
-              child: Container(),
-            ),
+    // ..............................
+    // Create a widget hierarchy /a/b
+    final widget = Builder(
+      builder: (context) {
+        return Column(children: [
+          // ...............................
+          // A button selecting route a0/a11
+          TextButton(
+            key: ValueKey('a0/a11 Button'),
+            onPressed: () => context.navigateTo('a0/a11'),
+            child: Container(),
+          ),
 
-            // ...............................
-            // A button selecting route a0
-            TextButton(
-              key: ValueKey('a0/ Button'),
-              onPressed: () => context.navigateTo('a0/'),
-              child: Container(),
-            ),
+          // ...............................
+          // A button selecting route b0/b11
+          TextButton(
+            key: ValueKey('b0/b10 Button'),
+            onPressed: () => context.navigateTo('b0/b10'),
+            child: Container(),
+          ),
 
-            // ..........
-            // The routes
-            GgRouter(
-              {
-                '': builder,
-                'a0': Column(
+          // ...............................
+          // A button selecting route a0
+          TextButton(
+            key: ValueKey('a0/ Button'),
+            onPressed: () => context.navigateTo('a0/'),
+            child: Container(),
+          ),
+
+          // ..........
+          // The routes
+          GgRouter(
+            {
+              '': builder,
+              'a0': Builder(builder: (context) {
+                return Column(
                   children: [
                     Builder(builder: (context) {
                       return TextButton(
@@ -104,55 +113,56 @@ main() {
                       'a11': builder,
                     }),
                   ],
-                ),
-                'b0': GgRouter({
+                );
+              }),
+              'b0': Builder(builder: (context) {
+                return GgRouter({
                   'b10': builder,
                   'b11': builder,
-                })
-              },
-            ),
-          ]);
-        },
-      );
+                });
+              }),
+            },
+          ),
+        ]);
+      },
+    );
 
-      // Create routeInformationProvider
-      routeInformationProvider = TestRouteInformationProvider();
+    // Create routeInformationProvider
+    routeInformationProvider = TestRouteInformationProvider();
 
-      // ........................
-      // Create a router delegate
-      routeInformationParser = GgRouteInformationParser();
-      routerDelegate = GgRouterDelegate(child: widget);
+    // ........................
+    // Create a router delegate
+    routeInformationParser = GgRouteInformationParser();
+    routerDelegate = GgRouterDelegate(child: widget);
 
-      // .....................
-      // Initialize the widget
-      await tester.pumpWidget(
-        MaterialApp.router(
-          routeInformationParser: routeInformationParser,
-          routerDelegate: routerDelegate,
-          routeInformationProvider: routeInformationProvider,
-        ),
-      );
+    // .....................
+    // Initialize the widget
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routeInformationParser: routeInformationParser,
+        routerDelegate: routerDelegate,
+        routeInformationProvider: routeInformationProvider,
+      ),
+    );
 
-      // ..................................
-      // Create a GgEasyWidgetTest instance
-      final ggRouteFinder = find.byWidget(widget);
-      ggRoute = GgEasyWidgetTest(ggRouteFinder, tester);
+    // ..................................
+    // Create a GgEasyWidgetTest instance
+    final ggRouteFinder = find.byWidget(widget);
+    ggRoute = GgEasyWidgetTest(ggRouteFinder, tester);
 
-      // ........................
-      // Get reference to buttons
-      a0Button =
-          GgEasyWidgetTest(find.byKey(ValueKey('a0/a11 Button')), tester);
-      a0OnlyButton =
-          GgEasyWidgetTest(find.byKey(ValueKey('a0/ Button')), tester);
-      b0Button =
-          GgEasyWidgetTest(find.byKey(ValueKey('b0/b10 Button')), tester);
-    }
+    // ........................
+    // Get reference to buttons
+    a0Button = GgEasyWidgetTest(find.byKey(ValueKey('a0/a11 Button')), tester);
+    a0OnlyButton = GgEasyWidgetTest(find.byKey(ValueKey('a0/ Button')), tester);
+    b0Button = GgEasyWidgetTest(find.byKey(ValueKey('b0/b10 Button')), tester);
+  }
 
-    // .........................................................................
-    tearDown(WidgetTester tester) async {
-      await tester.pumpAndSettle();
-    }
+  // .........................................................................
+  tearDown(WidgetTester tester) async {
+    await tester.pumpAndSettle();
+  }
 
+  group('GgRouter', () {
     // .........................................................................
     testWidgets('should allow to synchronize URI and widget hierarchy',
         (WidgetTester tester) async {
@@ -172,11 +182,18 @@ main() {
       lastBuiltNode.child(name: 'a0').isActive = true;
       await tester.pumpAndSettle();
       expect(lastBuiltNode.pathString, '/a0');
+      expect(routeSegment, 'a0');
+      expect(routePath, '/a0');
+      expect(indexOfActiveRouteSegment, 1);
+      expect(childRouteSegment, null);
 
       // Now activate /a0/a11 and check if node the hierarchy was rebuilt
       lastBuiltNode.child(name: 'a11').isActive = true;
       await tester.pumpAndSettle();
       expect(lastBuiltNode.pathString, '/a0/a11');
+      expect(routeSegment, 'a11');
+      expect(routePath, '/a0/a11');
+      expect(indexOfActiveRouteSegment, 2);
 
       // Now activate /b0 -> /b0/b10 should become active
       lastBuiltNode.parent!.parent!.child(name: 'b0').isActive = true;
@@ -245,6 +262,18 @@ main() {
       // Press a0Only Button -> Should activate '/a0'
       await a0OnlyButton.press();
       expect(lastBuiltNode.pathString, '/a0');
+    });
+  });
+
+  group('GgContextRouteExtension', () {
+    // #########################################################################
+    group('navigateTo(path)', () {
+      test('should process absolute pathes', () {});
+      test('should process relative pathes', () {});
+
+      test('should process .. as parent path', () {});
+
+      test('should process . as own path', () {});
     });
   });
 }

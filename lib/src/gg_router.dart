@@ -13,13 +13,13 @@ class GgRouter extends StatelessWidget {
   const GgRouter(this.children) : super();
 
   // ...........................................................................
-  final Map<String, Widget> children;
+  final Map<String, Builder> children;
 
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
     // Get parent node
-    final parentNode = parent(context: context);
+    final parentNode = node(context: context);
 
     assert(children.length > 0);
 
@@ -51,7 +51,13 @@ class GgRouter extends StatelessWidget {
               children[activeChildNode.name] ?? Text('Error 404 Not Found');
         }
 
-        return GgRouterCore(child: activeChildWidget, node: activeChildNode);
+        final index = children.keys.toList().indexOf(activeChildNode.name);
+
+        return GgRouterCore(
+          child: activeChildWidget,
+          node: activeChildNode,
+          index: index,
+        );
       },
     );
 
@@ -59,12 +65,12 @@ class GgRouter extends StatelessWidget {
   }
 
   // ...........................................................................
-  static GgRouterNode parent({
+  static GgRouterNode node({
     required BuildContext context,
   }) {
-    final parent = GgRouterCore.of(context)?.node;
+    final result = GgRouterCore.of(context)?.node;
 
-    if (parent == null) {
+    if (result == null) {
       throw ArgumentError(
         'Did not find an instance of GgRouterDelegate.\n'
         'Please wrap your GgRouter into a MaterialApp.router(...) and '
@@ -73,14 +79,38 @@ class GgRouter extends StatelessWidget {
       );
     }
 
-    return parent;
+    return result;
   }
 }
 
 // #############################################################################
 extension GgContextRouteExtension on BuildContext {
   void navigateTo(String path) {
-    final parent = GgRouter.parent(context: this);
-    parent.navigateTo(path);
+    final node = GgRouter.node(context: this);
+    node.navigateTo(path);
+  }
+
+  String? get routeSegment {
+    final node = GgRouter.node(context: this);
+    return node.name;
+  }
+
+  String? get activeChildRouteSegment {
+    final node = GgRouter.node(context: this);
+    return node.activeChild?.name;
+  }
+
+  int get routeIndex {
+    return GgRouterCore.of(this)?.index ?? -1;
+  }
+
+  String get routePath {
+    final node = GgRouter.node(context: this);
+    return node.pathString;
+  }
+
+  Stream<void> get onActiveChildChange {
+    final node = GgRouter.node(context: this);
+    return node.activeChildDidChange;
   }
 }

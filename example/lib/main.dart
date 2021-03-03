@@ -4,6 +4,8 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
 import 'configure_nonweb.dart' if (dart.library.html) 'configure_web.dart';
@@ -25,12 +27,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'GgRouterExample',
-      theme: ThemeData(
-        primaryColor: Colors.white,
-        textTheme: Theme.of(context).textTheme.apply(fontSizeFactor: 2),
-      ),
-      debugShowCheckedModeBanner: false,
       routerDelegate: _routerDelegate,
       routeInformationParser: _routeInformationParser,
     );
@@ -43,7 +39,130 @@ class GgRouterExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return MaterialApp(
+      title: "GgRouterExample",
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('GgRouter'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => context.navigateTo('sports'),
+              child: _text('Sports', context),
+            ),
+            TextButton(
+              onPressed: () => context.navigateTo('transportation'),
+              child: _text('Transportation', context),
+            ),
+            TextButton(
+              onPressed: () => context.navigateTo('places'),
+              child: _text('Places', context),
+            ),
+            Container(
+              width: 50,
+            ),
+          ],
+        ),
+        body: GgRouter(
+          {
+            'sports': Builder(
+              builder: (context) {
+                return Scaffold(
+                  bottomNavigationBar: StreamBuilder(
+                      stream: context.onActiveChildChange,
+                      builder: (context, snapshot) {
+                        final activeChildRouteSegment =
+                            context.activeChildRouteSegment ?? 'basketball';
+
+                        final index = ['basketball', 'football', 'handball']
+                            .indexOf(activeChildRouteSegment);
+
+                        return BottomNavigationBar(
+                          currentIndex: index,
+                          items: [
+                            BottomNavigationBarItem(
+                              label: 'Basketball',
+                              icon: Icon(Icons.sports_basketball),
+                            ),
+                            BottomNavigationBarItem(
+                              label: 'Football',
+                              icon: Icon(Icons.sports_football),
+                            ),
+                            BottomNavigationBarItem(
+                              label: 'Handball',
+                              icon: Icon(Icons.sports_handball),
+                            ),
+                          ],
+                          onTap: (index) {
+                            switch (index) {
+                              case 0:
+                                context.navigateTo('basketball');
+                                break;
+                              case 1:
+                                context.navigateTo('football');
+                                break;
+                              case 2:
+                                context.navigateTo('handball');
+                                break;
+                            }
+                          },
+                        );
+                      }),
+                  body: GgRouter(
+                    {
+                      'basketball': _bigIcon(Icons.sports_basketball),
+                      'football': _bigIcon(Icons.sports_football),
+                      'handball': _bigIcon(Icons.sports_handball),
+                    },
+                  ),
+                );
+              },
+            ),
+            'transportation': Builder(builder: (context) {
+              return Scaffold(
+                bottomNavigationBar: BottomNavigationBar(
+                  items: [
+                    BottomNavigationBarItem(
+                      label: 'Bus',
+                      icon: Icon(Icons.directions_bus),
+                    ),
+                    BottomNavigationBarItem(
+                      label: 'Bike',
+                      icon: Icon(Icons.directions_bike),
+                    ),
+                    BottomNavigationBarItem(
+                      label: 'Car',
+                      icon: Icon(Icons.directions_car),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            'places': Builder(builder: (context) {
+              return Scaffold(
+                bottomNavigationBar: BottomNavigationBar(
+                  items: [
+                    BottomNavigationBarItem(
+                      label: 'Airport',
+                      icon: Icon(Icons.airplanemode_active),
+                    ),
+                    BottomNavigationBarItem(
+                      label: 'Park',
+                      icon: Icon(Icons.park),
+                    ),
+                    BottomNavigationBarItem(
+                      label: 'Hospital',
+                      icon: Icon(Icons.local_hospital),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          },
+        ),
+      ),
+    );
+
+    /* Column(
       children: [
         // ......................................
         // Define /yellow, /green, /red
@@ -89,31 +208,34 @@ class GgRouterExample extends StatelessWidget {
           ],
         ),
       ],
+
+    );*/
+  }
+
+  // ...........................................................................
+  Widget _text(String text, BuildContext context) {
+    final theme = Theme.of(context);
+    final onPrimary = theme.colorScheme.onPrimary;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: Text(
+        text,
+        style: TextStyle(color: onPrimary),
+      ),
     );
   }
 
-  // ...........................................................................
-  Widget _box(Color color, {Widget? child}) {
-    return Expanded(
-        child: Container(
-      color: color,
-      child: child,
-    ));
-  }
-
-  // ...........................................................................
-  Widget _text(String text) => Expanded(child: Center(child: Text(text)));
-
-  // ...........................................................................
-  Widget _naviButton(String buttonText, String route) {
-    return Builder(builder: (context) {
-      return Padding(
-        padding: EdgeInsets.all(20),
-        child: TextButton(
-          onPressed: () => context.navigateTo(route),
-          child: Text(buttonText),
-        ),
-      );
-    });
+  Builder _bigIcon(IconData icon) {
+    return Builder(
+      builder: (context) {
+        return Center(
+          child: Icon(
+            icon,
+            size: 200,
+            color: Colors.grey.shade400,
+          ),
+        );
+      },
+    );
   }
 }
