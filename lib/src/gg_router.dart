@@ -51,12 +51,9 @@ class GgRouter extends StatelessWidget {
               children[activeChildNode.name] ?? Text('Error 404 Not Found');
         }
 
-        final index = children.keys.toList().indexOf(activeChildNode.name);
-
         return GgRouterCore(
           child: activeChildWidget,
           node: activeChildNode,
-          index: index,
         );
       },
     );
@@ -104,10 +101,6 @@ class GgRouterContext {
   String? get activeChildRouteSegment {
     final node = GgRouter.node(context: context);
     return node.activeChild?.name;
-  }
-
-  int get routeIndex {
-    return GgRouterCore.of(context)?.index ?? -1;
   }
 
   String get routePath {

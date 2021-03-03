@@ -24,7 +24,6 @@ main() {
       final widget = GgRouterCore(
         child: child,
         node: node,
-        index: 0,
       );
       await tester.pumpWidget(widget);
       final ggRouteCoreFinder = find.byWidget(widget);

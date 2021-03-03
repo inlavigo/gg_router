@@ -34,7 +34,6 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
     return GgRouterCore(
       child: child,
       node: _root,
-      index: 0,
     );
   }
 

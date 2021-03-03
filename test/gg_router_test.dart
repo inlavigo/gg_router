@@ -40,7 +40,6 @@ main() {
   late String? routeSegment;
   late String? childRouteSegment;
   late String routePath;
-  late int indexOfActiveRouteSegment;
 
   late TestRouteInformationProvider routeInformationProvider;
 
@@ -57,7 +56,6 @@ main() {
       routeSegment = context.router.routeSegment;
       childRouteSegment = context.router.activeChildRouteSegment;
       routePath = context.router.routePath;
-      indexOfActiveRouteSegment = context.router.routeIndex;
       return Container();
     });
 
@@ -185,7 +183,6 @@ main() {
       expect(lastBuiltNode.pathString, '/a0');
       expect(routeSegment, 'a0');
       expect(routePath, '/a0');
-      expect(indexOfActiveRouteSegment, 1);
       expect(childRouteSegment, null);
 
       // Now activate /a0/a11 and check if node the hierarchy was rebuilt
@@ -194,7 +191,6 @@ main() {
       expect(lastBuiltNode.pathString, '/a0/a11');
       expect(routeSegment, 'a11');
       expect(routePath, '/a0/a11');
-      expect(indexOfActiveRouteSegment, 2);
 
       // Now activate /b0 -> /b0/b10 should become active
       lastBuiltNode.parent!.parent!.child(name: 'b0').isActive = true;
