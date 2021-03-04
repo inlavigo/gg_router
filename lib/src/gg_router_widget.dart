@@ -7,7 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
 import 'gg_route_core.dart';
-import 'gg_route_node.dart';
+import 'gg_route_tree_node.dart';
 
 // #############################################################################
 class GgRouterWidget extends StatelessWidget {
@@ -29,10 +29,10 @@ class GgRouterWidget extends StatelessWidget {
     assert(children.length > 0);
 
     // Create a stream builder rebuilding the tree on active child change.
-    final result = StreamBuilder<GgRouterNode?>(
+    final result = StreamBuilder<GgRouteTreeNode?>(
       stream: parentNode.activeChildDidChange,
       builder: (context, snapShot) {
-        GgRouterNode? nodeToBeShown = parentNode.activeChild;
+        GgRouteTreeNode? nodeToBeShown = parentNode.activeChild;
 
         // ...............................................
         // Use previous route, if current route is invalid
@@ -90,14 +90,14 @@ class GgRouterWidget extends StatelessWidget {
   }
 
   // ...........................................................................
-  _createChildNodes(GgRouterNode parentNode) {
+  _createChildNodes(GgRouteTreeNode parentNode) {
     children.keys.forEach((routeName) {
       parentNode.child(name: routeName);
     });
   }
 
   // ...........................................................................
-  static GgRouterNode node({
+  static GgRouteTreeNode node({
     required BuildContext context,
   }) {
     final result = GgRouterCore.of(context)?.node;

@@ -36,7 +36,7 @@ main() {
   late GgRouteInformationParser routeInformationParser;
   late GgRouterDelegate routerDelegate;
 
-  late GgRouterNode lastBuiltNode;
+  late GgRouteTreeNode lastBuiltNode;
   late String? routeSegment;
   late String? childRouteSegment;
   late String routePath;

@@ -7,7 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:gg_router/src/gg_route_core.dart';
 
-import './gg_route_node.dart';
+import 'gg_route_tree_node.dart';
 
 class GgRouterDelegate extends RouterDelegate<RouteInformation>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
@@ -57,7 +57,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
   // ...........................................................................
   final List<Function()> _dispose = [];
-  final _root = GgRouterNode(name: '');
+  final _root = GgRouteTreeNode(name: '');
 
   // ...........................................................................
   _listenToRouteChanges() {

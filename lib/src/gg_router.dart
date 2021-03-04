@@ -6,7 +6,7 @@
 
 import 'package:flutter/widgets.dart';
 
-import 'gg_route_node.dart';
+import 'gg_route_tree_node.dart';
 import 'gg_router_widget.dart';
 
 // #############################################################################
@@ -22,7 +22,7 @@ class GgRouter {
   }
 
   // ...........................................................................
-  GgRouterNode get node => _node;
+  GgRouteTreeNode get node => _node;
 
   // ...........................................................................
   void navigateTo(String path) {
@@ -57,5 +57,5 @@ class GgRouter {
   // ######################
   // Private
   // ######################
-  late GgRouterNode _node;
+  late GgRouteTreeNode _node;
 }

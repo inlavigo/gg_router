@@ -5,7 +5,7 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
-import './gg_route_node.dart';
+import 'gg_route_tree_node.dart';
 
 class GgRouterCore extends InheritedWidget {
   // ...........................................................................
@@ -17,7 +17,7 @@ class GgRouterCore extends InheritedWidget {
           child: child,
         );
 
-  final GgRouterNode node;
+  final GgRouteTreeNode node;
 
   // ...........................................................................
   @override

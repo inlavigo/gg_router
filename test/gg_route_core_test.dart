@@ -15,11 +15,11 @@ main() {
     // .........................................................................
     late GgEasyWidgetTest<GgRouterCore, dynamic> ggRouteCore;
     final child = Container();
-    late GgRouterNode node;
+    late GgRouteTreeNode node;
 
     // .........................................................................
     setUp(WidgetTester tester) async {
-      node = GgRouterNode(name: '');
+      node = GgRouteTreeNode(name: '');
 
       final widget = GgRouterCore(
         child: child,

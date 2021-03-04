@@ -10,11 +10,11 @@ import 'package:gg_router/gg_router.dart';
 import 'package:gg_router/src/gg_router_error.dart';
 
 main() {
-  late GgRouterNode root;
-  late GgRouterNode childA0;
-  late GgRouterNode childA1;
-  late GgRouterNode childB;
-  late GgRouterNode childC;
+  late GgRouteTreeNode root;
+  late GgRouteTreeNode childA0;
+  late GgRouteTreeNode childA1;
+  late GgRouteTreeNode childB;
+  late GgRouteTreeNode childC;
 
   init() {
     root = exampleRouteNode(name: '');
@@ -28,7 +28,7 @@ main() {
     root.dispose();
   }
 
-  group('GgRouterNode', () {
+  group('GgRouteTreeNode', () {
     // #########################################################################
     group('dispose()', () {
       test(
@@ -61,7 +61,7 @@ main() {
 
       test('should throw an exception if name of an root note is not ""', () {
         init();
-        expect(() => GgRouterNode(name: 'root', parent: null),
+        expect(() => GgRouteTreeNode(name: 'root', parent: null),
             throwsArgumentError);
       });
     });
@@ -377,7 +377,7 @@ main() {
             init();
 
             // Listen to activeChildDidChange
-            GgRouterNode? activeChild;
+            GgRouteTreeNode? activeChild;
             final s = root.activeChildDidChange.listen((c) => activeChild = c);
 
             // Initially no child is active
@@ -432,7 +432,7 @@ main() {
           init();
 
           // Listen to active descendands
-          List<GgRouterNode>? activeDescendands;
+          List<GgRouteTreeNode>? activeDescendands;
           var updateCounter = 0;
           final s = root.activeDescendandsDidChange.listen((event) {
             activeDescendands = event;
@@ -502,10 +502,10 @@ main() {
         expect(root.pathHashCode, root.pathHashCode);
         expect(root.pathHashCode, isNot(childA0.pathHashCode));
 
-        final root1 = GgRouterNode(name: root.name);
+        final root1 = GgRouteTreeNode(name: root.name);
         expect(root.pathHashCode, root1.pathHashCode);
 
-        final childA11 = GgRouterNode(name: childA1.name, parent: root1);
+        final childA11 = GgRouteTreeNode(name: childA1.name, parent: root1);
         expect(childA11.pathHashCode, childA1.pathHashCode);
       });
     });

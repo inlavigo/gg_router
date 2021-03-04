@@ -17,10 +17,10 @@ class GgRouterError extends Error {
   // ...........................................................................
   final String message;
   final String id;
-  final GgRouterNode? node;
+  final GgRouteTreeNode? node;
 
   // ...........................................................................
-  GgRouterError withNode(GgRouterNode node) {
+  GgRouterError withNode(GgRouteTreeNode node) {
     return GgRouterError(id: id, message: message, node: node);
   }
 }

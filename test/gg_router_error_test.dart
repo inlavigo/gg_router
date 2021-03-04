@@ -27,7 +27,7 @@ main() {
     // #########################################################################
     group('withNode', () {
       test('should copy the error and add the node to it', () {
-        final node = GgRouterNode(name: '');
+        final node = GgRouteTreeNode(name: '');
         final copy = ggRouterError.withNode(node);
         expect(copy.node, node);
         expect(copy.id, ggRouterError.id);
