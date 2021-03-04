@@ -232,12 +232,18 @@ main() {
       expect(lastBuiltNode.pathString, '/a0/a10');
 
       // .................................................................
-      // Test if an invalid url makes GgRouter showing an error widget
-      expect(find.byKey(GgRouter.errorWidgetKey), findsNothing);
+      // Test if an invalid url makes GgRouter showing an error widget.
+      // Additionally the error handler should be called.
+      GgRouterError? receivedError;
+      lastBuiltNode.root.errorHandler = (error) => receivedError = error;
+
       routeInformationProvider.routeInformation =
           RouteInformation(location: 'a0/invalidRoute');
       await tester.pumpAndSettle();
       expect(lastBuiltNode.pathString, '/a0/a10');
+      expect(receivedError!.id, 'GRC008448');
+      expect(receivedError!.message,
+          'Node "/a0" has no child named "invalidRoute".');
 
       // ..................................................
       // Invalid URLs should be removed from the route tree

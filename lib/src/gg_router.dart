@@ -5,6 +5,7 @@
 // found in the LICENSE file in the root of this repository.
 
 import 'package:flutter/material.dart';
+import 'package:gg_router/gg_router.dart';
 import 'gg_route_core.dart';
 import 'gg_route_node.dart';
 
@@ -43,7 +44,13 @@ class GgRouter extends StatelessWidget {
           nodeToBeShown = parentNode.previousActiveChild;
           nodeToBeShown?.isActive = true;
           parentNode.removeChild(invalidNode);
-          // Todo: Add error handling here
+          parentNode.setError(
+            GgRouterError(
+              id: 'GRC008448',
+              message:
+                  'Node "${parentNode.pathString}" has no child named "${invalidNode.name}".',
+            ),
+          );
         }
 
         // ..............................................
