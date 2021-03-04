@@ -7,12 +7,12 @@
 import 'package:flutter/widgets.dart';
 
 import './gg_route_node.dart';
-import './gg_router.dart';
+import 'gg_router_widget.dart';
 
 // #############################################################################
 class GgRouterContext {
   GgRouterContext({required BuildContext context}) {
-    _node = GgRouter.node(context: context);
+    _node = GgRouterWidget.node(context: context);
   }
 
   // ...........................................................................

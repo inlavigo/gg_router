@@ -10,8 +10,8 @@ import 'gg_route_core.dart';
 import 'gg_route_node.dart';
 
 // #############################################################################
-class GgRouter extends StatelessWidget {
-  const GgRouter(this.children) : super();
+class GgRouterWidget extends StatelessWidget {
+  const GgRouterWidget(this.children) : super();
 
   // ...........................................................................
   final Map<String, Widget Function(BuildContext)> children;

@@ -31,7 +31,7 @@ class TestRouteInformationProvider extends RouteInformationProvider
 
 main() {
   // .........................................................................
-  late GgEasyWidgetTest<GgRouter, dynamic> ggRoute;
+  late GgEasyWidgetTest<GgRouterWidget, dynamic> ggRoute;
 
   late GgRouteInformationParser routeInformationParser;
   late GgRouterDelegate routerDelegate;
@@ -93,7 +93,7 @@ main() {
 
           // ..........
           // The routes
-          GgRouter(
+          GgRouterWidget(
             {
               '': builder,
               'a0': (context) {
@@ -108,7 +108,7 @@ main() {
                         child: Container(),
                       );
                     }),
-                    GgRouter({
+                    GgRouterWidget({
                       '': builder,
                       'a10': builder,
                       'a11': builder,
@@ -117,7 +117,7 @@ main() {
                 );
               },
               'b0': (context) {
-                return GgRouter({
+                return GgRouterWidget({
                   'b10': builder,
                   'b11': builder,
                 });
@@ -293,7 +293,8 @@ main() {
           'should thrown an exception when the context does not have already a '
           'GgRouterCore instance, callback', (WidgetTester tester) async {
         tester.pumpWidget(Builder(builder: (context) {
-          expect(() => GgRouter.node(context: context), throwsArgumentError);
+          expect(
+              () => GgRouterWidget.node(context: context), throwsArgumentError);
           return Container();
         }));
       });

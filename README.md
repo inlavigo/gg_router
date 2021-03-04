@@ -141,7 +141,7 @@ In the example the following pattern is applied:
     |  |-actions
     |  |  |-sports
     |  |  |-transportation
-    |  |  |- button
+    |  |  |-button
     |-routes
        |-sports
        |-transportations

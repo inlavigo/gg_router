@@ -52,7 +52,7 @@ class GgRouterExample extends StatelessWidget {
         body: Builder(
           builder: (context) {
             _initErrorHandler(context);
-            return GgRouter(
+            return GgRouterWidget(
               {
                 'sports': _sportsPage,
                 'transportation': _transportationPage,
@@ -183,7 +183,7 @@ class GgRouterExample extends StatelessWidget {
               },
             );
           }),
-      body: GgRouter(
+      body: GgRouterWidget(
         {
           'basketball': (context) {
             return GgOverlayRouter(
@@ -243,7 +243,7 @@ class GgRouterExample extends StatelessWidget {
               },
             );
           }),
-      body: GgRouter(
+      body: GgRouterWidget(
         {
           'bus': (c) => _bigIcon(c, Icons.directions_bus),
           'bike': (c) => _bigIcon(c, Icons.directions_bike),
@@ -293,7 +293,7 @@ class GgRouterExample extends StatelessWidget {
               },
             );
           }),
-      body: GgRouter(
+      body: GgRouterWidget(
         {
           'airport': (c) => _bigIcon(c, Icons.airplanemode_active),
           'park': (c) => _bigIcon(c, Icons.park),

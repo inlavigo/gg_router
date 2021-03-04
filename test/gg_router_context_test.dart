@@ -42,7 +42,7 @@ main() {
           final builder = (BuildContext c1, String x) {
             context = c1;
             router = c1.router;
-            return GgRouter({
+            return GgRouterWidget({
               'childRoute$x': (c2) {
                 childRouter = c2.router;
                 return Container();
@@ -50,7 +50,7 @@ main() {
             });
           };
 
-          return GgRouter({
+          return GgRouterWidget({
             'routeA': (c) => builder(c, 'A'),
             'routeB': (c) => builder(c, 'B'),
             'routeC': (c) => builder(c, 'C'),
