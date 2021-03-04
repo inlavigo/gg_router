@@ -202,11 +202,12 @@ main() {
       await tester.pumpAndSettle();
       expect(lastBuiltNode.pathString, '/b0/b11');
 
-      // Now let's activate a unknown child. ->
+      // Now let's activate an invalid route. ->
+      // The previous defined route should stay active
       lastBuiltNode.parent!.child(name: 'unknown').isActive = true;
       await tester.pumpAndSettle();
-      final textWidget = tester.widget(find.byType(Text)) as Text;
-      expect(textWidget.data, 'Error 404 Not Found');
+      await tester.pumpAndSettle();
+      expect(lastBuiltNode.pathString, '/b0/b11');
 
       // ..............................................................
       // Test if the url is updated correctly from the widget hierarchy
@@ -236,7 +237,7 @@ main() {
       routeInformationProvider.routeInformation =
           RouteInformation(location: 'a0/invalidRoute');
       await tester.pumpAndSettle();
-      expect(find.byKey(GgRouter.errorWidgetKey), findsOneWidget);
+      expect(lastBuiltNode.pathString, '/a0/a10');
 
       await tearDown(tester);
     });

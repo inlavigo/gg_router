@@ -15,6 +15,8 @@ class GgRouter extends StatelessWidget {
   // ...........................................................................
   final Map<String, Builder> children;
 
+  static final errorWidgetKey = GlobalKey();
+
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
@@ -27,33 +29,47 @@ class GgRouter extends StatelessWidget {
     final result = StreamBuilder<GgRouterNode?>(
       stream: parentNode.activeChildDidChange,
       builder: (context, snapShot) {
-        var activeChildNode = parentNode.activeChild;
-        Widget activeChildWidget;
+        GgRouterNode? nodeToBeShown = parentNode.activeChild;
 
-        // If no active child is available, take child with route "" or "."
-        if (activeChildNode == null) {
-          final defaultWidget = children[''] ?? children['.'];
-          if (defaultWidget != null) {
-            return defaultWidget;
-          }
+        // ...............................................
+        // Use previous route, if current route is invalid
+        bool routeIsValid =
+            nodeToBeShown == null || children.keys.contains(nodeToBeShown.name);
+
+        if (!routeIsValid) {
+          nodeToBeShown = parentNode.previousActiveChild;
+          // Todo: Add error handling here
         }
 
-        // If no default widget is available, activate the first route
-        if (activeChildNode == null) {
-          activeChildNode = parentNode.child(name: children.keys.first);
-          activeChildNode.isActive = true;
-          activeChildWidget = children.values.first;
+        // ..............................................
+        // If parentNode has no activeChild, look, if a child widget with
+        // key "" is defined. If such a child widget is available,
+        // return that child widget directly. This widget will be assigned
+        // to the parent route, therefor no other node needs to be
+        // activated.
+        if (nodeToBeShown == null && children.keys.contains("")) {
+          final defaultWidget = children[""]!;
+          return defaultWidget;
         }
 
-        // Otherwise create a GgRouterCore for the active child and return it.
-        else {
-          activeChildWidget =
-              children[activeChildNode.name] ?? Text('Error 404 Not Found');
+        // ..............................................
+        // If no active child is defined and no default route is defined,
+        // take the first possible child.
+        if (nodeToBeShown == null) {
+          nodeToBeShown = parentNode.child(name: children.keys.first);
         }
+
+        // .............................
+        // Activate the node to be shown
+        nodeToBeShown.isActive = true;
+
+        // .....................................
+        // Show the widget belonging to the node
+        Widget widgetToBeShown = children[nodeToBeShown.name]!;
 
         return GgRouterCore(
-          child: activeChildWidget,
-          node: activeChildNode,
+          child: widgetToBeShown,
+          node: nodeToBeShown,
         );
       },
     );

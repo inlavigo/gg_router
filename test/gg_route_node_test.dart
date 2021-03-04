@@ -244,6 +244,11 @@ main() {
         root.removeChild(childA0);
         expect(root.hasChild(name: childA0.name), isFalse);
       });
+
+      test('throws an exception, if the child is not a child of node', () {
+        init();
+        expect(() => root.removeChild(childC), throwsArgumentError);
+      });
     });
 
     // #########################################################################
@@ -340,6 +345,24 @@ main() {
         init();
         childA0.isActive = true;
         expect(root.activeChild, childA0);
+      });
+    });
+
+    // #########################################################################
+    group('previousActiveChild', () {
+      test('should return the child that was active before', () {
+        init();
+        expect(root.activeChild, null);
+        expect(root.previousActiveChild, null);
+        childA0.isActive = true;
+        expect(root.previousActiveChild, null);
+        expect(root.activeChild, childA0);
+        childA1.isActive = true;
+        expect(root.previousActiveChild, childA0);
+        expect(root.activeChild, childA1);
+        childA1.isActive = false;
+        expect(root.previousActiveChild, childA1);
+        expect(root.activeChild, null);
       });
     });
 

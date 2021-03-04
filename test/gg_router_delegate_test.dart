@@ -6,14 +6,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
 import 'package:gg_router/src/gg_router.dart';
 
 main() {
   group('GgRouterDelegate', () {
     // .........................................................................
-    late GgEasyWidgetTest<GgRouter, dynamic> ggRouter;
     late GgRouterDelegate routerDelegate;
     late GgRouteInformationParser routeInformationParser;
     late GgRouterContext router;
@@ -36,8 +34,6 @@ main() {
           routeInformationParser: routeInformationParser,
           routerDelegate: routerDelegate);
       await tester.pumpWidget(app);
-      final ggRouterFinder = find.byWidget(widget);
-      ggRouter = GgEasyWidgetTest(ggRouterFinder, tester);
     }
 
     // .........................................................................

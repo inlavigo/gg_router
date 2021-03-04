@@ -3,19 +3,13 @@
 //
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart';
-import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
 
 main() {
   group('context.router', () {
-    // .........................................................................
-    late GgEasyWidgetTest<GgRouter, dynamic> ggRouter;
-
     // .........................................................................
     setUp(WidgetTester tester, {required Widget child}) async {
       final widget = MaterialApp.router(
@@ -24,8 +18,6 @@ main() {
       );
       await tester.pumpWidget(widget);
       await tester.pumpAndSettle();
-      final ggRouterFinder = find.byWidget(widget);
-      ggRouter = GgEasyWidgetTest(ggRouterFinder, tester);
     }
 
     // .........................................................................

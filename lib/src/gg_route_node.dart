@@ -127,9 +127,6 @@ class GgRouterNode {
   // ...........................................................................
   /// Removes the child
   void removeChild(GgRouterNode child) {
-    final a = _children[child.name];
-    final b = child;
-
     if (identical(_children[child.name], child)) {
       child.dispose();
     } else {
