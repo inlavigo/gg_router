@@ -37,7 +37,10 @@ class GgRouter extends StatelessWidget {
             nodeToBeShown == null || children.keys.contains(nodeToBeShown.name);
 
         if (!routeIsValid) {
+          final invalidNode = nodeToBeShown;
           nodeToBeShown = parentNode.previousActiveChild;
+          nodeToBeShown?.isActive = true;
+          parentNode.removeChild(invalidNode);
           // Todo: Add error handling here
         }
 

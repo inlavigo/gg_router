@@ -239,6 +239,14 @@ main() {
       await tester.pumpAndSettle();
       expect(lastBuiltNode.pathString, '/a0/a10');
 
+      // ..................................................
+      // Invalid URLs should be removed from the route tree
+      expect(lastBuiltNode.root.hasChild(name: 'a0'), true);
+      expect(
+        lastBuiltNode.root.child(name: 'a0').hasChild(name: 'invalidRoute'),
+        false,
+      );
+
       await tearDown(tester);
     });
 
