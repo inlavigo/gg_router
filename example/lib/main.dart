@@ -51,15 +51,33 @@ class GgRouterExample extends StatelessWidget {
             ),
           ],
         ),
-        body: GgRouter(
-          {
-            'sports': _sportsPage,
-            'transportation': _transportationPage,
-            'places': _placesPage,
+        body: Builder(
+          builder: (context) {
+            _initErrorHandler(context);
+            return GgRouter(
+              {
+                'sports': _sportsPage,
+                'transportation': _transportationPage,
+                'places': _placesPage,
+              },
+            );
           },
         ),
       ),
     );
+  }
+
+  // ...........................................................................
+  _initErrorHandler(BuildContext context) {
+    final node = context.router.node;
+    node.errorHandler = null;
+    node.errorHandler = (error) {
+      final snackBar = SnackBar(
+        content: Text(error.message),
+        duration: Duration(seconds: 6),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    };
   }
 
   // ...........................................................................

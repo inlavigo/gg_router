@@ -64,6 +64,8 @@ main() {
     final widget = Builder(
       builder: (context) {
         final router = context.router;
+        router.node.root.errorHandler = null;
+        router.node.root.errorHandler = (_) {};
         return Column(children: [
           // ...............................
           // A button selecting route a0/a11
@@ -235,6 +237,7 @@ main() {
       // Test if an invalid url makes GgRouter showing an error widget.
       // Additionally the error handler should be called.
       GgRouterError? receivedError;
+      lastBuiltNode.root.errorHandler = null;
       lastBuiltNode.root.errorHandler = (error) => receivedError = error;
 
       routeInformationProvider.routeInformation =
@@ -243,7 +246,7 @@ main() {
       expect(lastBuiltNode.pathString, '/a0/a10');
       expect(receivedError!.id, 'GRC008448');
       expect(receivedError!.message,
-          'Node "/a0" has no child named "invalidRoute".');
+          'Route "/a0" has no child named "invalidRoute".');
 
       // ..................................................
       // Invalid URLs should be removed from the route tree

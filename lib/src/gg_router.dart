@@ -48,7 +48,7 @@ class GgRouter extends StatelessWidget {
             GgRouterError(
               id: 'GRC008448',
               message:
-                  'Node "${parentNode.pathString}" has no child named "${invalidNode.name}".',
+                  'Route "${parentNode.pathString}" has no child named "${invalidNode.name}".',
             ),
           );
         }
