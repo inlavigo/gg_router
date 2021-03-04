@@ -36,9 +36,9 @@ class GgRouterNode {
     return pathString;
   }
 
-  // ######################
-  // Name & Parent
-  // ######################
+  // ############################
+  // Name & Parent & Index & Root
+  // ############################
 
   // ...........................................................................
   /// The name of the node. The name will appear as path segment in the URI.
@@ -60,6 +60,10 @@ class GgRouterNode {
 
   // ...........................................................................
   bool get isRoot => parent == null;
+
+  // ...........................................................................
+  /// Returns the index in the paren'ts children array.
+  int get index => parent?._children.keys.toList().indexOf(name) ?? 0;
 
   // ######################
   // isActive
@@ -115,8 +119,15 @@ class GgRouterNode {
   }
 
   // ...........................................................................
+  /// Returns true, if node has child with name
   bool hasChild({required String name}) {
     return _children.containsKey(name);
+  }
+
+  // ...........................................................................
+  /// Removes the child
+  void removeChild(GgRouterNode child) {
+    _children.remove(child.name);
   }
 
   // ...........................................................................
@@ -280,14 +291,8 @@ class GgRouterNode {
       List.from(_children.values).forEach((child) {
         child.dispose();
       });
-      parent?._removeChild(this);
+      parent?.removeChild(this);
     });
-  }
-
-  // ...........................................................................
-  /// Removes the child
-  void _removeChild(GgRouterNode child) {
-    _children.remove(child.name);
   }
 
   // ########

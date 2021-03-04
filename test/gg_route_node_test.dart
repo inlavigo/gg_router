@@ -86,10 +86,21 @@ main() {
 
     // #########################################################################
     group('isRoot', () {
-      test('Returns true if node is root node, otherwise false', () {
+      test('returns true if node is root node, otherwise false', () {
         init();
         expect(root.isRoot, true);
         expect(childC.isRoot, false);
+      });
+    });
+
+    // #########################################################################
+    group('index', () {
+      test('returns which child of its parent this node is', () {
+        init();
+        expect(root.index, 0);
+        expect(childA0.index, 0);
+        expect(childA1.index, 1);
+        expect(root.child(name: 'a').index, 2);
       });
     });
 
