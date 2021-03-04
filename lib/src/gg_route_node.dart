@@ -241,7 +241,7 @@ class GgRouterNode {
     node.isActive = true;
 
     node.activeChild?.isActive = false;
-    node._resetPreviouslyActiveChild();
+
     if (path.isEmpty) {
       activeChild?.isActive = false;
     }
@@ -345,17 +345,13 @@ class GgRouterNode {
       return;
     }
 
+    _previousActiveChild = _activeChild.value ?? _previousActiveChild;
+
     isActive = true;
     _activeChild.value?.isActive = false;
     _activeChild.value = child;
-    _previousActiveChild = child;
 
     _updateActiveDescendands();
-  }
-
-  // ...........................................................................
-  _resetPreviouslyActiveChild() {
-    _previousActiveChild = null;
   }
 
   // ...........................................................................
@@ -363,6 +359,7 @@ class GgRouterNode {
     if (_activeChild.value != child) {
       return;
     }
+    _previousActiveChild = _activeChild.value ?? _previousActiveChild;
     _activeChild.value = null;
     _updateActiveDescendands();
   }
