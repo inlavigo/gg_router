@@ -7,7 +7,7 @@
 import 'package:flutter/material.dart';
 
 import 'gg_router_widget.dart';
-import './gg_router_context.dart';
+import 'gg_router.dart';
 
 class GgOverlayRouter extends StatelessWidget {
   // ...........................................................................
@@ -24,7 +24,7 @@ class GgOverlayRouter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: context.router.onActiveChildChange,
+      stream: GgRouter.of(context).onActiveChildChange,
       builder: (context, snapshot) {
         final node = GgRouterWidget.node(context: context);
         if (node.activeChild == null) {

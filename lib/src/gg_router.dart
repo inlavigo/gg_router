@@ -6,12 +6,18 @@
 
 import 'package:flutter/widgets.dart';
 
-import './gg_route_node.dart';
+import 'gg_route_node.dart';
 import 'gg_router_widget.dart';
 
 // #############################################################################
-class GgRouterContext {
-  GgRouterContext({required BuildContext context}) {
+class GgRouter {
+  // ...........................................................................
+  static GgRouter of(BuildContext context) {
+    return GgRouter(context: context);
+  }
+
+  // ...........................................................................
+  GgRouter({required BuildContext context}) {
     _node = GgRouterWidget.node(context: context);
   }
 
@@ -52,9 +58,4 @@ class GgRouterContext {
   // Private
   // ######################
   late GgRouterNode _node;
-}
-
-// #############################################################################
-extension GgContextRouteExtension on BuildContext {
-  GgRouterContext get router => GgRouterContext(context: this);
 }

@@ -14,12 +14,12 @@ main() {
     // .........................................................................
     late GgRouterDelegate routerDelegate;
     late GgRouteInformationParser routeInformationParser;
-    late GgRouterContext router;
+    late GgRouter router;
 
     // .........................................................................
     setUp(WidgetTester tester) async {
       final builder = (BuildContext context) {
-        router = context.router;
+        router = GgRouter.of(context);
         return Container();
       };
 

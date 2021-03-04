@@ -51,11 +51,11 @@ main() {
   setUp(WidgetTester tester) async {
     // ..............................
     final builder = (BuildContext context) {
-      final router = context.router;
+      final router = GgRouter.of(context);
       lastBuiltNode = router.node;
-      routeSegment = context.router.routeName;
-      childRouteSegment = context.router.routeNameOfActiveChild;
-      routePath = context.router.routePath;
+      routeSegment = GgRouter.of(context).routeName;
+      childRouteSegment = GgRouter.of(context).routeNameOfActiveChild;
+      routePath = GgRouter.of(context).routePath;
       return Container();
     };
 
@@ -63,7 +63,7 @@ main() {
     // Create a widget hierarchy /a/b
     final widget = Builder(
       builder: (context) {
-        final router = context.router;
+        final router = GgRouter.of(context);
         router.node.root.errorHandler = null;
         router.node.root.errorHandler = (_) {};
         return Column(children: [
@@ -71,7 +71,7 @@ main() {
           // A button selecting route a0/a11
           TextButton(
             key: ValueKey('a0/a11 Button'),
-            onPressed: () => context.router.navigateTo('a0/a11'),
+            onPressed: () => GgRouter.of(context).navigateTo('a0/a11'),
             child: Container(),
           ),
 
@@ -79,7 +79,7 @@ main() {
           // A button selecting route b0/b11
           TextButton(
             key: ValueKey('b0/b10 Button'),
-            onPressed: () => context.router.navigateTo('b0/b10'),
+            onPressed: () => GgRouter.of(context).navigateTo('b0/b10'),
             child: Container(),
           ),
 
@@ -103,7 +103,7 @@ main() {
                       return TextButton(
                         key: ValueKey('backButton'),
                         onPressed: () {
-                          context.router.navigateTo('.');
+                          GgRouter.of(context).navigateTo('.');
                         },
                         child: Container(),
                       );

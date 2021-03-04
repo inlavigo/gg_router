@@ -10,7 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:gg_router/gg_router.dart';
 
 main() {
-  group('context.router', () {
+  group('GgRouter.of(context)', () {
     // .........................................................................
     setUp(WidgetTester tester, {required Widget child}) async {
       final widget = MaterialApp.router(
@@ -32,19 +32,19 @@ main() {
       (WidgetTester tester) async {
         BuildContext? context;
 
-        late GgRouterContext rootRouter;
-        late GgRouterContext router;
-        late GgRouterContext childRouter;
+        late GgRouter rootRouter;
+        late GgRouter router;
+        late GgRouter childRouter;
 
         await setUp(tester, child: Builder(builder: (c0) {
-          rootRouter = c0.router;
+          rootRouter = GgRouter.of(c0);
 
           final builder = (BuildContext c1, String x) {
             context = c1;
-            router = c1.router;
+            router = GgRouter.of(c1);
             return GgRouterWidget({
               'childRoute$x': (c2) {
-                childRouter = c2.router;
+                childRouter = GgRouter.of(c2);
                 return Container();
               }
             });
@@ -60,36 +60,36 @@ main() {
         expect(context!, isNotNull);
 
         // .......................................................
-        // context.router should give the current context's router
-        expect(router, isInstanceOf<GgRouterContext>());
-        expect(childRouter, isInstanceOf<GgRouterContext>());
+        // GgRouter.of(context) should give the current context's router
+        expect(router, isInstanceOf<GgRouter>());
+        expect(childRouter, isInstanceOf<GgRouter>());
 
         // .......................................................
-        // context.router.node should give the route node assigned to the
+        // GgRouter.of(context).node should give the route node assigned to the
         // current context, in our case this is the first route
         expect(router.node.name, 'routeA');
         expect(childRouter.node.name, 'childRouteA');
 
         // .......................................................
-        // context.router.routeName should give the name of the
+        // GgRouter.of(context).routeName should give the name of the
         // route segment
         expect(router.routeName, 'routeA');
         expect(childRouter.routeName, 'childRouteA');
 
         // .......................................................
-        // context.router.routeNameOfActiveChild should give the name
+        // GgRouter.of(context).routeNameOfActiveChild should give the name
         // of the active child route, or null if no child route is active.
         expect(router.routeNameOfActiveChild, 'childRouteA');
         expect(childRouter.routeNameOfActiveChild, null);
 
         // .......................................................
-        // context.router.routePath should give the complete path
+        // GgRouter.of(context).routePath should give the complete path
         // of the route
         expect(router.routePath, '/routeA');
         expect(childRouter.routePath, '/routeA/childRouteA');
 
         // .......................................................
-        // context.router.indexOfActiveChild should give the index
+        // GgRouter.of(context).indexOfActiveChild should give the index
         // of the active child route, or null if no child route is active.
         expect(rootRouter.indexOfActiveChild, 0);
         expect(childRouter.indexOfActiveChild, null);
@@ -98,7 +98,7 @@ main() {
         expect(rootRouter.indexOfActiveChild, 2);
 
         // .......................................................
-        // context.router.onActiveChildChange should inform, when the
+        // GgRouter.of(context).onActiveChildChange should inform, when the
         // active child changes
         bool? onActiveChildChangeDidFire;
         final s = router.onActiveChildChange
@@ -107,7 +107,7 @@ main() {
         await tester.pumpAndSettle();
         expect(onActiveChildChangeDidFire, isNull);
 
-        // context.router.navigateTo() should allow to navigate relatively
+        // GgRouter.of(context).navigateTo() should allow to navigate relatively
         router.navigateTo('../routeB');
         await tester.pumpAndSettle();
         expect(onActiveChildChangeDidFire, true);
@@ -115,7 +115,7 @@ main() {
         expect(router.routePath, '/routeB');
         expect(childRouter.routePath, '/routeB/childRouteB');
 
-        // context.router.navigateTo() should allow to navigate absolutely
+        // GgRouter.of(context).navigateTo() should allow to navigate absolutely
         childRouter.navigateTo('/routeC');
         await tester.pumpAndSettle();
         expect(router.routePath, '/routeC');
