@@ -26,14 +26,18 @@ main() {
     group('dispose()', () {
       test(
           'should remove all children from the node. '
-          'Should remove the node from its parents list of children', () {
+          'Should remove the node from its parents list of children. '
+          'Should reset the active child property of its parent.', () {
         init();
         final parent = childB.parent!;
+        childB.isActive = true;
         expect(childB.children.length, 1);
         expect(parent.children.length, 1);
+        expect(parent.activeChild, childB);
         childB.dispose();
         expect(parent.children.length, 0);
         expect(childB.children.length, 0);
+        expect(parent.activeChild, null);
       });
     });
 
@@ -223,6 +227,16 @@ main() {
         init();
         expect(root.hasChild(name: 'child-a0'), true);
         expect(root.hasChild(name: 'child-aX'), false);
+      });
+    });
+
+    // #########################################################################
+    group('removeChild(child)', () {
+      test('removes the child from the list of childs. Disposes the child', () {
+        init();
+        expect(root.hasChild(name: childA0.name), isTrue);
+        root.removeChild(childA0);
+        expect(root.hasChild(name: childA0.name), isFalse);
       });
     });
 

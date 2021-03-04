@@ -127,7 +127,15 @@ class GgRouterNode {
   // ...........................................................................
   /// Removes the child
   void removeChild(GgRouterNode child) {
-    _children.remove(child.name);
+    final a = _children[child.name];
+    final b = child;
+
+    if (identical(_children[child.name], child)) {
+      child.dispose();
+    } else {
+      throw ArgumentError(
+          'The child to be remove is not a child of this node.');
+    }
   }
 
   // ...........................................................................
@@ -291,8 +299,13 @@ class GgRouterNode {
       List.from(_children.values).forEach((child) {
         child.dispose();
       });
-      parent?.removeChild(this);
+      parent?._removeChild(this);
     });
+  }
+
+  // ...........................................................................
+  _removeChild(child) {
+    _children.remove(child.name);
   }
 
   // ########
@@ -303,6 +316,11 @@ class GgRouterNode {
 
   // ...........................................................................
   _initIsActive() {
+    _dispose.add(() {
+      if (isActive) {
+        isActive = false;
+      }
+    });
     _dispose.add(() => _isActive.dispose());
   }
 
