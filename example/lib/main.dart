@@ -16,17 +16,15 @@ void main() {
 class MyApp extends StatelessWidget {
   MyApp({Key? key}) : super(key: key);
 
-  final _routerDelegate = GgRouterDelegate(
-      child: Scaffold(
-    body: GgRouterExample(),
-  ));
-  final _routeInformationParser = GgRouteInformationParser();
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerDelegate: _routerDelegate,
-      routeInformationParser: _routeInformationParser,
+      routerDelegate: GgRouterDelegate(
+        child: Scaffold(
+          body: GgRouterExample(),
+        ),
+      ),
+      routeInformationParser: GgRouteInformationParser(),
     );
   }
 }
