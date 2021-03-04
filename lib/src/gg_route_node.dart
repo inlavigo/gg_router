@@ -8,6 +8,8 @@ import 'dart:async';
 import 'package:gg_value/gg_value.dart';
 import 'package:flutter/foundation.dart';
 
+import './gg_router_error.dart';
+
 /// RouteNode represents a node in a route tree.
 class GgRouterNode {
   // ########################
@@ -259,6 +261,33 @@ class GgRouterNode {
   void navigateTo(String path) => _navigateTo(path);
 
   // ######################
+  // Error Handling
+  // ######################
+
+  // ...........................................................................
+  /// Handle error or propagate it up the tree.
+  void setError(GgRouterError error) {
+    final err = error.node == null ? error.withNode(this) : error;
+    _errorHandler?.call(err);
+    if (_errorHandler == null) {
+      parent?.setError(err);
+    }
+  }
+
+  // ...........................................................................
+  set errorHandler(void Function(GgRouterError)? errorHandler) {
+    if (_errorHandler != null) {
+      throw ArgumentError(
+          'This node already has an error handler. Please remove previous error handler.');
+    }
+
+    _errorHandler = errorHandler;
+  }
+
+  // ...........................................................................
+  void Function(GgRouterError)? get errorHandler => _errorHandler;
+
+  // ######################
   // Private
   // ######################
 
@@ -387,6 +416,11 @@ class GgRouterNode {
     final pathComponents = path.split('/');
     startElement.activeChildPath = pathComponents;
   }
+
+  // ##############
+  // Error handling
+
+  Function(GgRouterError)? _errorHandler;
 }
 
 // #############################################################################

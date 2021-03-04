@@ -5,6 +5,7 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gg_router/gg_router.dart';
 import 'package:gg_router/src/gg_router_error.dart';
 
 main() {
@@ -20,6 +21,17 @@ main() {
       test('should be instantiated', () {
         init();
         expect(ggRouterError, isNotNull);
+      });
+    });
+
+    // #########################################################################
+    group('withNode', () {
+      test('should copy the error and add the node to it', () {
+        final node = GgRouterNode(name: '');
+        final copy = ggRouterError.withNode(node);
+        expect(copy.node, node);
+        expect(copy.id, ggRouterError.id);
+        expect(copy.message, ggRouterError.message);
       });
     });
   });

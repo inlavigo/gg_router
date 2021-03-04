@@ -7,6 +7,7 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/gg_router.dart';
+import 'package:gg_router/src/gg_router_error.dart';
 
 main() {
   late GgRouterNode root;
@@ -616,6 +617,47 @@ main() {
         init();
         childB.navigateTo('./child-c');
         expect(root.activeChildPathString, 'child-a0/child-b/child-c');
+      });
+    });
+
+    // #########################################################################
+    group('Error Handling', () {
+      test('should allow to set and handle errors', () {
+        init();
+
+        // ......................................
+        // Let's set an error handler on the root
+        GgRouterError? lastErrorReceivedOnRoot;
+        root.errorHandler = (error) => lastErrorReceivedOnRoot = error;
+
+        // ............................
+        // Let's set an error on childC
+        final error = GgRouterError(
+          id: 'GRC008447',
+          message: 'Error message',
+          node: childC,
+        );
+        childC.setError(error);
+
+        // ........................................
+        // It should arrive at roo'ts error handler
+        expect(lastErrorReceivedOnRoot, isNotNull);
+        expect(lastErrorReceivedOnRoot, error);
+
+        // ....................................
+        // Let's add an error handler to childB
+        // childB should handle the error.
+        // The error should not arrive at root's error handler anymore.
+        lastErrorReceivedOnRoot = null;
+        GgRouterError? lastErrorReceivedOnChildB;
+        childB.errorHandler = (error) => lastErrorReceivedOnChildB = error;
+        childC.setError(error);
+        expect(lastErrorReceivedOnRoot, isNull);
+        expect(lastErrorReceivedOnChildB, error);
+
+        // Let's try to add an error handler twice.
+        // This should cause an exception.
+        expect(() => childB.errorHandler = (error) => {}, throwsArgumentError);
       });
     });
   });
