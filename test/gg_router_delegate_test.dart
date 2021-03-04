@@ -66,7 +66,6 @@ main() {
 
       // ...........................................
       // Should apply RouteInformation to the route node tree
-
       routerDelegate.setNewRoutePath(RouteInformation(location: '/routeA'));
       expect(router.node.root.activeChildPathString, 'routeA');
 

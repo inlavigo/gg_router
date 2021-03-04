@@ -270,13 +270,19 @@ class GgRouterNode {
     final err = error.node == null ? error.withNode(this) : error;
     _errorHandler?.call(err);
     if (_errorHandler == null) {
-      parent?.setError(err);
+      if (parent != null) {
+        parent?.setError(err);
+      } else {
+        throw Exception(
+          'Please set an error handler using "node.errorHandler = ...", to capture routing errors.',
+        );
+      }
     }
   }
 
   // ...........................................................................
   set errorHandler(void Function(GgRouterError)? errorHandler) {
-    if (_errorHandler != null) {
+    if (errorHandler != null && _errorHandler != null) {
       throw ArgumentError(
           'This node already has an error handler. Please remove previous error handler.');
     }

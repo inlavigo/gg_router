@@ -658,6 +658,12 @@ main() {
         // Let's try to add an error handler twice.
         // This should cause an exception.
         expect(() => childB.errorHandler = (error) => {}, throwsArgumentError);
+
+        // .........................................................
+        // Let's remove the error handler from root and set an error
+        // This should cause an exception.
+        root.errorHandler = null;
+        expect(() => root.setError(error), throwsException);
       });
     });
   });
