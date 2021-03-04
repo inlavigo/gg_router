@@ -185,6 +185,9 @@ class GgRouterNode {
   /// Informs if the active child did change.
   Stream<GgRouterNode?> get activeChildDidChange => _activeChild.stream;
 
+  // ...........................................................................
+  GgRouterNode? get previousActiveChild => _previousActiveChild;
+
   // ######################
   // Active Descendands
   // ######################

@@ -230,6 +230,14 @@ main() {
       await tester.pumpAndSettle();
       expect(lastBuiltNode.pathString, '/a0/a10');
 
+      // .................................................................
+      // Test if an invalid url makes GgRouter showing an error widget
+      expect(find.byKey(GgRouter.errorWidgetKey), findsNothing);
+      routeInformationProvider.routeInformation =
+          RouteInformation(location: 'a0/invalidRoute');
+      await tester.pumpAndSettle();
+      expect(find.byKey(GgRouter.errorWidgetKey), findsOneWidget);
+
       await tearDown(tester);
     });
 
