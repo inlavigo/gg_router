@@ -18,10 +18,10 @@ main() {
 
     // .........................................................................
     setUp(WidgetTester tester) async {
-      final builder = Builder(builder: (context) {
+      final builder = (BuildContext context) {
         router = context.router;
         return Container();
-      });
+      };
 
       final widget = GgRouter({
         'routeA': builder,

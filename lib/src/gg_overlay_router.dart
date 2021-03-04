@@ -18,7 +18,7 @@ class GgOverlayRouter extends StatelessWidget {
   }) : super(key: key);
 
   final Widget base;
-  final Map<String, Builder> overlays;
+  final Map<String, Widget Function(BuildContext)> overlays;
 
   // ...........................................................................
   @override

@@ -14,7 +14,7 @@ class GgRouter extends StatelessWidget {
   const GgRouter(this.children) : super();
 
   // ...........................................................................
-  final Map<String, Builder> children;
+  final Map<String, Widget Function(BuildContext)> children;
 
   static final errorWidgetKey = GlobalKey();
 
@@ -61,7 +61,7 @@ class GgRouter extends StatelessWidget {
         // activated.
         if (nodeToBeShown == null && children.keys.contains("")) {
           final defaultWidget = children[""]!;
-          return defaultWidget;
+          return defaultWidget(context);
         }
 
         // ..............................................
@@ -77,10 +77,10 @@ class GgRouter extends StatelessWidget {
 
         // .....................................
         // Show the widget belonging to the node
-        Widget widgetToBeShown = children[nodeToBeShown.name]!;
+        final widgetToBeShown = children[nodeToBeShown.name]!;
 
         return GgRouterCore(
-          child: widgetToBeShown,
+          child: Builder(builder: (c) => widgetToBeShown(c)),
           node: nodeToBeShown,
         );
       },

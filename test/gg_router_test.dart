@@ -50,14 +50,14 @@ main() {
   // .........................................................................
   setUp(WidgetTester tester) async {
     // ..............................
-    final builder = Builder(builder: (context) {
+    final builder = (BuildContext context) {
       final router = context.router;
       lastBuiltNode = router.node;
       routeSegment = context.router.routeName;
       childRouteSegment = context.router.routeNameOfActiveChild;
       routePath = context.router.routePath;
       return Container();
-    });
+    };
 
     // ..............................
     // Create a widget hierarchy /a/b
@@ -96,7 +96,7 @@ main() {
           GgRouter(
             {
               '': builder,
-              'a0': Builder(builder: (context) {
+              'a0': (context) {
                 return Column(
                   children: [
                     Builder(builder: (context) {
@@ -115,13 +115,13 @@ main() {
                     }),
                   ],
                 );
-              }),
-              'b0': Builder(builder: (context) {
+              },
+              'b0': (context) {
                 return GgRouter({
                   'b10': builder,
                   'b11': builder,
                 });
-              }),
+              },
             },
           ),
         ]);

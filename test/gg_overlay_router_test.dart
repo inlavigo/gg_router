@@ -35,14 +35,14 @@ main() {
           return base;
         }),
         overlays: {
-          'overlay0': Builder(builder: (context) {
+          'overlay0': (context) {
             overlayRouter = context.router;
             return overlay0;
-          }),
-          'overlay1': Builder(builder: (context) {
+          },
+          'overlay1': (context) {
             overlayRouter = context.router;
             return overlay1;
-          }),
+          }
         },
       );
       await tester.pumpWidget(

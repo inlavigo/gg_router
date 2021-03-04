@@ -39,23 +39,21 @@ main() {
         await setUp(tester, child: Builder(builder: (c0) {
           rootRouter = c0.router;
 
-          final builder = (String x) => Builder(
-                builder: (c1) {
-                  context = c1;
-                  router = c1.router;
-                  return GgRouter({
-                    'childRoute$x': Builder(builder: (c2) {
-                      childRouter = c2.router;
-                      return Container();
-                    })
-                  });
-                },
-              );
+          final builder = (BuildContext c1, String x) {
+            context = c1;
+            router = c1.router;
+            return GgRouter({
+              'childRoute$x': (c2) {
+                childRouter = c2.router;
+                return Container();
+              }
+            });
+          };
 
           return GgRouter({
-            'routeA': builder('A'),
-            'routeB': builder('B'),
-            'routeC': builder('C'),
+            'routeA': (c) => builder(c, 'A'),
+            'routeB': (c) => builder(c, 'B'),
+            'routeC': (c) => builder(c, 'C'),
           });
         }));
 
