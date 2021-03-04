@@ -11,43 +11,47 @@ import './gg_router.dart';
 
 // #############################################################################
 class GgRouterContext {
-  const GgRouterContext({required this.context});
+  GgRouterContext({required BuildContext context}) {
+    _node = GgRouter.node(context: context);
+  }
 
   // ...........................................................................
-  final BuildContext context;
-
-  // ...........................................................................
-  GgRouterNode get node => GgRouter.node(context: context);
+  GgRouterNode get node => _node;
 
   // ...........................................................................
   void navigateTo(String path) {
-    final node = GgRouter.node(context: context);
     node.navigateTo(path);
   }
 
   // ...........................................................................
   String? get routeName {
-    final node = GgRouter.node(context: context);
     return node.name;
   }
 
   // ...........................................................................
   String? get routeNameOfActiveChild {
-    final node = GgRouter.node(context: context);
     return node.activeChild?.name;
   }
 
   // ...........................................................................
+  int? get indexOfActiveChild {
+    return node.activeChild?.index;
+  }
+
+  // ...........................................................................
   String get routePath {
-    final node = GgRouter.node(context: context);
     return node.pathString;
   }
 
   // ...........................................................................
   Stream<void> get onActiveChildChange {
-    final node = GgRouter.node(context: context);
     return node.activeChildDidChange;
   }
+
+  // ######################
+  // Private
+  // ######################
+  late GgRouterNode _node;
 }
 
 // #############################################################################

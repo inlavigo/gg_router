@@ -143,11 +143,7 @@ class GgRouterExample extends StatelessWidget {
           bottomNavigationBar: StreamBuilder(
               stream: router.onActiveChildChange,
               builder: (context, snapshot) {
-                final activeChildRouteSegment =
-                    router.routeNameOfActiveChild ?? 'basketball';
-
-                final index = ['basketball', 'football', 'handball']
-                    .indexOf(activeChildRouteSegment);
+                final index = router.indexOfActiveChild ?? 0;
 
                 return BottomNavigationBar(
                   currentIndex: index,
@@ -213,11 +209,7 @@ class GgRouterExample extends StatelessWidget {
           bottomNavigationBar: StreamBuilder(
               stream: router.onActiveChildChange,
               builder: (context, snapshot) {
-                final activeChildRouteSegment =
-                    router.routeNameOfActiveChild ?? 'bus';
-
-                final index =
-                    ['bus', 'bike', 'car'].indexOf(activeChildRouteSegment);
+                final index = router.indexOfActiveChild ?? 0;
 
                 return BottomNavigationBar(
                   currentIndex: index,
@@ -271,11 +263,7 @@ class GgRouterExample extends StatelessWidget {
           bottomNavigationBar: StreamBuilder(
               stream: router.onActiveChildChange,
               builder: (context, snapshot) {
-                final activeChildRouteSegment =
-                    router.routeNameOfActiveChild ?? 'airport';
-
-                final index = ['airport', 'park', 'hospital']
-                    .indexOf(activeChildRouteSegment);
+                final index = router.indexOfActiveChild ?? 0;
 
                 return BottomNavigationBar(
                   currentIndex: index,

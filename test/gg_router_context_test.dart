@@ -3,6 +3,7 @@
 //
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart';
@@ -30,14 +31,21 @@ main() {
       'should work correctly',
       (WidgetTester tester) async {
         BuildContext? context;
-        BuildContext? childContext;
+
+        late GgRouterContext rootRouter;
+        late GgRouterContext router;
+        late GgRouterContext childRouter;
+
         await setUp(tester, child: Builder(builder: (c0) {
+          rootRouter = c0.router;
+
           final builder = (String x) => Builder(
                 builder: (c1) {
                   context = c1;
+                  router = c1.router;
                   return GgRouter({
                     'childRoute$x': Builder(builder: (c2) {
-                      childContext = c2;
+                      childRouter = c2.router;
                       return Container();
                     })
                   });
@@ -52,9 +60,6 @@ main() {
         }));
 
         expect(context!, isNotNull);
-
-        var router = context!.router;
-        var childRouter = childContext!.router;
 
         // .......................................................
         // context.router should give the current context's router
@@ -86,6 +91,15 @@ main() {
         expect(childRouter.routePath, '/routeA/childRouteA');
 
         // .......................................................
+        // context.router.indexOfActiveChild should give the index
+        // of the active child route, or null if no child route is active.
+        expect(rootRouter.indexOfActiveChild, 0);
+        expect(childRouter.indexOfActiveChild, null);
+        router.navigateTo('/routeC');
+        await tester.pumpAndSettle();
+        expect(rootRouter.indexOfActiveChild, 2);
+
+        // .......................................................
         // context.router.onActiveChildChange should inform, when the
         // active child changes
         bool? onActiveChildChangeDidFire;
@@ -99,16 +113,13 @@ main() {
         router.navigateTo('../routeB');
         await tester.pumpAndSettle();
         expect(onActiveChildChangeDidFire, true);
-        router = context!.router;
-        childRouter = childContext!.router;
+
         expect(router.routePath, '/routeB');
         expect(childRouter.routePath, '/routeB/childRouteB');
 
         // context.router.navigateTo() should allow to navigate absolutely
         childRouter.navigateTo('/routeC');
         await tester.pumpAndSettle();
-        router = context!.router;
-        childRouter = childContext!.router;
         expect(router.routePath, '/routeC');
         expect(childRouter.routePath, '/routeC/childRouteC');
 

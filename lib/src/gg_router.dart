@@ -23,6 +23,8 @@ class GgRouter extends StatelessWidget {
     // Get parent node
     final parentNode = node(context: context);
 
+    _createChildNodes(parentNode);
+
     assert(children.length > 0);
 
     // Create a stream builder rebuilding the tree on active child change.
@@ -78,6 +80,13 @@ class GgRouter extends StatelessWidget {
     );
 
     return result;
+  }
+
+  // ...........................................................................
+  _createChildNodes(GgRouterNode parentNode) {
+    children.keys.forEach((routeName) {
+      parentNode.child(name: routeName);
+    });
   }
 
   // ...........................................................................
