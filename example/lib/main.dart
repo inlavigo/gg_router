@@ -75,6 +75,7 @@ class GgRouterExample extends StatelessWidget {
       final snackBar = SnackBar(
         content: Text(error.message),
         duration: Duration(seconds: 6),
+        backgroundColor: Colors.red,
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     };
