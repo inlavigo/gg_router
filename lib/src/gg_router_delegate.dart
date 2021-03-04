@@ -61,8 +61,10 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
   // ...........................................................................
   _listenToRouteChanges() {
-    _root.activeDescendandsDidChange.listen((event) {
+    final s = _root.activeDescendandsDidChange.listen((event) {
       notifyListeners();
     });
+
+    _dispose.add(s.cancel);
   }
 }

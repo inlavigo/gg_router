@@ -53,8 +53,8 @@ main() {
     final builder = Builder(builder: (context) {
       final router = context.router;
       lastBuiltNode = router.node;
-      routeSegment = context.router.routeSegment;
-      childRouteSegment = context.router.activeChildRouteSegment;
+      routeSegment = context.router.routeName;
+      childRouteSegment = context.router.routeNameOfActiveChild;
       routePath = context.router.routePath;
       return Container();
     });
@@ -260,17 +260,17 @@ main() {
       await a0OnlyButton.press();
       expect(lastBuiltNode.pathString, '/a0');
     });
-  });
 
-  group('GgContextRouteExtension', () {
     // #########################################################################
-    group('navigateTo(path)', () {
-      test('should process absolute pathes', () {});
-      test('should process relative pathes', () {});
-
-      test('should process .. as parent path', () {});
-
-      test('should process . as own path', () {});
+    group('GgRouter.node', () {
+      testWidgets(
+          'should thrown an exception when the context does not have already a '
+          'GgRouterCore instance, callback', (WidgetTester tester) async {
+        tester.pumpWidget(Builder(builder: (context) {
+          expect(() => GgRouter.node(context: context), throwsArgumentError);
+          return Container();
+        }));
+      });
     });
   });
 }

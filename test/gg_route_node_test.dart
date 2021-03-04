@@ -23,6 +23,21 @@ main() {
 
   group('GgRouterNode', () {
     // #########################################################################
+    group('dispose()', () {
+      test(
+          'should remove all children from the node. '
+          'Should remove the node from its parents list of children', () {
+        init();
+        final parent = childB.parent!;
+        expect(childB.children.length, 1);
+        expect(parent.children.length, 1);
+        childB.dispose();
+        expect(parent.children.length, 0);
+        expect(childB.children.length, 0);
+      });
+    });
+
+    // #########################################################################
     group('name', () {
       test('should return the name of the node', () {
         init();
@@ -137,6 +152,29 @@ main() {
         expect(childA0.isActive, false);
         expect(childB.isActive, false);
         expect(childC.isActive, false);
+      });
+    });
+
+    // #########################################################################
+    group('onIsActive', () {
+      test('should inform when isActive state changes', () {
+        init();
+        fakeAsync((fake) {
+          bool? isActive;
+          final s = childB.onIsActive.listen((event) => isActive = event);
+          fake.flushMicrotasks();
+          expect(isActive, isNull);
+
+          childC.isActive = true;
+          fake.flushMicrotasks();
+          expect(isActive, isTrue);
+
+          childA0.isActive = false;
+          fake.flushMicrotasks();
+          expect(isActive, isFalse);
+
+          s.cancel();
+        });
       });
     });
 
