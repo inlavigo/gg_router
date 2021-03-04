@@ -154,11 +154,13 @@ class GgRouterNode {
         }
         result = result.parent!;
       } else if (element == '_LAST_') {
-        GgRouterNode? previousActiveChild = result._previousActiveChild;
+        GgRouterNode? previousActiveChild =
+            result._currentOrPreviouslyActiveChild;
 
         if (path.last == element) {
-          while (previousActiveChild?._previousActiveChild != null) {
-            previousActiveChild = previousActiveChild!._previousActiveChild;
+          while (previousActiveChild?._currentOrPreviouslyActiveChild != null) {
+            previousActiveChild =
+                previousActiveChild!._currentOrPreviouslyActiveChild;
           }
         }
 
@@ -329,6 +331,9 @@ class GgRouterNode {
   // ...........................................................................
   final _activeChild = GgValue<GgRouterNode?>(seed: null);
   GgRouterNode? _previousActiveChild;
+
+  GgRouterNode? get _currentOrPreviouslyActiveChild =>
+      _activeChild.value ?? _previousActiveChild;
 
   _initActiveChild() {
     _dispose.add(() => _activeChild.dispose());
