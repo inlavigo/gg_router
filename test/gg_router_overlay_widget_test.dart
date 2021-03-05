@@ -13,7 +13,7 @@ import 'package:gg_router/gg_router.dart';
 main() {
   group('GgOverlayRouter', () {
     // .........................................................................
-    late GgEasyWidgetTest<GgOverlayRouter, dynamic> ggOverlayRouter;
+    late GgEasyWidgetTest<GgRouterOverlayWidget, dynamic> ggOverlayRouter;
     final key = GlobalKey(debugLabel: 'GgOverlayRouter');
     final baseKey = ValueKey('base');
     final Widget base = Container(key: baseKey);
@@ -28,7 +28,7 @@ main() {
 
     // .........................................................................
     setUp(WidgetTester tester) async {
-      final widget = GgOverlayRouter(
+      final widget = GgRouterOverlayWidget(
         key: key,
         base: Builder(builder: (context) {
           baseRouter = GgRouter.of(context);

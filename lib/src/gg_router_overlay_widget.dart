@@ -9,9 +9,11 @@ import 'package:flutter/material.dart';
 import 'gg_router_widget.dart';
 import 'gg_router.dart';
 
-class GgOverlayRouter extends StatelessWidget {
+/// Allows to define a bunch of routes witch are displayed infront of a
+/// base widget.
+class GgRouterOverlayWidget extends StatelessWidget {
   // ...........................................................................
-  const GgOverlayRouter({
+  const GgRouterOverlayWidget({
     Key? key,
     required this.base,
     required this.overlays,

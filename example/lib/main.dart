@@ -186,7 +186,7 @@ class GgRouterExample extends StatelessWidget {
       body: GgRouterWidget(
         {
           'basketball': (context) {
-            return GgOverlayRouter(
+            return GgRouterOverlayWidget(
               base: Listener(
                 child: _bigIcon(context, Icons.sports_basketball),
                 onPointerUp: (_) => GgRouter.of(context).navigateTo('dialog'),
