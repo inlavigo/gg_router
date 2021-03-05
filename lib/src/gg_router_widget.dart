@@ -6,7 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
-import 'gg_route_core.dart';
+import 'gg_router.dart';
 import 'gg_route_tree_node.dart';
 
 // #############################################################################
@@ -15,8 +15,6 @@ class GgRouterWidget extends StatelessWidget {
 
   // ...........................................................................
   final Map<String, Widget Function(BuildContext)> children;
-
-  static final errorWidgetKey = GlobalKey();
 
   // ...........................................................................
   @override
@@ -79,7 +77,7 @@ class GgRouterWidget extends StatelessWidget {
         // Show the widget belonging to the node
         final widgetToBeShown = children[nodeToBeShown.name]!;
 
-        return GgRouterCore(
+        return GgRouter(
           child: Builder(builder: (c) => widgetToBeShown(c)),
           node: nodeToBeShown,
         );
@@ -100,17 +98,7 @@ class GgRouterWidget extends StatelessWidget {
   static GgRouteTreeNode node({
     required BuildContext context,
   }) {
-    final result = GgRouterCore.of(context)?.node;
-
-    if (result == null) {
-      throw ArgumentError(
-        'Did not find an instance of GgRouterDelegate.\n'
-        'Please wrap your GgRouter into a MaterialApp.router(...) and '
-        'assign an instance of GgRouterDelegate to "routerDelegate".\n'
-        'For more details look into "gg_router/example/main.dart".',
-      );
-    }
-
+    final result = GgRouter.of(context).node;
     return result;
   }
 }

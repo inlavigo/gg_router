@@ -628,7 +628,9 @@ main() {
         // ......................................
         // Let's set an error handler on the root
         GgRouterError? lastErrorReceivedOnRoot;
-        root.errorHandler = (error) => lastErrorReceivedOnRoot = error;
+        final errorHandler = (error) => lastErrorReceivedOnRoot = error;
+        root.errorHandler = errorHandler;
+        expect(root.errorHandler, errorHandler);
 
         // ............................
         // Let's set an error on childC

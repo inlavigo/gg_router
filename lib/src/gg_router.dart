@@ -5,20 +5,41 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter/widgets.dart';
+import 'package:gg_router/gg_router.dart';
 
 import 'gg_route_tree_node.dart';
-import 'gg_router_widget.dart';
 
 // #############################################################################
-class GgRouter {
+class GgRouter extends InheritedWidget {
   // ...........................................................................
-  static GgRouter of(BuildContext context) {
-    return GgRouter(context: context);
+  GgRouter({
+    required Widget child,
+    required GgRouteTreeNode node,
+  })   : _node = node,
+        super(
+          key: ValueKey(node.pathHashCode),
+          child: child,
+        );
+
+  // ...........................................................................
+  @override
+  bool updateShouldNotify(covariant InheritedWidget oldWidget) {
+    return false;
   }
 
   // ...........................................................................
-  GgRouter({required BuildContext context}) {
-    _node = GgRouterWidget.node(context: context);
+  static GgRouter of(BuildContext context) {
+    final result = context.dependOnInheritedWidgetOfExactType<GgRouter>();
+    if (result != null) {
+      return result;
+    } else {
+      throw Exception(
+        'Did not find an instance of GgRouterDelegate.\n'
+        'Please wrap your GgRouter into a MaterialApp.router(...) and '
+        'assign an instance of GgRouterDelegate to "routerDelegate".\n'
+        'For more details look into "gg_router/example/main.dart".',
+      );
+    }
   }
 
   // ...........................................................................
@@ -26,36 +47,36 @@ class GgRouter {
 
   // ...........................................................................
   void navigateTo(String path) {
-    node.navigateTo(path);
+    _node.navigateTo(path);
   }
 
   // ...........................................................................
   String? get routeName {
-    return node.name;
+    return _node.name;
   }
 
   // ...........................................................................
   String? get routeNameOfActiveChild {
-    return node.activeChild?.name;
+    return _node.activeChild?.name;
   }
 
   // ...........................................................................
   int? get indexOfActiveChild {
-    return node.activeChild?.index;
+    return _node.activeChild?.index;
   }
 
   // ...........................................................................
   String get routePath {
-    return node.pathString;
+    return _node.pathString;
   }
 
   // ...........................................................................
   Stream<void> get onActiveChildChange {
-    return node.activeChildDidChange;
+    return _node.activeChildDidChange;
   }
 
   // ######################
   // Private
   // ######################
-  late GgRouteTreeNode _node;
+  final GgRouteTreeNode _node;
 }

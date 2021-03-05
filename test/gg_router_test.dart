@@ -121,6 +121,18 @@ main() {
         expect(router.routePath, '/routeC');
         expect(childRouter.routePath, '/routeC/childRouteC');
 
+        // GgRouter.of(context) should throw if context is not a child of
+        // GgRouterDelegate
+
+        await tester.pumpWidget(
+          Builder(
+            builder: (context) {
+              expect(() => GgRouter.of(context), throwsException);
+              return Container();
+            },
+          ),
+        );
+
         s.cancel();
 
         await tearDown(tester);

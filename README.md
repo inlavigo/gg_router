@@ -126,7 +126,6 @@ If one opens a URI in the browser that is not defined using `GgRouterWidget(...)
 route last active is kept. But you might want to handle that error and show an
 error message. To do so, assign an error handler to `GgRouter.of(context).errorHandler`.
 
-
 ## Navigation buttons
 
 ### Combining route and navigation elements

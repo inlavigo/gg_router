@@ -286,18 +286,5 @@ main() {
       await a0OnlyButton.press();
       expect(lastBuiltNode.pathString, '/a0');
     });
-
-    // #########################################################################
-    group('GgRouter.node', () {
-      testWidgets(
-          'should thrown an exception when the context does not have already a '
-          'GgRouterCore instance, callback', (WidgetTester tester) async {
-        tester.pumpWidget(Builder(builder: (context) {
-          expect(
-              () => GgRouterWidget.node(context: context), throwsArgumentError);
-          return Container();
-        }));
-      });
-    });
   });
 }
