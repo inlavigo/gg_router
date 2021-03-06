@@ -2,7 +2,7 @@ name: gg_router
 description: GgRouter - Super Simple Routing and Navigation for Flutter
 version: 0.0.1+1
 author: Gabriel Gatzsche
-homepage: "https://github.com/gatzsche/gg_router"
+homepage: "https://github.com/inlavigo/gg_router"
 
 environment:
   sdk: ">=2.12.0-0 <3.0.0"

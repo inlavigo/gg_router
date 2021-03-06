@@ -73,7 +73,7 @@ packages:
     source: path
     version: "0.0.1+1"
   gg_value:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: gg_value
       url: "https://pub.dartlang.org"

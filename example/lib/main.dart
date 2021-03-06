@@ -6,6 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
+import 'package:gg_value/gg_value.dart';
 import 'configure_nonweb.dart' if (dart.library.html) 'configure_web.dart';
 
 void main() {
@@ -125,22 +126,23 @@ class GgRouterExample extends StatelessWidget {
   // ...........................................................................
   Widget _dialog(BuildContext context) {
     return Dialog(
-        child: Stack(
-      children: [
-        Align(
-          alignment: Alignment.topRight,
-          child: IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () {
-              GgRouter.of(context).navigateTo('..');
-            },
+      child: Stack(
+        children: [
+          Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () {
+                GgRouter.of(context).navigateTo('..');
+              },
+            ),
           ),
-        ),
-        Center(
-          child: Text('Let\'s play basketball.'),
-        ),
-      ],
-    ));
+          Center(
+            child: Text('Let\'s play basketball.'),
+          ),
+        ],
+      ),
+    );
   }
 
   // ...........................................................................
@@ -186,13 +188,24 @@ class GgRouterExample extends StatelessWidget {
       body: GgRouterWidget(
         {
           'basketball': (context) {
-            return GgRouterOverlayWidget(
-              base: Listener(
-                child: _bigIcon(context, Icons.sports_basketball),
-                onPointerUp: (_) => GgRouter.of(context).navigateTo('dialog'),
-              ),
-              overlays: {
-                'dialog': _dialog,
+            return GgRouteParams(
+              prefix: 'bktbl',
+              params: {
+                'players': GgRouteParam(seed: 5),
+                'temperature': GgRouteParam(seed: 21.5),
+                'funny': GgRouteParam(seed: true),
+              },
+              builder: (context) {
+                return GgRouterOverlayWidget(
+                  base: Listener(
+                    child: _bigIcon(context, Icons.sports_basketball),
+                    onPointerUp: (_) =>
+                        GgRouter.of(context).navigateTo('dialog'),
+                  ),
+                  overlays: {
+                    'dialog': _dialog,
+                  },
+                );
               },
             );
           },
