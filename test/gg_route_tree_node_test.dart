@@ -560,6 +560,21 @@ main() {
           expect(calls1, 1);
           resetCalls();
 
+          // Let's add another child, and check if changes on the new child's
+          // params are communicated.
+          final newChild = childC.child(name: 'new-child');
+          newChild.findOrCreateParam(name: 'k', seed: 5);
+          fake.flushMicrotasks();
+          expect(calls0, 1);
+          expect(calls1, 1);
+          resetCalls();
+          expect(calls0, 0);
+          expect(calls1, 0);
+          newChild.param('k')!.value++;
+          fake.flushMicrotasks();
+          expect(calls0, 1);
+          expect(calls1, 1);
+
           s0.cancel();
           s1.cancel();
         });

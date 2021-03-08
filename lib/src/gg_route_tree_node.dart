@@ -530,7 +530,8 @@ class GgRouteTreeNode {
     _dispose.add(() => _ownOrChildParamChange.close());
 
     _triggerOwnOrChildParamChange = GgOncePerCycle(task: () {
-      if (_ownOrChildParamChange.hasListener) {
+      if (!_ownOrChildParamChange.isClosed &&
+          _ownOrChildParamChange.hasListener) {
         _ownOrChildParamChange.add(null);
       }
     });
