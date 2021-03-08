@@ -26,21 +26,20 @@ class GgRouteParamsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _checkParams(context);
+    _writeParamsToNode(context);
     return child;
   }
 
   // ...........................................................................
-  _checkParams(BuildContext context) {
+  void _checkParams(BuildContext context) {
     // Check if any of the parent route param widgets already contains a
     // parameter with same name.
-
     context.visitAncestorElements((element) {
       GgRouteParamsWidget? parentWidget = element.widget is GgRouteParamsWidget
           ? element.widget as GgRouteParamsWidget
           : null;
 
       if (parentWidget != null) {
-        // Let's check if some of the parameters is already existing.
         final existingParams = parentWidget.params.keys;
         final ownParams = params.keys;
         ownParams.forEach((ownParam) {
@@ -53,6 +52,14 @@ class GgRouteParamsWidget extends StatelessWidget {
       }
 
       return true;
+    });
+  }
+
+  // ...........................................................................
+  void _writeParamsToNode(BuildContext context) {
+    final router = GgRouter.of(context);
+    params.forEach((name, value) {
+      router.node.findOrCreateParam(name: name, seed: value.seed);
     });
   }
 }
