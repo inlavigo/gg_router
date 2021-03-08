@@ -21,6 +21,7 @@ class GgRouteTreeNode {
     this.parent,
   }) {
     _initParent();
+    _initProperties();
     _initPath();
     _initChildren();
     _initIsActive();
@@ -211,6 +212,40 @@ class GgRouteTreeNode {
       _activeDescendands.stream;
 
   // ######################
+  // Properties
+  // ######################
+
+  // ...........................................................................
+  /// Returns the map with all properties of the node
+  Map<String, GgValue> get properties => _properties;
+
+  // ...........................................................................
+  ///
+  String? propertyPrefix;
+
+  // ...........................................................................
+  /// Returns the route name with name. If no param with name exists, one is
+  /// created. [seed] is required only the first time.
+  GgValue<T> property<T>({required String name, T? seed}) {
+    var result = _properties[name] as GgValue<T>?;
+
+    // Create a local property
+    bool isCalledFirstTime = result == null;
+    if (isCalledFirstTime) {
+      bool seedIsProvidedFirstTime = seed != null;
+      if (!seedIsProvidedFirstTime) {
+        throw ArgumentError(
+            'GgValue.properties(name: \'$name\') is called the first time. But no seed is provided.');
+      } else {
+        result = GgValue(seed: seed);
+        _properties[name] = result;
+      }
+    }
+
+    return result;
+  }
+
+  // ######################
   // Path
   // ######################
 
@@ -343,6 +378,15 @@ class GgRouteTreeNode {
   // ...........................................................................
   _removeChild(child) {
     _children.remove(child.name);
+  }
+
+  // ########
+  // params
+
+  // ...........................................................................
+  final _properties = Map<String, GgValue>();
+  _initProperties() {
+    _dispose.add(() => _properties.forEach((key, value) => value.dispose()));
   }
 
   // ########

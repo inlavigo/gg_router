@@ -6,7 +6,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
-import 'package:gg_value/gg_value.dart';
 import 'configure_nonweb.dart' if (dart.library.html) 'configure_web.dart';
 
 void main() {
@@ -188,7 +187,7 @@ class GgRouterExample extends StatelessWidget {
       body: GgRouterWidget(
         {
           'basketball': (context) {
-            return GgRouteParams(
+            return GgRouteParamsWidget(
               prefix: 'bktbl',
               params: {
                 'players': GgRouteParam(seed: 5),

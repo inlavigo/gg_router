@@ -425,6 +425,31 @@ main() {
     });
 
     // #########################################################################
+    group('propery(name, seed)', () {
+      test('Should create a new property, if no property with name exists', () {
+        init();
+        root.property(name: 'a', seed: 5);
+        expect(root.properties.containsKey('a'), true);
+      });
+
+      test(
+          'Should throw an exception, when property is not existing and seed is null',
+          () {
+        init();
+
+        expect(() => root.property(name: 'a'), throwsArgumentError);
+      });
+
+      test('should throw an exception if a wrong value is added to property',
+          () {
+        init();
+        root.property(name: 'a', seed: 5);
+        final prop = root.property(name: 'a');
+        expect(() => prop.value = 'Hello', throwsA(isA<TypeError>()));
+      });
+    });
+
+    // #########################################################################
     group('activeDescendandsDidChange', () {
       test('should return a stream which informs about the active descendands',
           () {
