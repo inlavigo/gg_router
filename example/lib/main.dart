@@ -193,18 +193,15 @@ class GgRouterExample extends StatelessWidget {
                 'temperature': GgRouteParam(seed: 21.5),
                 'funny': GgRouteParam(seed: true),
               },
-              builder: (context) {
-                return GgRouterOverlayWidget(
-                  base: Listener(
-                    child: _bigIcon(context, Icons.sports_basketball),
-                    onPointerUp: (_) =>
-                        GgRouter.of(context).navigateTo('dialog'),
-                  ),
-                  overlays: {
-                    'dialog': _dialog,
-                  },
-                );
-              },
+              child: GgRouterOverlayWidget(
+                base: Listener(
+                  child: _bigIcon(context, Icons.sports_basketball),
+                  onPointerUp: (_) => GgRouter.of(context).navigateTo('dialog'),
+                ),
+                overlays: {
+                  'dialog': _dialog,
+                },
+              ),
             );
           },
           'football': (c) => _bigIcon(c, Icons.sports_football),

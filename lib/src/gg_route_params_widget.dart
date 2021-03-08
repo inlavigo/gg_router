@@ -5,29 +5,54 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
+import 'package:gg_router/gg_router.dart';
 import './gg_route_param.dart';
 
-class GgRouteParamsWidget extends InheritedWidget {
+class GgRouteParamsWidget extends StatelessWidget {
   // ...........................................................................
   GgRouteParamsWidget({
     Key? key,
-    required Widget Function(BuildContext) builder,
+    required this.child,
     required this.params,
   }) : super(
           key: key,
-          child: Builder(
-            builder: (context) {
-              // Todo: Write params into node
-
-              return builder(context);
-            },
-          ),
         );
 
   // ...........................................................................
   final Map<String, GgRouteParam> params;
+  final Widget child;
 
   // ...........................................................................
   @override
-  bool updateShouldNotify(covariant InheritedWidget oldWidget) => true;
+  Widget build(BuildContext context) {
+    _checkParams(context);
+    return child;
+  }
+
+  // ...........................................................................
+  _checkParams(BuildContext context) {
+    // Check if any of the parent route param widgets already contains a
+    // parameter with same name.
+
+    context.visitAncestorElements((element) {
+      GgRouteParamsWidget? parentWidget = element.widget is GgRouteParamsWidget
+          ? element.widget as GgRouteParamsWidget
+          : null;
+
+      if (parentWidget != null) {
+        // Let's check if some of the parameters is already existing.
+        final existingParams = parentWidget.params.keys;
+        final ownParams = params.keys;
+        ownParams.forEach((ownParam) {
+          if (existingParams.contains(ownParam)) {
+            throw ArgumentError('Cannot process route param "$ownParam". '
+                'There is already a parent GgRouteParams object, containing a route param with the name "$ownParam". '
+                'Make sure you are using unique param names accross a route and its parents.');
+          }
+        });
+      }
+
+      return true;
+    });
+  }
 }
