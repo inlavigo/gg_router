@@ -15,6 +15,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   GgRouterDelegate({required this.child})
       : navigatorKey = GlobalKey<NavigatorState>() {
     _listenToRouteChanges();
+    _listenToParameterChanges();
   }
 
 // ...........................................................................
@@ -40,7 +41,19 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   // ...........................................................................
   @override
   RouteInformation get currentConfiguration {
-    return RouteInformation(location: _root.activeChildPath.join('/'));
+    Map<String, dynamic> queryParameters = {};
+    _root.activeParams.forEach((param) {
+      queryParameters[param.name] = param.value.toString();
+    });
+
+    final uri = Uri(
+      pathSegments: _root.activeChildPath,
+      queryParameters: queryParameters.length > 0 ? queryParameters : null,
+    );
+
+    return RouteInformation(
+      location: uri.toString(),
+    );
   }
 
   // ...........................................................................
@@ -65,6 +78,14 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
       notifyListeners();
     });
 
+    _dispose.add(s.cancel);
+  }
+
+  // ...........................................................................
+  _listenToParameterChanges() {
+    final s = _root.onOwnOrChildParamChange.listen((event) {
+      notifyListeners();
+    });
     _dispose.add(s.cancel);
   }
 }

@@ -13,9 +13,9 @@ import 'dart:async' show Stream;
 import 'gg_route_tree_node_error.dart';
 
 // #############################################################################
-class _Param<T> extends GgValue<T> {
+class Param<T> extends GgValue<T> {
   // ...........................................................................
-  _Param({
+  Param({
     required this.parent,
     required this.seed,
     required this.name,
@@ -44,7 +44,7 @@ class _Params {
   }
 
   // ...........................................................................
-  _Param<T> findOrCreateParam<T>({
+  Param<T> findOrCreateParam<T>({
     required GgRouteTreeNode parent,
     required T seed,
     required String name,
@@ -54,7 +54,7 @@ class _Params {
   }) {
     var result = _params[name];
     if (result == null) {
-      result = _Param<T>(
+      result = Param<T>(
         parent: parent,
         seed: seed,
         name: name,
@@ -70,7 +70,7 @@ class _Params {
       _checkType<T>(result);
     }
 
-    return result as _Param<T>;
+    return result as Param<T>;
   }
 
   // ...........................................................................
@@ -79,13 +79,13 @@ class _Params {
   }
 
   // ...........................................................................
-  _Param<T>? param<T>(String name) {
+  Param<T>? param<T>(String name) {
     final result = _params[name];
     if (result != null) {
       _checkType<T>(result);
     }
 
-    return _params[name] as _Param<T>?;
+    return _params[name] as Param<T>?;
   }
 
   // ...........................................................................
@@ -108,8 +108,8 @@ class _Params {
   }
 
   // ...........................................................................
-  _checkType<T>(_Param param) {
-    if (!(param is _Param<T>)) {
+  _checkType<T>(Param param) {
+    if (!(param is Param<T>)) {
       throw ArgumentError(
         'Error while retrieving param with name "${param.name}". '
         'The existing param has type "${param.value.runtimeType.toString()}" and not "${T.toString()}".',
@@ -118,7 +118,7 @@ class _Params {
   }
 
   // ...........................................................................
-  final _params = Map<String, _Param>();
+  final _params = Map<String, Param>();
 
   // ...........................................................................
   final _onChange = StreamController<void>.broadcast();
@@ -366,6 +366,19 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns the parameter with name or null if no parameter with name exists.
   GgValue<T>? param<T>(String name) => _params.param(name);
+
+  // ...........................................................................
+  /// Returns all parameters of the active path
+  List<Param> get activeParams {
+    List<Param> result = [];
+    GgRouteTreeNode? node = this;
+    while (node != null) {
+      result.addAll(node._params._params.values);
+      node = node.activeChild;
+    }
+
+    return result;
+  }
 
   // ...........................................................................
   /// Returns true if param with [name] exists, otherwise false is returned.

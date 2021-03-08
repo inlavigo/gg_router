@@ -18,15 +18,17 @@ main() {
 
     // .........................................................................
     setUp(WidgetTester tester) async {
-      final builder = (BuildContext context) {
-        router = GgRouter.of(context);
-        return Container();
-      };
+      final builder =
+          (Map<String, GgRouteParam> params) => (BuildContext context) {
+                router = GgRouter.of(context);
+                return GgRouteParamsWidget(child: Container(), params: params);
+              };
 
       final widget = GgRouterWidget({
-        'routeA': builder,
-        'routeB': builder,
-        'routeC': builder,
+        'routeA': builder({'a': GgRouteParam(seed: 5)}),
+        'routeB': builder({'b': GgRouteParam(seed: 6)}),
+        'routeC':
+            builder({'c': GgRouteParam(seed: 7), 'd': GgRouteParam(seed: 8)}),
       });
       routeInformationParser = GgRouteInformationParser();
       routerDelegate = GgRouterDelegate(child: widget);
@@ -61,13 +63,21 @@ main() {
       // Should provide the RouteInformation for the currently set path
       router.navigateTo('/routeC');
       await tester.pumpAndSettle();
-      expect(routerDelegate.currentConfiguration.location!, 'routeC');
+      expect(routerDelegate.currentConfiguration.location!, 'routeC?c=7&d=8');
       expect(router.node.root.activeChildPathString, 'routeC');
 
       // ...........................................
       // Should apply RouteInformation to the route node tree
       routerDelegate.setNewRoutePath(RouteInformation(location: '/routeA'));
       expect(router.node.root.activeChildPathString, 'routeA');
+      expect(routerDelegate.currentConfiguration.location!, 'routeA?a=5');
+      await tester.pumpAndSettle();
+
+      // ............................................
+      // Should write changes of a param to the route
+      router.node.param('a')!.value = 6;
+      await tester.pumpAndSettle();
+      expect(routerDelegate.currentConfiguration.location!, 'routeA?a=6');
 
       await tearDown(tester);
     });

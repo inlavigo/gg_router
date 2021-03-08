@@ -478,6 +478,51 @@ main() {
     });
 
     // #########################################################################
+    group('activeParams', () {
+      test('should return a list with all params of the active path', () {
+        init();
+
+        // Lets define some vars
+        final a0Name = 'a0';
+        final a0Value = 1;
+
+        final a1Name = 'a1';
+        final a1Value = 2;
+
+        final cName = 'c';
+        final cValue = 3;
+
+        // Initally no params should be active
+        expect(root.activeParams, []);
+
+        // Let's create two params, one for childA0 and childA1 and childC
+        childA0.findOrCreateParam(name: a0Name, seed: a0Value);
+        childA1.findOrCreateParam(name: a1Name, seed: a1Value);
+        childC.findOrCreateParam(name: cName, seed: cValue);
+
+        // root.activeParams should sill be empty, because
+        // none of the children is active
+        expect(root.activeParams, []);
+
+        // Let's activate childC
+        childC.isActive = true;
+
+        // Now active params should contain 3 and 1.
+        expect(root.activeParams.length, 2);
+        expect(root.activeParams.elementAt(0).value, a0Value);
+        expect(root.activeParams.elementAt(0).name, a0Name);
+        expect(root.activeParams.elementAt(1).value, cValue);
+        expect(root.activeParams.elementAt(1).name, cName);
+
+        // Let's activate child a1
+        childA1.isActive = true;
+        expect(root.activeParams.length, 1);
+        expect(root.activeParams.elementAt(0).value, a1Value);
+        expect(root.activeParams.elementAt(0).name, a1Name);
+      });
+    });
+
+    // #########################################################################
     group('onOwnParamChange', () {
       test('Should trigger if any of own params has changed', () {
         fakeAsync((fake) {
