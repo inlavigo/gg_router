@@ -35,7 +35,9 @@ class _Param<T> extends GgValue<T> {
 
 // #############################################################################
 class _Params {
-  _Params();
+  _Params() {
+    _initParams();
+  }
 
   // ...........................................................................
   _Param<T> findOrCreateParam<T>({
@@ -59,24 +61,52 @@ class _Params {
 
       _params[name] = result;
     } else {
-      if (!(result is _Param<T>)) {
-        throw ArgumentError(
-          'Error while retrieving param with name "$name". '
-          'The existing param has type ${result.runtimeType.toString()} and not ${T.toString()}',
-        );
-      }
+      _checkType<T>(result);
     }
 
     return result as _Param<T>;
   }
 
   // ...........................................................................
+  dispose() {
+    _dispose.reversed.forEach((element) => element());
+  }
+
+  // ...........................................................................
   _Param<T>? param<T>(String name) {
+    final result = _params[name];
+    if (result != null) {
+      _checkType<T>(result);
+    }
+
     return _params[name] as _Param<T>?;
   }
 
   // ...........................................................................
   bool hasParam(String name) => _params.keys.contains(name);
+
+  // ...........................................................................
+  final List<Function()> _dispose = [];
+  _initParams() {
+    _dispose.add(() {
+      _params.values.forEach(
+        (element) {
+          element.dispose();
+        },
+      );
+      _params.clear();
+    });
+  }
+
+  // ...........................................................................
+  _checkType<T>(_Param param) {
+    if (!(param is _Param<T>)) {
+      throw ArgumentError(
+        'Error while retrieving param with name "${param.name}". '
+        'The existing param has type "${param.value.runtimeType.toString()}" and not "${T.toString()}".',
+      );
+    }
+  }
 
   // ...........................................................................
   final _params = Map<String, _Param>();
@@ -94,7 +124,7 @@ class GgRouteTreeNode {
     this.parent,
   }) {
     _initParent();
-    _initProperties();
+    _initParams();
     _initPath();
     _initChildren();
     _initIsActive();
@@ -289,34 +319,22 @@ class GgRouteTreeNode {
   // ######################
 
   // ...........................................................................
-  /// Returns the map with all properties of the node
-  Map<String, GgValue> get properties => _properties;
-
-  // ...........................................................................
-  ///
-  String? propertyPrefix;
-
-  // ...........................................................................
-  /// Returns the route name with name. If no param with name exists, one is
-  /// created. [seed] is required only the first time.
-  GgValue<T> property<T>({required String name, T? seed}) {
-    var result = _properties[name] as GgValue<T>?;
-
-    // Create a local property
-    bool isCalledFirstTime = result == null;
-    if (isCalledFirstTime) {
-      bool seedIsProvidedFirstTime = seed != null;
-      if (!seedIsProvidedFirstTime) {
-        throw ArgumentError(
-            'GgValue.properties(name: \'$name\') is called the first time. But no seed is provided.');
-      } else {
-        result = GgValue(seed: seed);
-        _properties[name] = result;
-      }
-    }
+  /// Finds or creates a route param with [name]. The parameter is initialized
+  /// with [seed].
+  GgValue<T> findOrCreateParam<T>({required String name, required T seed}) {
+    var result =
+        _params.findOrCreateParam(parent: this, seed: seed, name: name);
 
     return result;
   }
+
+  // ...........................................................................
+  /// Returns the parameter with name or null if no parameter with name exists.
+  GgValue<T>? param<T>(String name) => _params.param(name);
+
+  // ...........................................................................
+  /// Returns true if param with [name] exists, otherwise false is returned.
+  bool hasParam(String name) => _params.hasParam(name);
 
   // ######################
   // Path
@@ -457,9 +475,9 @@ class GgRouteTreeNode {
   // params
 
   // ...........................................................................
-  final _properties = Map<String, GgValue>();
-  _initProperties() {
-    _dispose.add(() => _properties.forEach((key, value) => value.dispose()));
+  final _params = _Params();
+  _initParams() {
+    _dispose.add(() => _params.dispose());
   }
 
   // ########

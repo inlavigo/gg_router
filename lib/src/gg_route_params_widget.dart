@@ -11,7 +11,6 @@ class GgRouteParamsWidget extends InheritedWidget {
   // ...........................................................................
   GgRouteParamsWidget({
     Key? key,
-    required this.prefix,
     required Widget Function(BuildContext) builder,
     required this.params,
   }) : super(
@@ -26,7 +25,6 @@ class GgRouteParamsWidget extends InheritedWidget {
         );
 
   // ...........................................................................
-  final String prefix;
   final Map<String, GgRouteParam> params;
 
   // ...........................................................................

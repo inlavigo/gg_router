@@ -188,7 +188,6 @@ class GgRouterExample extends StatelessWidget {
         {
           'basketball': (context) {
             return GgRouteParamsWidget(
-              prefix: 'bktbl',
               params: {
                 'players': GgRouteParam(seed: 5),
                 'temperature': GgRouteParam(seed: 21.5),

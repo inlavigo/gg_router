@@ -4,6 +4,8 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:developer';
+
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/gg_router.dart';
@@ -425,27 +427,55 @@ main() {
     });
 
     // #########################################################################
-    group('propery(name, seed)', () {
+    group('findOrCreateParam(name, seed), param(name), hasParam(name)', () {
       test('Should create a new property, if no property with name exists', () {
         init();
-        root.property(name: 'a', seed: 5);
-        expect(root.properties.containsKey('a'), true);
-      });
 
-      test(
-          'Should throw an exception, when property is not existing and seed is null',
-          () {
-        init();
+        // ....................................
+        // Let's create a param 'a' with seed 5
+        root.findOrCreateParam(name: 'a', seed: 5);
 
-        expect(() => root.property(name: 'a'), throwsArgumentError);
-      });
+        // ................................................................
+        // Let's create the same param 'a' again, but with a different type.
+        // This should give an exception.
+        expect(
+          () => root.findOrCreateParam(name: 'a', seed: 'Hello'),
+          throwsA(
+            predicate(
+              (ArgumentError e) {
+                expect(e.message,
+                    'Error while retrieving param with name "a". The existing param has type "int" and not "String".');
+                return true;
+              },
+            ),
+          ),
+        );
 
-      test('should throw an exception if a wrong value is added to property',
-          () {
-        init();
-        root.property(name: 'a', seed: 5);
-        final prop = root.property(name: 'a');
-        expect(() => prop.value = 'Hello', throwsA(isA<TypeError>()));
+        // ......................
+        // The param should exist
+        expect(root.hasParam('a'), true);
+        expect(root.param('a')!.value, 5);
+
+        // ..................................................
+        // Let's try to retrieve the param with a wrong type.
+        // This should give an exception.
+        expect(
+          () => root.param<String>('a'),
+          throwsA(
+            predicate(
+              (ArgumentError e) {
+                expect(e.message,
+                    'Error while retrieving param with name "a". The existing param has type "int" and not "String".');
+                return true;
+              },
+            ),
+          ),
+        );
+
+        // ..................................................
+        // Dispose the root. This should also dispose delete all params
+        root.dispose();
+        expect(root.hasParam('a'), false);
       });
     });
 
