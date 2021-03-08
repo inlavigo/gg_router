@@ -34,6 +34,55 @@ class _Param<T> extends GgValue<T> {
 }
 
 // #############################################################################
+class _Params {
+  _Params();
+
+  // ...........................................................................
+  _Param<T> findOrCreateParam<T>({
+    required GgRouteTreeNode parent,
+    required T seed,
+    required String name,
+    bool spam = false,
+    bool Function(T a, T b)? compare,
+    T Function(T)? transform,
+  }) {
+    var result = _params[name];
+    if (result == null) {
+      result = _Param<T>(
+        parent: parent,
+        seed: seed,
+        name: name,
+        spam: spam,
+        compare: compare,
+        transform: transform,
+      );
+
+      _params[name] = result;
+    } else {
+      if (!(result is _Param<T>)) {
+        throw ArgumentError(
+          'Error while retrieving param with name "$name". '
+          'The existing param has type ${result.runtimeType.toString()} and not ${T.toString()}',
+        );
+      }
+    }
+
+    return result as _Param<T>;
+  }
+
+  // ...........................................................................
+  _Param<T>? param<T>(String name) {
+    return _params[name] as _Param<T>?;
+  }
+
+  // ...........................................................................
+  bool hasParam(String name) => _params.keys.contains(name);
+
+  // ...........................................................................
+  final _params = Map<String, _Param>();
+}
+
+// #############################################################################
 /// RouteNode represents a node in a route tree.
 class GgRouteTreeNode {
   // ########################
