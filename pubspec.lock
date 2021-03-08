@@ -72,6 +72,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.1"
+  gg_once_per_cycle:
+    dependency: "direct main"
+    description:
+      name: gg_once_per_cycle
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1+3"
   gg_value:
     dependency: "direct main"
     description:

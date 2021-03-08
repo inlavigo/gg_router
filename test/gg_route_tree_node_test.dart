@@ -478,6 +478,95 @@ main() {
     });
 
     // #########################################################################
+    group('onOwnParamChange', () {
+      test('Should trigger if any of own params has changed', () {
+        fakeAsync((fake) {
+          init();
+
+          // Initally the listener should not be called.
+          int calls0 = 0;
+          int calls1 = 0;
+          final resetCalls = () {
+            calls0 = 0;
+            calls1 = 0;
+          };
+          final s0 = root.onOwnParamChange.listen((event) => calls0++);
+          final s1 = root.onOwnParamChange.listen((event) => calls1++);
+          fake.flushMicrotasks();
+          expect(calls0, 0);
+          expect(calls1, 0);
+
+          // Now let's add a param. onOwnParamChange should trigger.
+          root.findOrCreateParam(name: 'a', seed: 5);
+          root.findOrCreateParam(name: 'b', seed: 6);
+
+          fake.flushMicrotasks();
+          expect(calls0, 1);
+          expect(calls1, 1);
+          resetCalls();
+
+          // Now let's change the params. onOwnParamChange should trigger one time.
+          root.param('a')!.value++;
+          root.param('a')!.value++;
+          root.param('b')!.value++;
+          root.param('b')!.value++;
+          fake.flushMicrotasks();
+          expect(calls0, 1);
+          expect(calls1, 1);
+          resetCalls();
+
+          s0.cancel();
+          s1.cancel();
+          dispose();
+        });
+      });
+    });
+
+    // #########################################################################
+    group('onOwnOrChildParamChange', () {
+      test('should trigger every time an own param or an child param changes',
+          () {
+        fakeAsync((fake) {
+          init();
+
+          int calls0 = 0;
+          int calls1 = 0;
+          final resetCalls = () {
+            calls0 = 0;
+            calls1 = 0;
+          };
+
+          // Initally the listener should not be called.
+          final s0 = root.onOwnOrChildParamChange.listen((event) => calls0++);
+          final s1 = root.onOwnOrChildParamChange.listen((event) => calls1++);
+          fake.flushMicrotasks();
+          expect(calls0, 0);
+          expect(calls1, 0);
+          resetCalls();
+
+          // Now lets create a param on one of the children
+          childC.findOrCreateParam(name: 'x', seed: 5);
+          childC.findOrCreateParam(name: 'y', seed: 'Hello');
+          fake.flushMicrotasks();
+          expect(calls0, 1);
+          expect(calls1, 1);
+          resetCalls();
+
+          // Let's change the param on one of the children
+          childC.param('x')!.value++;
+          childC.param('y')!.value = 'movie';
+          fake.flushMicrotasks();
+          expect(calls0, 1);
+          expect(calls1, 1);
+          resetCalls();
+
+          s0.cancel();
+          s1.cancel();
+        });
+      });
+    });
+
+    // #########################################################################
     group('activeDescendandsDidChange', () {
       test('should return a stream which informs about the active descendands',
           () {

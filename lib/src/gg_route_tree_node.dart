@@ -7,6 +7,8 @@
 import 'dart:async';
 import 'package:gg_value/gg_value.dart';
 import 'package:flutter/foundation.dart';
+import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
+import 'dart:async' show Stream;
 
 import 'gg_route_tree_node_error.dart';
 
@@ -37,6 +39,8 @@ class _Param<T> extends GgValue<T> {
 class _Params {
   _Params() {
     _initParams();
+    _initOnChange();
+    _initOnChangeTrigger();
   }
 
   // ...........................................................................
@@ -58,6 +62,8 @@ class _Params {
         compare: compare,
         transform: transform,
       );
+
+      _listenToChanges(result.stream);
 
       _params[name] = result;
     } else {
@@ -86,6 +92,9 @@ class _Params {
   bool hasParam(String name) => _params.keys.contains(name);
 
   // ...........................................................................
+  Stream<void> get onChange => _onChange.stream;
+
+  // ...........................................................................
   final List<Function()> _dispose = [];
   _initParams() {
     _dispose.add(() {
@@ -110,6 +119,29 @@ class _Params {
 
   // ...........................................................................
   final _params = Map<String, _Param>();
+
+  // ...........................................................................
+  final _onChange = StreamController<void>.broadcast();
+  _initOnChange() {
+    _dispose.add(() => _onChange.close());
+  }
+
+  // ...........................................................................
+  _listenToChanges(Stream stream) {
+    final s = stream.listen((_) => _onChangeTrigger.trigger());
+    _onChangeTrigger.trigger();
+    _dispose.add(s.cancel);
+  }
+
+  // ...........................................................................
+  late GgOncePerCycle _onChangeTrigger;
+  _initOnChangeTrigger() {
+    _onChangeTrigger = GgOncePerCycle(task: () {
+      if (!_onChange.isClosed && _onChange.hasListener) {
+        _onChange.add(null);
+      }
+    });
+  }
 }
 
 // #############################################################################
@@ -130,6 +162,8 @@ class GgRouteTreeNode {
     _initIsActive();
     _initActiveChild();
     _initActiveDescendands();
+    _initOwnOrChildParamChange();
+    _initSubscriptions();
   }
 
   // ...........................................................................
@@ -234,6 +268,7 @@ class GgRouteTreeNode {
   /// Removes the child
   void removeChild(GgRouteTreeNode child) {
     if (identical(_children[child.name], child)) {
+      _unlistenNode(child);
       child.dispose();
     } else {
       throw ArgumentError(
@@ -315,7 +350,7 @@ class GgRouteTreeNode {
       _activeDescendands.stream;
 
   // ######################
-  // Properties
+  // Params
   // ######################
 
   // ...........................................................................
@@ -335,6 +370,12 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns true if param with [name] exists, otherwise false is returned.
   bool hasParam(String name) => _params.hasParam(name);
+
+  // ...........................................................................
+  Stream<void> get onOwnParamChange => _params.onChange;
+
+  // ...........................................................................
+  Stream<void> get onOwnOrChildParamChange => _ownOrChildParamChange.stream;
 
   // ######################
   // Path
@@ -437,6 +478,7 @@ class GgRouteTreeNode {
       }
     }
     parent?._children[name] = this;
+    parent?._listenToNode(this);
   }
 
   // ...........................................................................
@@ -478,6 +520,42 @@ class GgRouteTreeNode {
   final _params = _Params();
   _initParams() {
     _dispose.add(() => _params.dispose());
+  }
+
+  // ...........................................................................
+  final _ownOrChildParamChange = StreamController<void>.broadcast();
+  late GgOncePerCycle _triggerOwnOrChildParamChange;
+
+  _initOwnOrChildParamChange() {
+    _dispose.add(() => _ownOrChildParamChange.close());
+
+    _triggerOwnOrChildParamChange = GgOncePerCycle(task: () {
+      if (_ownOrChildParamChange.hasListener) {
+        _ownOrChildParamChange.add(null);
+      }
+    });
+
+    final s =
+        onOwnParamChange.listen((_) => _triggerOwnOrChildParamChange.trigger());
+    _dispose.add(() => s.cancel);
+  }
+
+  // ...........................................................................
+  Map<GgRouteTreeNode, StreamSubscription> _subscriptions = {};
+  _initSubscriptions() {
+    _subscriptions.values.forEach((element) => element.cancel);
+  }
+
+  // ...........................................................................
+  _listenToNode(GgRouteTreeNode node) {
+    _subscriptions[node] = node.onOwnOrChildParamChange
+        .listen((event) => _triggerOwnOrChildParamChange.trigger());
+  }
+
+  // ...........................................................................
+  _unlistenNode(GgRouteTreeNode node) {
+    _subscriptions[node]!.cancel();
+    _subscriptions.remove(node);
   }
 
   // ########
