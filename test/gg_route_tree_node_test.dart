@@ -7,7 +7,7 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/gg_router.dart';
-import 'package:gg_router/src/gg_router_error.dart';
+import 'package:gg_router/src/gg_route_tree_node_error.dart';
 
 main() {
   late GgRouteTreeNode root;
@@ -652,14 +652,14 @@ main() {
 
         // ......................................
         // Let's set an error handler on the root
-        GgRouterError? lastErrorReceivedOnRoot;
+        GgRouteTreeNodeError? lastErrorReceivedOnRoot;
         final errorHandler = (error) => lastErrorReceivedOnRoot = error;
         root.errorHandler = errorHandler;
         expect(root.errorHandler, errorHandler);
 
         // ............................
         // Let's set an error on childC
-        final error = GgRouterError(
+        final error = GgRouteTreeNodeError(
           id: 'GRC008447',
           message: 'Error message',
           node: childC,
@@ -676,7 +676,7 @@ main() {
         // childB should handle the error.
         // The error should not arrive at root's error handler anymore.
         lastErrorReceivedOnRoot = null;
-        GgRouterError? lastErrorReceivedOnChildB;
+        GgRouteTreeNodeError? lastErrorReceivedOnChildB;
         childB.errorHandler = (error) => lastErrorReceivedOnChildB = error;
         childC.setError(error);
         expect(lastErrorReceivedOnRoot, isNull);

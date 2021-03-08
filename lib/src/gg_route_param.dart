@@ -5,12 +5,22 @@
 // found in the LICENSE file in the root of this package.
 
 class GgRouteParam<T> {
-  // ...........................................................................
-  const GgRouteParam({required this.seed});
+  GgRouteParam({required this.seed});
 
   // ...........................................................................
   final T seed;
+
+  // ...........................................................................
+  dispose() {
+    _dispose.reversed.forEach((e) => e());
+  }
+
+  // ######################
+  // Private
+  // ######################
+
+  List<Function()> _dispose = [];
 }
 
 // #############################################################################
-final exampleGgRouteParam = ({int? seed}) => GgRouteParam(seed: seed ?? 0);
+final exampleGgRouteParam = <T>({T? seed}) => GgRouteParam(seed: seed ?? 5);

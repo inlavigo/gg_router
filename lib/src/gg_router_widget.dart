@@ -43,7 +43,7 @@ class GgRouterWidget extends StatelessWidget {
           nodeToBeShown?.isActive = true;
           parentNode.removeChild(invalidNode);
           parentNode.setError(
-            GgRouterError(
+            GgRouteTreeNodeError(
               id: 'GRC008448',
               message:
                   'Route "${parentNode.pathString}" has no child named "${invalidNode.name}".',

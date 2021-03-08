@@ -236,7 +236,7 @@ main() {
       // .................................................................
       // Test if an invalid url makes GgRouter showing an error widget.
       // Additionally the error handler should be called.
-      GgRouterError? receivedError;
+      GgRouteTreeNodeError? receivedError;
       lastBuiltNode.root.errorHandler = null;
       lastBuiltNode.root.errorHandler = (error) => receivedError = error;
 

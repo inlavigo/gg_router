@@ -6,9 +6,9 @@
 
 import 'package:gg_router/gg_router.dart';
 
-class GgRouterError extends Error {
+class GgRouteTreeNodeError extends Error {
   // ...........................................................................
-  GgRouterError({
+  GgRouteTreeNodeError({
     required this.id,
     required this.message,
     this.node,
@@ -20,13 +20,13 @@ class GgRouterError extends Error {
   final GgRouteTreeNode? node;
 
   // ...........................................................................
-  GgRouterError withNode(GgRouteTreeNode node) {
-    return GgRouterError(id: id, message: message, node: node);
+  GgRouteTreeNodeError withNode(GgRouteTreeNode node) {
+    return GgRouteTreeNodeError(id: id, message: message, node: node);
   }
 }
 
 // #############################################################################
-final exampleGgRouterError = () => GgRouterError(
+final exampleGgRouteTreeNodeError = () => GgRouteTreeNodeError(
       id: 'GRC008446',
       message: 'RouterError',
     );

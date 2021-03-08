@@ -8,8 +8,32 @@ import 'dart:async';
 import 'package:gg_value/gg_value.dart';
 import 'package:flutter/foundation.dart';
 
-import 'gg_router_error.dart';
+import 'gg_route_tree_node_error.dart';
 
+// #############################################################################
+class _Param<T> extends GgValue<T> {
+  // ...........................................................................
+  _Param({
+    required this.parent,
+    required this.seed,
+    required this.name,
+    bool spam = false,
+    bool Function(T a, T b)? compare,
+    T Function(T)? transform,
+  }) : super(
+          seed: seed,
+          spam: spam,
+          compare: compare,
+          transform: transform,
+        );
+
+  // ...........................................................................
+  final T seed;
+  final String name;
+  final GgRouteTreeNode parent;
+}
+
+// #############################################################################
 /// RouteNode represents a node in a route tree.
 class GgRouteTreeNode {
   // ########################
@@ -301,7 +325,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Handle error or propagate it up the tree.
-  void setError(GgRouterError error) {
+  void setError(GgRouteTreeNodeError error) {
     final err = error.node == null ? error.withNode(this) : error;
     _errorHandler?.call(err);
     if (_errorHandler == null) {
@@ -316,7 +340,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  set errorHandler(void Function(GgRouterError)? errorHandler) {
+  set errorHandler(void Function(GgRouteTreeNodeError)? errorHandler) {
     if (errorHandler != null && _errorHandler != null) {
       throw ArgumentError(
           'This node already has an error handler. Please remove previous error handler.');
@@ -326,7 +350,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  void Function(GgRouterError)? get errorHandler => _errorHandler;
+  void Function(GgRouteTreeNodeError)? get errorHandler => _errorHandler;
 
   // ######################
   // Private
@@ -470,7 +494,7 @@ class GgRouteTreeNode {
   // ##############
   // Error handling
 
-  Function(GgRouterError)? _errorHandler;
+  Function(GgRouteTreeNodeError)? _errorHandler;
 }
 
 // #############################################################################
@@ -480,6 +504,6 @@ final exampleRouteNode = ({
   GgRouteTreeNode? parent,
 }) =>
     GgRouteTreeNode(
-      name: name ?? 'node',
+      name: name ?? '',
       parent: parent,
     );
