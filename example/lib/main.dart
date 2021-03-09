@@ -4,6 +4,8 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
 import 'package:gg_value/gg_value.dart';
@@ -11,54 +13,49 @@ import 'configure_nonweb.dart' if (dart.library.html) 'configure_web.dart';
 
 void main() {
   configureApp();
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GgRouterExample();
-  }
+  runApp(GgRouterExample());
 }
 
 // .............................................................................
 class GgRouterExample extends StatelessWidget {
   const GgRouterExample({Key? key}) : super(key: key);
 
+  // ...........................................................................
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: "GgRouterExample",
-      routerDelegate: GgRouterDelegate(
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text('GgRouter'),
-            actions: <Widget>[
-              _routeButton('Sports', 'sports'),
-              _routeButton('Transportation', 'transportation'),
-              _routeButton('Places', 'places'),
-              Container(
-                width: 50,
-              ),
-            ],
-          ),
-          body: Builder(
-            builder: (context) {
-              _initErrorHandler(context);
-              return GgRouterWidget(
-                {
-                  'sports': _sportsPage,
-                  'transportation': _transportationPage,
-                  'places': _placesPage,
-                },
-              );
-            },
-          ),
-        ),
-      ),
+      routerDelegate: GgRouterDelegate(child: _appContent),
       routeInformationParser: GgRouteInformationParser(),
+    );
+  }
+
+  // ...........................................................................
+  Widget get _appContent {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('GgRouter'),
+        actions: <Widget>[
+          _routeButton('Sports', 'sports'),
+          _routeButton('Transportation', 'transportation'),
+          _routeButton('Places', 'places'),
+          Container(
+            width: 50,
+          ),
+        ],
+      ),
+      body: Builder(
+        builder: (context) {
+          _initErrorHandler(context);
+          return GgRouterWidget(
+            {
+              'sports': _sportsPage,
+              'transportation': _transportationPage,
+              'places': _placesPage,
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -72,7 +69,9 @@ class GgRouterExample extends StatelessWidget {
         duration: Duration(seconds: 6),
         backgroundColor: Colors.red,
       );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      scheduleMicrotask(
+          () => ScaffoldMessenger.of(context).showSnackBar(snackBar));
     };
   }
 
@@ -111,6 +110,7 @@ class GgRouterExample extends StatelessWidget {
         builder: (context, snapshot) {
           final isActive = router.routeNameOfActiveChild == route;
           return TextButton(
+            key: ValueKey(route),
             onPressed: () => router.navigateTo('$route/_LAST_'),
             child: _text(title, context, isActive),
           );
@@ -127,6 +127,7 @@ class GgRouterExample extends StatelessWidget {
           Align(
             alignment: Alignment.topRight,
             child: IconButton(
+              key: ValueKey('dialogCloseButton'),
               icon: Icon(Icons.close),
               onPressed: () {
                 GgRouter.of(context).navigateTo('..');
@@ -176,6 +177,7 @@ class GgRouterExample extends StatelessWidget {
     final router = GgRouter.of(context);
 
     return Scaffold(
+      key: ValueKey('sportsPage'),
       bottomNavigationBar: StreamBuilder(
           stream: router.onActiveChildChange,
           builder: (context, snapshot) {
@@ -242,6 +244,7 @@ class GgRouterExample extends StatelessWidget {
     final router = GgRouter.of(context);
 
     return Scaffold(
+      key: ValueKey('transportationPage'),
       bottomNavigationBar: StreamBuilder(
           stream: router.onActiveChildChange,
           builder: (context, snapshot) {
@@ -294,6 +297,7 @@ class GgRouterExample extends StatelessWidget {
 
     return Scaffold(
       bottomNavigationBar: StreamBuilder(
+          key: ValueKey('placesPage'),
           stream: router.onActiveChildChange,
           builder: (context, snapshot) {
             final index = router.indexOfActiveChild ?? 0;

@@ -74,3 +74,4 @@ build/
 !**/ios/**/default.perspectivev3
 /.vscode
 /coverage
+/example/coverage
