@@ -369,11 +369,11 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns all parameters of the active path
-  List<Param> get activeParams {
-    List<Param> result = [];
+  Map<String, Param> get activeParams {
+    Map<String, Param> result = {};
     GgRouteTreeNode? node = this;
     while (node != null) {
-      result.addAll(node._params._params.values);
+      result.addAll(node._params._params);
       node = node.activeChild;
     }
 

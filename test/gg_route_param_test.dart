@@ -16,10 +16,12 @@ main() {
 
   dispose() {}
 
-  group('GgRouteParam', () {
+  group('GgRouteParam<T>', () {
     // #########################################################################
     group('Constructor', () {
-      test('should be instantiated', () {
+      test(
+          'should throw an exception if T is not a string and has not a parse function',
+          () {
         init();
         expect(ggRouteParam, isNotNull);
         dispose();
