@@ -9,6 +9,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/gg_router.dart';
 import 'package:gg_router/src/gg_route_tree_node_error.dart';
 
+class OtherClass {}
+
 main() {
   late GgRouteTreeNode root;
   late GgRouteTreeNode childA0;
@@ -27,6 +29,58 @@ main() {
   dispose() {
     root.dispose();
   }
+
+  group('Param', () {
+    // #########################################################################
+
+    late Param intParam;
+    late Param stringParam;
+    late Param otherParam;
+
+    init() {
+      intParam =
+          Param<int>(parent: exampleRouteNode(), seed: 5, name: 'intParam');
+
+      stringParam = Param<String>(
+          parent: exampleRouteNode(), seed: 'hello', name: 'stringParam');
+
+      otherParam = Param<OtherClass>(
+          parent: exampleRouteNode(), seed: OtherClass(), name: 'otherParam');
+    }
+
+    group('constructor', () {
+      test('should create a parameter', () {
+        init();
+      });
+    });
+
+    // #########################################################################
+    group('parse(val)', () {
+      test('should directly take the value if value is string', () {
+        init();
+        stringParam.parse('hello');
+        expect(stringParam.value, 'hello');
+      });
+
+      test('should parse the value if value is not a string', () {
+        init();
+        intParam.parse('10');
+        expect(stringParam.value, 5);
+      });
+
+      test('should throw if val has no parse method', () {
+        init();
+        expect(
+          () => otherParam.parse('10'),
+          throwsA(predicate((ArgumentError e) {
+            expect(e.message,
+                'Cannot parse val "10", because generic type "T" has no "parse(...)" method."');
+            return true;
+          })),
+        );
+      });
+    });
+  });
 
   group('GgRouteTreeNode', () {
     // #########################################################################

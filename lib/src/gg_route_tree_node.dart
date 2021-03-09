@@ -33,6 +33,22 @@ class Param<T> extends GgValue<T> {
   final T seed;
   final String name;
   final GgRouteTreeNode parent;
+
+  // ...........................................................................
+  void parse(String val) {
+    if (T == String) {
+      value = value;
+    } else if (T == int) {
+        value = int.parse(val);
+    }
+
+
+      } catch (e) {
+        throw ArgumentError(
+            'Cannot parse val "$val", because generic type "T" has no "parse(...)" method."');
+      }
+    }
+  }
 }
 
 // #############################################################################
