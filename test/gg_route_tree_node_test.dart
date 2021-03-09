@@ -186,6 +186,29 @@ main() {
         expect(childB.isActive, false);
         expect(childC.isActive, false);
       });
+
+      test(
+          'If isActive is set to false and then to true, thre previous active child becomes active also',
+          () {
+        init();
+
+        // Currently the complete path is active
+        childC.isActive = true;
+        expect(root.isActive, true);
+        expect(childC.isActive, true);
+
+        // Now we set childB to inActive
+        childB.isActive = false;
+
+        // Child c is inactive also
+        expect(childC.isActive, false);
+
+        // Now we set childB active again
+        childB.isActive = true;
+
+        // Child c should become active also
+        expect(childC.isActive, true);
+      });
     });
 
     // #########################################################################

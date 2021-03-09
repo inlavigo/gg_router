@@ -228,10 +228,12 @@ class GgRouteTreeNode {
 
     // Mark also ancestors to be active
     if (isActive) {
+      _previousActiveChild?.isActive = true;
       parent?._childBecameActive(this);
     }
     // Mark also children to be inactive
     else {
+      _previousActiveChild = _activeChild.value;
       _children.values.forEach((child) => child.isActive = false);
       parent?._childBecameInactive(this);
     }
