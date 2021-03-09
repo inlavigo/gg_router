@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
   gg_router:
     path: ../
-  gg_value: ^0.0.9+3
+  gg_value: ^1.0.3-dev.1
 
 dev_dependencies:
   flutter_test:

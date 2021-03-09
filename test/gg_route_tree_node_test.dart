@@ -32,52 +32,9 @@ main() {
 
   group('Param', () {
     // #########################################################################
-
-    late Param intParam;
-    late Param stringParam;
-    late Param otherParam;
-
-    init() {
-      intParam =
-          Param<int>(parent: exampleRouteNode(), seed: 5, name: 'intParam');
-
-      stringParam = Param<String>(
-          parent: exampleRouteNode(), seed: 'hello', name: 'stringParam');
-
-      otherParam = Param<OtherClass>(
-          parent: exampleRouteNode(), seed: OtherClass(), name: 'otherParam');
-    }
-
     group('constructor', () {
       test('should create a parameter', () {
         init();
-      });
-    });
-
-    // #########################################################################
-    group('parse(val)', () {
-      test('should directly take the value if value is string', () {
-        init();
-        stringParam.parse('hello');
-        expect(stringParam.value, 'hello');
-      });
-
-      test('should parse the value if value is not a string', () {
-        init();
-        intParam.parse('10');
-        expect(stringParam.value, 5);
-      });
-
-      test('should throw if val has no parse method', () {
-        init();
-        expect(
-          () => otherParam.parse('10'),
-          throwsA(predicate((ArgumentError e) {
-            expect(e.message,
-                'Cannot parse val "10", because generic type "T" has no "parse(...)" method."');
-            return true;
-          })),
-        );
       });
     });
   });
@@ -532,6 +489,17 @@ main() {
     });
 
     // #########################################################################
+    group('ownOrParentParam', () {
+      test(
+          'should return the param with name from the node itself or its parents',
+          () {
+        init();
+        childA0.findOrCreateParam(name: 'param', seed: 5);
+        expect(childC.ownOrParentParam('param')!.value, 5);
+      });
+    });
+
+    // #########################################################################
     group('activeParams', () {
       test('should return a map with all params of the active path', () {
         init();
@@ -870,6 +838,53 @@ main() {
         init();
         childB.navigateTo('./child-c');
         expect(root.activeChildPathString, 'child-a0/child-b/child-c');
+      });
+    });
+
+    // #########################################################################
+    group('earlySeed, earlySeedForParam, removeEarlySeedForParam', () {
+      test(
+          'should allow to specify default values that are used to initialize route params',
+          () {
+        init();
+
+        // Let's set an early seed at the root
+        root.earlySeed = {'a': '10', 'b': '20'};
+
+        // The seed should be avalable on all nodes of the tree
+        expect(
+            childC.earlySeedForParam(
+              'a',
+            ),
+            '10');
+
+        expect(
+            childB.earlySeedForParam(
+              'a',
+            ),
+            '10');
+
+        expect(
+            root.earlySeedForParam(
+              'a',
+            ),
+            '10');
+
+        expect(
+            childC.earlySeedForParam(
+              'b',
+            ),
+            '20');
+
+        // Now lets create a paramter a
+        childB.findOrCreateParam(name: 'a', seed: 11);
+
+        // The parameter should be initialized with earlySeed
+        expect(childB.param('a')?.value, 10);
+
+        // Early seed should only be used the first time.
+        // Thus it should be deleted now.
+        expect(root.earlySeedForParam('a'), null);
       });
     });
 

@@ -6,6 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
+import 'package:gg_value/gg_value.dart';
 import 'configure_nonweb.dart' if (dart.library.html) 'configure_web.dart';
 
 void main() {
@@ -18,14 +19,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerDelegate: GgRouterDelegate(
-        child: Scaffold(
-          body: GgRouterExample(),
-        ),
-      ),
-      routeInformationParser: GgRouteInformationParser(),
-    );
+    return GgRouterExample();
   }
 }
 
@@ -35,33 +29,36 @@ class GgRouterExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: "GgRouterExample",
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('GgRouter'),
-          actions: <Widget>[
-            _routeButton('Sports', 'sports'),
-            _routeButton('Transportation', 'transportation'),
-            _routeButton('Places', 'places'),
-            Container(
-              width: 50,
-            ),
-          ],
-        ),
-        body: Builder(
-          builder: (context) {
-            _initErrorHandler(context);
-            return GgRouterWidget(
-              {
-                'sports': _sportsPage,
-                'transportation': _transportationPage,
-                'places': _placesPage,
-              },
-            );
-          },
+      routerDelegate: GgRouterDelegate(
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('GgRouter'),
+            actions: <Widget>[
+              _routeButton('Sports', 'sports'),
+              _routeButton('Transportation', 'transportation'),
+              _routeButton('Places', 'places'),
+              Container(
+                width: 50,
+              ),
+            ],
+          ),
+          body: Builder(
+            builder: (context) {
+              _initErrorHandler(context);
+              return GgRouterWidget(
+                {
+                  'sports': _sportsPage,
+                  'transportation': _transportationPage,
+                  'places': _placesPage,
+                },
+              );
+            },
+          ),
         ),
       ),
+      routeInformationParser: GgRouteInformationParser(),
     );
   }
 
@@ -137,7 +134,13 @@ class GgRouterExample extends StatelessWidget {
             ),
           ),
           Center(
-            child: Text('Let\'s play basketball.'),
+            child: Column(
+              children: [
+                Expanded(child: Container()),
+                _checkBox(context),
+                Expanded(child: Container()),
+              ],
+            ),
           ),
         ],
       ),
@@ -145,8 +148,33 @@ class GgRouterExample extends StatelessWidget {
   }
 
   // ...........................................................................
+  Widget _checkBox(BuildContext context) {
+    final GgValue param = GgRouter.of(context).ownOrParentParam('visit')!;
+
+    return Row(children: [
+      Expanded(child: Container()),
+      SizedBox(
+        width: 200,
+        height: 50,
+        child: StreamBuilder(
+          stream: param.stream,
+          builder: (context, snapshot) {
+            return CheckboxListTile(
+              title: Text("Visit Event"),
+              value: param.value,
+              onChanged: (newValue) => param.value = newValue as bool,
+            );
+          },
+        ),
+      ),
+      Expanded(child: Container()),
+    ]);
+  }
+
+  // ...........................................................................
   Widget _sportsPage(BuildContext context) {
     final router = GgRouter.of(context);
+
     return Scaffold(
       bottomNavigationBar: StreamBuilder(
           stream: router.onActiveChildChange,
@@ -189,9 +217,7 @@ class GgRouterExample extends StatelessWidget {
           'basketball': (context) {
             return GgRouteParamsWidget(
               params: {
-                'players': GgRouteParam(seed: 5),
-                'temperature': GgRouteParam(seed: 21.5),
-                'funny': GgRouteParam(seed: true),
+                'visit': GgRouteParam<bool>(seed: false),
               },
               child: GgRouterOverlayWidget(
                 base: Listener(
@@ -214,6 +240,7 @@ class GgRouterExample extends StatelessWidget {
   // ...........................................................................
   Widget _transportationPage(BuildContext context) {
     final router = GgRouter.of(context);
+
     return Scaffold(
       bottomNavigationBar: StreamBuilder(
           stream: router.onActiveChildChange,
@@ -264,6 +291,7 @@ class GgRouterExample extends StatelessWidget {
 // ...........................................................................
   Widget _placesPage(BuildContext context) {
     final router = GgRouter.of(context);
+
     return Scaffold(
       bottomNavigationBar: StreamBuilder(
           stream: router.onActiveChildChange,

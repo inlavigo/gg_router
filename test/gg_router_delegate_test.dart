@@ -24,9 +24,12 @@ main() {
                 return GgRouteParamsWidget(child: Container(), params: params);
               };
 
+      final paramsA = GgRouteParam(seed: 5);
+      final paramsB = GgRouteParam(seed: 6);
+
       final widget = GgRouterWidget({
-        'routeA': builder({'a': GgRouteParam(seed: 5)}),
-        'routeB': builder({'b': GgRouteParam(seed: 6)}),
+        'routeA': builder({'a': paramsA}),
+        'routeB': builder({'b': paramsB}),
         'routeC':
             builder({'c': GgRouteParam(seed: 7), 'd': GgRouteParam(seed: 8)}),
       });
@@ -52,7 +55,7 @@ main() {
       bool routeDidChange = false;
       routerDelegate.addListener(() => routeDidChange = true);
       await tester.pumpAndSettle();
-      expect(routeDidChange, true);
+      expect(routeDidChange, false);
       routeDidChange = false;
 
       router.navigateTo('/routeB');
@@ -66,12 +69,24 @@ main() {
       expect(routerDelegate.currentConfiguration.location!, 'routeC?c=7&d=8');
       expect(router.node.root.activeChildPathString, 'routeC');
 
-      // ...........................................
+      // ....................................................
       // Should apply RouteInformation to the route node tree
       routerDelegate.setNewRoutePath(RouteInformation(location: '/routeA'));
       expect(router.node.root.activeChildPathString, 'routeA');
       expect(routerDelegate.currentConfiguration.location!, 'routeA?a=5');
       await tester.pumpAndSettle();
+
+      // ..............................
+      // Should also write query params
+      routerDelegate
+          .setNewRoutePath(RouteInformation(location: '/routeA?a=123'));
+      router.node.param('a')!.value = 6;
+
+      // ..............................
+      // Should write unknown parameters to earlySeed
+      routerDelegate
+          .setNewRoutePath(RouteInformation(location: '/routeA?unknown=456'));
+      expect(router.node.earlySeedForParam('unknown'), '456');
 
       // ............................................
       // Should write changes of a param to the route

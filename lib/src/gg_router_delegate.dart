@@ -4,6 +4,9 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:developer';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gg_router/src/gg_router.dart';
 
@@ -33,7 +36,13 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   @override
   Widget build(BuildContext context) {
     return GgRouter(
-      child: child,
+      child: Overlay(
+        initialEntries: [
+          OverlayEntry(builder: (context) {
+            return child;
+          }),
+        ],
+      ),
       node: _root,
     );
   }
@@ -58,20 +67,44 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
   // ...........................................................................
   @override
-  Future<void> setNewRoutePath(RouteInformation route) async {
-    if (route.location != null) {
-      final uri = Uri(path: route.location);
+  Future<void> setInitialRoutePath(RouteInformation configuration) {
+    return super.setInitialRoutePath(configuration);
+  }
 
-      _root.activeChildPath = uri.pathSegments;
-      if (uri.hasQuery) {
-        final activeParams = _root.activeParams;
-        uri.queryParameters.forEach((key, value) {
-          if (activeParams.containsKey(key)) {
-            activeParams[key]!.parse(value);
-          }
-        });
+  // ...........................................................................
+  @override
+  Future<void> setNewRoutePath(RouteInformation route) {
+    try {
+      if (route.location != null) {
+        late Uri uri;
+        try {
+          uri = Uri.parse(route.location!);
+        } catch (e) {
+          print('Error while parsing url ${route.location}');
+          return SynchronousFuture(null);
+        }
+
+        _root.activeChildPath = uri.pathSegments;
+        final Map<String, String> earlySeed = {};
+
+        if (uri.hasQuery) {
+          final activeParams = _root.activeParams;
+          uri.queryParameters.forEach((key, value) {
+            if (activeParams.containsKey(key)) {
+              activeParams[key]!.stringValue = value;
+            } else {
+              earlySeed[key] = value;
+            }
+          });
+        }
+
+        _root.earlySeed = earlySeed;
       }
+    } catch (e) {
+      print('Error while setNewRoutePath url ${route.location}');
     }
+
+    return SynchronousFuture(null);
   }
 
   // ######################

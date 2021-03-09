@@ -6,6 +6,7 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:gg_router/gg_router.dart';
+import 'package:gg_value/gg_value.dart';
 
 import 'gg_route_tree_node.dart';
 
@@ -74,6 +75,12 @@ class GgRouter extends InheritedWidget {
   Stream<void> get onActiveChildChange {
     return _node.activeChildDidChange;
   }
+
+  // ...........................................................................
+  GgValue? param(String name) => node.param(name);
+
+  // ...........................................................................
+  GgValue? ownOrParentParam(String name) => node.ownOrParentParam(name);
 
   // ######################
   // Private

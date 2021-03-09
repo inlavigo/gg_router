@@ -17,7 +17,7 @@ class Param<T> extends GgValue<T> {
   // ...........................................................................
   Param({
     required this.parent,
-    required this.seed,
+    required T seed,
     required this.name,
     bool spam = false,
     bool Function(T a, T b)? compare,
@@ -30,25 +30,8 @@ class Param<T> extends GgValue<T> {
         );
 
   // ...........................................................................
-  final T seed;
   final String name;
   final GgRouteTreeNode parent;
-
-  // ...........................................................................
-  void parse(String val) {
-    if (T == String) {
-      value = value;
-    } else if (T == int) {
-        value = int.parse(val);
-    }
-
-
-      } catch (e) {
-        throw ArgumentError(
-            'Cannot parse val "$val", because generic type "T" has no "parse(...)" method."');
-      }
-    }
-  }
 }
 
 // #############################################################################
@@ -63,10 +46,9 @@ class _Params {
   Param<T> findOrCreateParam<T>({
     required GgRouteTreeNode parent,
     required T seed,
+    required String? earlySeed,
     required String name,
     bool spam = false,
-    bool Function(T a, T b)? compare,
-    T Function(T)? transform,
   }) {
     var result = _params[name];
     if (result == null) {
@@ -75,9 +57,15 @@ class _Params {
         seed: seed,
         name: name,
         spam: spam,
-        compare: compare,
-        transform: transform,
       );
+
+      if (earlySeed != null) {
+        try {
+          result.stringValue = earlySeed;
+        } catch (e) {
+          print('Was not write value $earlySeed to param $name');
+        }
+      }
 
       _listenToChanges(result.stream);
 
@@ -95,6 +83,7 @@ class _Params {
   }
 
   // ...........................................................................
+  /// Returns own param
   Param<T>? param<T>(String name) {
     final result = _params[name];
     if (result != null) {
@@ -373,15 +362,34 @@ class GgRouteTreeNode {
   /// Finds or creates a route param with [name]. The parameter is initialized
   /// with [seed].
   GgValue<T> findOrCreateParam<T>({required String name, required T seed}) {
-    var result =
-        _params.findOrCreateParam(parent: this, seed: seed, name: name);
+    final es = earlySeedForParam(name);
+
+    if (es != null) {
+      removeEarlySeedForParam(name);
+    }
+
+    var result = _params.findOrCreateParam<T>(
+        parent: this, seed: seed, earlySeed: es, name: name);
 
     return result;
   }
 
   // ...........................................................................
   /// Returns the parameter with name or null if no parameter with name exists.
-  GgValue<T>? param<T>(String name) => _params.param(name);
+  Param<T>? param<T>(String name) => _params.param(name);
+
+  // ...........................................................................
+  /// Returns the param from this node or its parents
+  Param<T>? ownOrParentParam<T>(String name) {
+    Param<T>? result;
+    GgRouteTreeNode? node = this;
+    while (node != null && result == null) {
+      result = node.param<T>(name);
+      node = node.parent;
+    }
+
+    return result;
+  }
 
   // ...........................................................................
   /// Returns all parameters of the active path
@@ -455,6 +463,42 @@ class GgRouteTreeNode {
   /// - [path] can address parent element, e.g. `../`
   /// - [path] can address root, e.g. `/`
   void navigateTo(String path) => _navigateTo(path);
+
+  // ######################
+  // Early seed
+  // ######################
+
+  /// If params are created the first time, the params are initialized with
+  /// early seed, but only when given
+  Map<String, String> earlySeed = {};
+
+  // ...........................................................................
+  String? earlySeedForParam(String name) {
+    GgRouteTreeNode? node = this;
+    String? seed;
+    while (node != null && seed == null) {
+      seed = node.earlySeed[name];
+      node = node.parent;
+    }
+
+    return seed;
+  }
+
+  // ...........................................................................
+  String? removeEarlySeedForParam(String name) {
+    // Early seed is only used the first time
+    GgRouteTreeNode? node = this;
+    String? seed;
+    while (node != null && seed == null) {
+      if (node.earlySeed.containsKey(name)) {
+        node.earlySeed.remove(name);
+      }
+      seed = node.earlySeed[name];
+      node = node.parent;
+    }
+
+    return seed;
+  }
 
   // ######################
   // Error Handling
