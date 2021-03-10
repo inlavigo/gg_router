@@ -7,27 +7,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/gg_router.dart';
-import 'package:gg_router/src/gg_router_widget.dart';
+import 'package:gg_router/src/gg_router.dart';
 
 main() {
   group('GgRouterDelegate', () {
     // .........................................................................
     late GgRouterDelegate routerDelegate;
     late GgRouteInformationParser routeInformationParser;
-    late GgRouterWidgetState router;
+    late GgRouterState router;
 
     // .........................................................................
     setUp(WidgetTester tester) async {
       final builder =
           (Map<String, GgRouteParam> params) => (BuildContext context) {
-                router = GgRouterWidget.of(context);
+                router = GgRouter.of(context);
                 return GgRouteParamsWidget(child: Container(), params: params);
               };
 
       final paramsA = GgRouteParam(seed: 5);
       final paramsB = GgRouteParam(seed: 6);
 
-      final widget = GgRouterWidget({
+      final widget = GgRouter({
         'routeA': builder({'a': paramsA}),
         'routeB': builder({'b': paramsB}),
         'routeC':

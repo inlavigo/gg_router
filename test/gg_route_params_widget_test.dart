@@ -36,7 +36,7 @@ main() {
           routerDelegate: GgRouterDelegate(
             child: Builder(
               builder: (context) {
-                rootNode = GgRouterWidget.of(context).node;
+                rootNode = GgRouter.of(context).node;
                 return widget;
               },
             ),

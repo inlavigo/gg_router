@@ -23,24 +23,24 @@ main() {
 
     final overlay1Key = ValueKey('overlay1');
     final Widget overlay1 = Container(key: overlay1Key);
-    late GgRouterWidgetState baseRouter;
-    GgRouterWidgetState? overlayRouter;
+    late GgRouterState baseRouter;
+    GgRouterState? overlayRouter;
 
     // .........................................................................
     setUp(WidgetTester tester) async {
       final widget = GgRouterOverlayWidget(
         key: key,
         base: Builder(builder: (context) {
-          baseRouter = GgRouterWidget.of(context);
+          baseRouter = GgRouter.of(context);
           return base;
         }),
         overlays: {
           'overlay0': (context) {
-            overlayRouter = GgRouterWidget.of(context);
+            overlayRouter = GgRouter.of(context);
             return overlay0;
           },
           'overlay1': (context) {
-            overlayRouter = GgRouterWidget.of(context);
+            overlayRouter = GgRouter.of(context);
             return overlay1;
           }
         },

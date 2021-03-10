@@ -4,21 +4,19 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this repository.
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
 import 'package:gg_value/gg_value.dart';
 import 'gg_route_tree_node.dart';
 
 // #############################################################################
-class GgRouterWidget extends StatefulWidget {
-  const GgRouterWidget(this.children)
+class GgRouter extends StatefulWidget {
+  const GgRouter(this.children)
       : _rootChild = null,
         _rootNode = null,
         super();
 
-  const GgRouterWidget.root(
+  const GgRouter.root(
       {Key? key, required Widget child, required GgRouteTreeNode node})
       : _rootChild = child,
         _rootNode = node,
@@ -30,7 +28,7 @@ class GgRouterWidget extends StatefulWidget {
 
   // ...........................................................................
   @override
-  GgRouterWidgetState createState() => GgRouterWidgetState();
+  GgRouterState createState() => GgRouterState();
 
   // ...........................................................................
   static const noGgRouterDelegateFoundError =
@@ -40,17 +38,17 @@ class GgRouterWidget extends StatefulWidget {
       'For more details look into "gg_router/example/main.dart".';
 
   // ...........................................................................
-  static GgRouterWidgetState of(
+  static GgRouterState of(
     BuildContext context, {
     bool rootRouter = false,
   }) {
-    GgRouterWidgetState? routerWidgetState;
-    if (context is StatefulElement && context.state is GgRouterWidgetState) {
-      routerWidgetState = context.state as GgRouterWidgetState;
+    GgRouterState? routerWidgetState;
+    if (context is StatefulElement && context.state is GgRouterState) {
+      routerWidgetState = context.state as GgRouterState;
     }
     if (rootRouter) {
       routerWidgetState =
-          context.findRootAncestorStateOfType<GgRouterWidgetState>() ??
+          context.findRootAncestorStateOfType<GgRouterState>() ??
               routerWidgetState;
     } else {
       // Normally we would just look for the next GgRouterWidgeState in the
@@ -61,7 +59,7 @@ class GgRouterWidget extends StatefulWidget {
       BuildContext? c = context;
 
       while (node == null && c != null) {
-        final state = c.findAncestorStateOfType<GgRouterWidgetState>();
+        final state = c.findAncestorStateOfType<GgRouterState>();
         node = (state?._isReady ?? false) ? state!.node : null;
         c = state?.context;
         routerWidgetState = state ?? routerWidgetState;
@@ -84,7 +82,7 @@ class GgRouterWidget extends StatefulWidget {
 }
 
 // #############################################################################
-class GgRouterWidgetState extends State<GgRouterWidget> {
+class GgRouterState extends State<GgRouter> {
   // ...........................................................................
   late GgRouteTreeNode node;
 
@@ -137,7 +135,7 @@ class GgRouterWidgetState extends State<GgRouterWidget> {
 
   // ...........................................................................
   Widget _buildNonRoot(BuildContext context) {
-    final parentNode = GgRouterWidget.of(context).node;
+    final parentNode = GgRouter.of(context).node;
 
     _createChildNodes(parentNode);
 

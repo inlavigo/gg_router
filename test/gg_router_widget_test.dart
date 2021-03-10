@@ -31,7 +31,7 @@ class TestRouteInformationProvider extends RouteInformationProvider
 
 main() {
   // .........................................................................
-  late GgEasyWidgetTest<GgRouterWidget, dynamic> ggRoute;
+  late GgEasyWidgetTest<GgRouter, dynamic> ggRoute;
 
   late GgRouteInformationParser routeInformationParser;
   late GgRouterDelegate routerDelegate;
@@ -49,11 +49,11 @@ main() {
 
   // ..............................
   final subBuilder = (BuildContext context) {
-    final router = GgRouterWidget.of(context);
+    final router = GgRouter.of(context);
     lastBuiltNode = router.node;
-    routeSegment = GgRouterWidget.of(context).routeName;
-    childRouteSegment = GgRouterWidget.of(context).routeNameOfActiveChild;
-    routePath = GgRouterWidget.of(context).routePath;
+    routeSegment = GgRouter.of(context).routeName;
+    childRouteSegment = GgRouter.of(context).routeNameOfActiveChild;
+    routePath = GgRouter.of(context).routePath;
     return Container();
   };
 
@@ -61,7 +61,7 @@ main() {
   // Create a widget hierarchy /a/b
   final defaultChild = Builder(
     builder: (context) {
-      final router = GgRouterWidget.of(context);
+      final router = GgRouter.of(context);
       router.node.root.errorHandler = null;
       router.node.root.errorHandler = (_) {};
       return Column(children: [
@@ -69,7 +69,7 @@ main() {
         // A button selecting route a0/a11
         TextButton(
           key: ValueKey('a0/a11 Button'),
-          onPressed: () => GgRouterWidget.of(context).navigateTo('a0/a11'),
+          onPressed: () => GgRouter.of(context).navigateTo('a0/a11'),
           child: Container(),
         ),
 
@@ -77,7 +77,7 @@ main() {
         // A button selecting route b0/b11
         TextButton(
           key: ValueKey('b0/b10 Button'),
-          onPressed: () => GgRouterWidget.of(context).navigateTo('b0/b10'),
+          onPressed: () => GgRouter.of(context).navigateTo('b0/b10'),
           child: Container(),
         ),
 
@@ -91,7 +91,7 @@ main() {
 
         // ..........
         // The routes
-        GgRouterWidget(
+        GgRouter(
           {
             '': subBuilder,
             'a0': (context) {
@@ -101,12 +101,12 @@ main() {
                     return TextButton(
                       key: ValueKey('backButton'),
                       onPressed: () {
-                        GgRouterWidget.of(context).navigateTo('.');
+                        GgRouter.of(context).navigateTo('.');
                       },
                       child: Container(),
                     );
                   }),
-                  GgRouterWidget({
+                  GgRouter({
                     '': subBuilder,
                     'a10': subBuilder,
                     'a11': subBuilder,
@@ -115,7 +115,7 @@ main() {
               );
             },
             'b0': (context) {
-              return GgRouterWidget({
+              return GgRouter({
                 'b10': subBuilder,
                 'b11': subBuilder,
               });
@@ -298,29 +298,29 @@ main() {
 
     // .........................................................................
     testWidgets(
-      'GgRouterWidget.of(context) should work correctly',
+      'GgRouter.of(context) should work correctly',
       (WidgetTester tester) async {
         BuildContext? context;
 
-        late GgRouterWidgetState rootRouter;
-        late GgRouterWidgetState router;
-        late GgRouterWidgetState childRouter;
+        late GgRouterState rootRouter;
+        late GgRouterState router;
+        late GgRouterState childRouter;
 
         await setUp(tester, child: Builder(builder: (c0) {
-          rootRouter = GgRouterWidget.of(c0);
+          rootRouter = GgRouter.of(c0);
 
           final builder = (BuildContext c1, String x) {
             context = c1;
-            router = GgRouterWidget.of(c1);
-            return GgRouterWidget({
+            router = GgRouter.of(c1);
+            return GgRouter({
               'childRoute$x': (c2) {
-                childRouter = GgRouterWidget.of(c2);
+                childRouter = GgRouter.of(c2);
                 return Container();
               }
             });
           };
 
-          return GgRouterWidget({
+          return GgRouter({
             'routeA': (c) => builder(c, 'A'),
             'routeB': (c) => builder(c, 'B'),
             'routeC': (c) => builder(c, 'C'),
@@ -330,36 +330,36 @@ main() {
         expect(context!, isNotNull);
 
         // .......................................................
-        // GgRouterWidget.of(context) should give the current context's router
-        expect(router, isInstanceOf<GgRouterWidgetState>());
-        expect(childRouter, isInstanceOf<GgRouterWidgetState>());
+        // GgRouter.of(context) should give the current context's router
+        expect(router, isInstanceOf<GgRouterState>());
+        expect(childRouter, isInstanceOf<GgRouterState>());
 
         // .......................................................
-        // GgRouterWidget.of(context).node should give the route node assigned to the
+        // GgRouter.of(context).node should give the route node assigned to the
         // current context, in our case this is the first route
         expect(router.node.name, 'routeA');
         expect(childRouter.node.name, 'childRouteA');
 
         // .......................................................
-        // GgRouterWidget.of(context).routeName should give the name of the
+        // GgRouter.of(context).routeName should give the name of the
         // route segment
         expect(router.routeName, 'routeA');
         expect(childRouter.routeName, 'childRouteA');
 
         // .......................................................
-        // GgRouterWidget.of(context).routeNameOfActiveChild should give the name
+        // GgRouter.of(context).routeNameOfActiveChild should give the name
         // of the active child route, or null if no child route is active.
         expect(router.routeNameOfActiveChild, 'childRouteA');
         expect(childRouter.routeNameOfActiveChild, null);
 
         // .......................................................
-        // GgRouterWidget.of(context).routePath should give the complete path
+        // GgRouter.of(context).routePath should give the complete path
         // of the route
         expect(router.routePath, '/routeA');
         expect(childRouter.routePath, '/routeA/childRouteA');
 
         // .......................................................
-        // GgRouterWidget.of(context).indexOfActiveChild should give the index
+        // GgRouter.of(context).indexOfActiveChild should give the index
         // of the active child route, or null if no child route is active.
         expect(rootRouter.indexOfActiveChild, 0);
         expect(childRouter.indexOfActiveChild, null);
@@ -368,7 +368,7 @@ main() {
         expect(rootRouter.indexOfActiveChild, 2);
 
         // .......................................................
-        // GgRouterWidget.of(context).onActiveChildChange should inform, when the
+        // GgRouter.of(context).onActiveChildChange should inform, when the
         // active child changes
         bool? onActiveChildChangeDidFire;
         final s = router.onActiveChildChange
@@ -377,7 +377,7 @@ main() {
         await tester.pumpAndSettle();
         expect(onActiveChildChangeDidFire, isNull);
 
-        // GgRouterWidget.of(context).navigateTo() should allow to navigate relatively
+        // GgRouter.of(context).navigateTo() should allow to navigate relatively
         router.navigateTo('../routeB');
         await tester.pumpAndSettle();
         expect(onActiveChildChangeDidFire, true);
@@ -385,26 +385,26 @@ main() {
         expect(router.routePath, '/routeB');
         expect(childRouter.routePath, '/routeB/childRouteB');
 
-        // GgRouterWidget.of(context).navigateTo() should allow to navigate absolutely
+        // GgRouter.of(context).navigateTo() should allow to navigate absolutely
         childRouter.navigateTo('/routeC');
         await tester.pumpAndSettle();
         expect(router.routePath, '/routeC');
         expect(childRouter.routePath, '/routeC/childRouteC');
 
-        // GgRouterWidget.of(context) should throw if context is not a child of
+        // GgRouter.of(context) should throw if context is not a child of
         // GgRouterDelegate
 
         await tester.pumpWidget(
           Builder(
             builder: (context) {
-              GgRouterWidget.of(context);
+              GgRouter.of(context);
               return Container();
             },
           ),
         );
 
         expect(tester.takeException().message,
-            GgRouterWidget.noGgRouterDelegateFoundError);
+            GgRouter.noGgRouterDelegateFoundError);
 
         s.cancel();
 

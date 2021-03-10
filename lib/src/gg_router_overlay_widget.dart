@@ -6,7 +6,7 @@
 
 import 'package:flutter/material.dart';
 
-import 'gg_router_widget.dart';
+import 'gg_router.dart';
 
 /// Allows to define a bunch of routes witch are displayed infront of a
 /// base widget.
@@ -25,16 +25,16 @@ class GgRouterOverlayWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: GgRouterWidget.of(context).onActiveChildChange,
+      stream: GgRouter.of(context).onActiveChildChange,
       builder: (context, snapshot) {
-        final node = GgRouterWidget.of(context).node;
+        final node = GgRouter.of(context).node;
         if (node.activeChild == null) {
           return base;
         } else {
           return Stack(
             children: [
               base,
-              GgRouterWidget(overlays),
+              GgRouter(overlays),
             ],
           );
         }

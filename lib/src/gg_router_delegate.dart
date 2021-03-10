@@ -33,7 +33,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
-    return GgRouterWidget.root(
+    return GgRouter.root(
       child: Overlay(
         initialEntries: [
           OverlayEntry(builder: (context) {

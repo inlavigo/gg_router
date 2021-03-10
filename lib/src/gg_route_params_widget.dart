@@ -57,7 +57,7 @@ class GgRouteParamsWidget extends StatelessWidget {
 
   // ...........................................................................
   void _writeParamsToNode(BuildContext context) {
-    final router = GgRouterWidget.of(context);
+    final router = GgRouter.of(context);
     params.forEach((name, value) {
       router.node.findOrCreateParam(name: name, seed: value.seed);
     });

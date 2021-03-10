@@ -34,12 +34,12 @@ class MyApp extends StatelessWidget {
 
 ### Basic routes
 
-Use `GgRouterWidget` to add routes to your application structure:
+Use `GgRouter` to add routes to your application structure:
 
 ~~~dart
 @override
 Widget build(BuildContext context){
-  GgRouterWidget({
+  GgRouter({
     'sports':         _sports,
     'transportation': _transportation,
     'places':         _places
@@ -56,7 +56,7 @@ its own sub routes:
 Widget _sports(BuildContext context){
   return Container(
     child: {
-      GgRouterWidget({
+      GgRouter({
         'basketball': _basketBall,
         'football': _footBall,
         'handball': _handBall,
@@ -78,7 +78,7 @@ route, i.e. the `basketball` route. To specify a widget that is shown when
 Widget _sports(BuildContext context){
   return Container(
     child: {
-      GgRouterWidget({
+      GgRouter({
         '': _index, // The index route, shown one navigates to "/sports".
         'basketball': _basketBall,
         'football': _footBall,
@@ -122,7 +122,7 @@ page appears. This is achieved by using the keyword `_LAST_`. When one clicks on
 
 ## Error handling
 
-If one opens a URI in the browser that is not defined using `GgRouterWidget(...)`, the
+If one opens a URI in the browser that is not defined using `GgRouter(...)`, the
 route last active is kept. But you might want to handle that error and show an
 error message. To do so, assign an error handler to `GgRouter.of(context).errorHandler`.
 
