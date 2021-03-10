@@ -16,6 +16,8 @@ void main() {
   runApp(GgRouterExample());
 }
 
+const debugShowCheckedModeBanner = false;
+
 // .............................................................................
 class GgRouterExample extends StatelessWidget {
   const GgRouterExample({Key? key}) : super(key: key);
@@ -27,6 +29,10 @@ class GgRouterExample extends StatelessWidget {
       title: "GgRouterExample",
       routerDelegate: GgRouterDelegate(child: _appContent),
       routeInformationParser: GgRouteInformationParser(),
+      themeMode: ThemeMode.dark,
+      darkTheme: ThemeData(brightness: Brightness.dark),
+      theme: ThemeData(brightness: Brightness.light),
+      debugShowCheckedModeBanner: debugShowCheckedModeBanner,
     );
   }
 
@@ -40,7 +46,7 @@ class GgRouterExample extends StatelessWidget {
           _routeButton('Transportation', 'transportation'),
           _routeButton('Places', 'places'),
           Container(
-            width: 50,
+            width: debugShowCheckedModeBanner ? 50 : 0,
           ),
         ],
       ),
@@ -49,6 +55,7 @@ class GgRouterExample extends StatelessWidget {
           _initErrorHandler(context);
           return GgRouter(
             {
+              '': _indexPage,
               'sports': _sportsPage,
               'transportation': _transportationPage,
               'places': _placesPage,
@@ -95,7 +102,7 @@ class GgRouterExample extends StatelessWidget {
       child: Icon(
         icon,
         size: 200,
-        color: Colors.grey.shade400,
+        color: Color(0x33FFFFFF),
       ),
     );
   }
@@ -157,19 +164,32 @@ class GgRouterExample extends StatelessWidget {
       SizedBox(
         width: 200,
         height: 50,
-        child: StreamBuilder(
-          stream: param.stream,
-          builder: (context, snapshot) {
-            return CheckboxListTile(
-              title: Text("Visit Event"),
-              value: param.value,
-              onChanged: (newValue) => param.value = newValue as bool,
-            );
-          },
+        child: Container(
+          color: Color(0x11FFFFFF),
+          child: StreamBuilder(
+            stream: param.stream,
+            builder: (context, snapshot) {
+              return CheckboxListTile(
+                title: Text("Visit Event"),
+                value: param.value,
+                onChanged: (newValue) => param.value = newValue as bool,
+              );
+            },
+          ),
         ),
       ),
       Expanded(child: Container()),
     ]);
+  }
+
+  // ...........................................................................
+  Widget _indexPage(BuildContext context) {
+    return Center(
+      child: Text(
+        'GgRouter',
+        style: Theme.of(context).textTheme.headline2,
+      ),
+    );
   }
 
   // ...........................................................................

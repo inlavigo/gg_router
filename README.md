@@ -1,14 +1,13 @@
-# Easy to use routing and navigation for flutter
+# GgRouter - Simple Routing for Flutter
 
-`GgRouter` offers an intuitive way to synchronize a Flutter app with the browser
-URI. Nested routes are defined as nested widgets. Tools are provided to navigate
-relatively or absolutely to children, parents, and siblings.
+Easily nested routes to your flutter app. Navigate relatively and absolutely.
+Synchronize widget state and query params.
 
-<img src="img/gg_router.gif" style="max-width: 480px;">
+![Features](./img/gg_router_short.gif)
 
 ## Activate GgRouter
 
-In order to activate `GgRouter`, you need to create a `MaterialApp.router(...)`
+In order to activate `GgRouter`, create a `MaterialApp.router(...)`
 and provide it with an instance of `GgRouterDelegate` and
 `GgRouterInformationParser`.
 
@@ -34,7 +33,7 @@ class MyApp extends StatelessWidget {
 
 ### Basic routes
 
-Use `GgRouter` to add routes to your application structure:
+Use the `GgRouter` widget to add routes to your application structure:
 
 ~~~dart
 @override
@@ -47,116 +46,104 @@ Widget build(BuildContext context){
 }
 ~~~
 
-### Nested routes
-
-Each of the three widgets `_sports`, `_transportation` and `_places` can define
-its own sub routes:
-
-~~~dart
-Widget _sports(BuildContext context){
-  return Container(
-    child: {
-      GgRouter({
-        'basketball': _basketBall,
-        'football': _footBall,
-        'handball': _handBall,
-
-      });
-    }
-  );
-}
-~~~
-
 ### Index route
 
-The example above allows now routes like `/sports/basketball`. But what happens
-if one opens the route `/sports`? By default `GgRouter` navigates to the first
-route, i.e. the `basketball` route. To specify a widget that is shown when
-`/sports` is called, just add a empty named route:
+To define a default route which is shown when none of the routes is selected,
+just add a route with an empty `''` name:
 
 ~~~dart
-Widget _sports(BuildContext context){
-  return Container(
-    child: {
-      GgRouter({
-        '': _index, // The index route, shown one navigates to "/sports".
-        'basketball': _basketBall,
-        'football': _footBall,
-        'handball': _handBall,
-
-      });
-    }
-  );
+@override
+Widget build(BuildContext context){
+  GgRouter({
+    '': _index,
+    'sports': _sports,
+    // ...
+  })
 }
 ~~~
+
+### Nested routes
+
+You can arbitrarily nest routes. Just place another `GgRouter` widget within
+one of the routes. Child `GgRouter` widgets do not need to be direct children.
 
 ## Navigation
 
-Use `GgRouter.of(context).navigateTo(path)` to get the current context's router.
-By specifying an absolute or relative `path` you can now navigate to other
-places.
+### Navigate absolutely
 
-### Absolute navigation
+Use `GgRouter.of(context).navigateTo('/sports/football')` to absolutely navigate
+to the football page, no matter where you currently are in your application.
 
-Use `navigateTo('/sports/football')` to navigate to the football page, no matter
-where you currently are in your application.
+### Navigate relatively
 
-### Relative navigation
+- Use `GgRouter.of(context).navigateTo('./dialog/')` to navigate to the direct child.
+- Use `GgRouter.of(context).navigateTo('..')` to navigate to the parent.
+- Use `GgRouter.of(context).navigateTo('../../')` to navigate to the grand parent.
+- Use `GgRouter.of(context).navigateTo('../transportation/')` to navigate to a sibling.
 
-Imagine you are in the context of the `/sports` route. Use
-`navigateTo('./basketball')` to switch to the handball page. You can also jump
-to deeply nested children by calling something like
-`navigateTo('./basketball/dialog')`.
+### Navigate to last route
 
-### Navigate to a parent route
+When you switching to a route you might want to open the child route that was
+opened, when you left the route the last time. Use the `_LAST_` keyword to
+activate this route:
 
-Imagine you are in the context of the `/sports/basketball` route. Use
-`navigateTo('../')` to navigate to the parent route. In the example we use that
-method to close the dialog.
+~~~dart
+GgRouter.of(context).navigateTo('/sports/_LAST_');
+~~~
 
-### Restore last routes
+### Navigation Bars
 
-After jumping from "Transportation" to "Sports" the previously opened sports
-page appears. This is achieved by using the keyword `_LAST_`. When one clicks on
-"Sports", `navigateTo('/sports/_LAST_')` is executed.
+Navigation buttons and `GgRouter` widgets can be used side by side. Navigation
+elements can use `GgRouter.of(context)` to perform various routing operations:
+
+- Use `GgRouter.of(context).navigateTo('...')` to navigate to a route.
+- Use `GgRouter.of(context).routeNameOfActiveChild` to find out which child
+  route is currently active.
+- Use `GgRouter.of(context).indexOfActiveChild` to find out which of the items
+  in a `BottomNavigationBar` need to be styled as active elements.
+- Use `GgRouter.of(context).onActiveChildChange` to rebuild the navigation bar,
+  when the active child changes.
+
+## URI query params
+
+### Define query params
+
+Use `GgRouteParams` to define a list of query params that are shown in the URI.
+
+~~~dart
+GgRouteParams(
+  params: {
+    'a': GgRouteParam<bool>(seed: false),
+    'b': GgRouteParam<int>(seed: 5),
+    'c': GgRouteParam<String>(seed: 'hello'),
+  },
+  child: // ...
+}
+~~~
+
+The param names `a`, `b`, and `c` must only be used one time in a route path.
+Different route paths can define the same parameter names. When switching a
+route, also the route parameters will switch.
+
+### Use query params
+
+To use the value of a query param in a widget, use these method:
+
+- Use `GgRouter.of(context).param('a')?.value` to get or set the value of the
+  query param `a`.
+- Use `GgRouter.of(context).param('a')?.stream` to observe value changes of
+  query param `a`.
 
 ## Error handling
 
-If one opens a URI in the browser that is not defined using `GgRouter(...)`, the
-route last active is kept. But you might want to handle that error and show an
-error message. To do so, assign an error handler to `GgRouter.of(context).errorHandler`.
+If you open a URI in the browser that is not defined using `GgRouter(...)`, an
+error is thrown. To handle that error assign an error handler to
+`GgRouter.of(context).errorHandler`.
 
-## Navigation buttons
+## Example
 
-### Combining route and navigation elements
+An example demonstrating all of the features above can be found in `example/main.dart`.
 
-`GgRoute` allows it to handle navigation code and route code side by side.
+## Features and bugs
 
-In the example the following pattern is applied:
-
-~~~txt
-  |-MaterialApp
-    |-appBar
-    |  |-actions
-    |  |  |-sports
-    |  |  |-transportation
-    |  |  |-button
-    |-routes
-       |-sports
-       |-transportations
-       |-places
-~~~
-
-To navigate to the sports page, the sports button needs to use
-`GgRouter.of(context)` to get a reference to the current router. From here it
-can call  `navigateTo('./sports')` to navigate to the sports page.
-
-### Highlighting active route buttons
-
-`GgRouter.of(context)` provides several methods a button can use to decide if it
-needs to be highlighted or not:
-
-- `routeNameOfActiveChild`
-- `indexOfActiveChild`
-
-
+Please file feature requests and bugs at [GitHub](https://github.com/inlavigo/gg_router).
