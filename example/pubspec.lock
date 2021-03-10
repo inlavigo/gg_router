@@ -85,7 +85,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.1+1"
+    version: "1.0.0-beta.1"
   gg_value:
     dependency: "direct main"
     description:

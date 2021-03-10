@@ -91,9 +91,11 @@ class _Params {
   }
 
   // ...........................................................................
+  /// Returns true when a param with [name] is available.
   bool hasParam(String name) => _params.keys.contains(name);
 
   // ...........................................................................
+  /// A stream that informs about chnages of any of the params.
   Stream<void> get onChange => _onChange.stream;
 
   // ...........................................................................
@@ -381,7 +383,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  /// Returns the parameter with [name] or [null] if no parameter with name exists.
+  /// Returns the parameter with [name] or null if no parameter with name exists.
   GgValue<T>? param<T>(String name) => _params.param(name);
 
   // ...........................................................................
@@ -411,7 +413,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  /// Returns true if param with [name] exists, otherwise [false] is returned.
+  /// Returns true if param with [name] exists, otherwise false is returned.
   bool hasParam(String name) => _params.hasParam(name);
 
   // ...........................................................................
@@ -483,7 +485,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns the URI parameter for a given parameter [name].
-  /// Returns [null], if no URI parameter exists for that name.
+  /// Returns null, if no URI parameter exists for that name.
   String? uriParamForName(String name) {
     GgRouteTreeNode? node = this;
     String? seed;

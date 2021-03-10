@@ -14,7 +14,7 @@ will build the right widgets for you.
 
 ## Activate GgRouter
 
-To activate `GgRouter`, create a `MaterialApp.router(...)`
+To activate `GgRouter`, create a `MaterialApp.router(...)` instance
 and provide it with an instance of `GgRouterDelegate` and
 `GgRouterInformationParser`.
 

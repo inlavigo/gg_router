@@ -129,7 +129,7 @@ class GgRouterState extends State<GgRouter> {
 
   // ...........................................................................
   /// Returns the name of the active child route.
-  /// Returns [null] if no child is active.
+  /// Returns null if no child is active.
   String? get routeNameOfActiveChild {
     return node.activeChild?.name;
   }
@@ -143,7 +143,7 @@ class GgRouterState extends State<GgRouter> {
   }
 
   // ...........................................................................
-  /// Returns the path of this [GgRoute] instance.
+  /// Returns the path of this [GgRouter] instance.
   String get routePath {
     return node.path;
   }
