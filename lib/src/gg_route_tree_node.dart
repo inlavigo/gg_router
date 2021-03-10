@@ -16,7 +16,6 @@ import 'gg_route_tree_node_error.dart';
 class Param<T> extends GgValue<T> {
   // ...........................................................................
   Param({
-    required this.parent,
     required T seed,
     required this.name,
     bool spam = false,
@@ -31,7 +30,6 @@ class Param<T> extends GgValue<T> {
 
   // ...........................................................................
   final String name;
-  final GgRouteTreeNode parent;
 }
 
 // #############################################################################
@@ -53,7 +51,6 @@ class _Params {
     var result = _params[name];
     if (result == null) {
       result = Param<T>(
-        parent: parent,
         seed: seed,
         name: name,
         spam: spam,
