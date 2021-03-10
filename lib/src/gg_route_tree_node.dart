@@ -13,26 +13,6 @@ import 'dart:async' show Stream;
 import 'gg_route_tree_node_error.dart';
 
 // #############################################################################
-class Param<T> extends GgValue<T> {
-  // ...........................................................................
-  Param({
-    required T seed,
-    required this.name,
-    bool spam = false,
-    bool Function(T a, T b)? compare,
-    T Function(T)? transform,
-  }) : super(
-          seed: seed,
-          spam: spam,
-          compare: compare,
-          transform: transform,
-        );
-
-  // ...........................................................................
-  final String name;
-}
-
-// #############################################################################
 class _Params {
   _Params() {
     _initParams();
@@ -41,7 +21,7 @@ class _Params {
   }
 
   // ...........................................................................
-  Param<T> findOrCreateParam<T>({
+  GgValue<T> findOrCreateParam<T>({
     required GgRouteTreeNode parent,
     required T seed,
     required String? earlySeed,
@@ -50,7 +30,7 @@ class _Params {
   }) {
     var result = _params[name];
     if (result == null) {
-      result = Param<T>(
+      result = GgValue<T>(
         seed: seed,
         name: name,
         spam: spam,
@@ -71,7 +51,7 @@ class _Params {
       _checkType<T>(result);
     }
 
-    return result as Param<T>;
+    return result as GgValue<T>;
   }
 
   // ...........................................................................
@@ -81,13 +61,13 @@ class _Params {
 
   // ...........................................................................
   /// Returns own param
-  Param<T>? param<T>(String name) {
+  GgValue<T>? param<T>(String name) {
     final result = _params[name];
     if (result != null) {
       _checkType<T>(result);
     }
 
-    return _params[name] as Param<T>?;
+    return _params[name] as GgValue<T>?;
   }
 
   // ...........................................................................
@@ -110,8 +90,8 @@ class _Params {
   }
 
   // ...........................................................................
-  _checkType<T>(Param param) {
-    if (!(param is Param<T>)) {
+  _checkType<T>(GgValue param) {
+    if (!(param is GgValue<T>)) {
       throw ArgumentError(
         'Error while retrieving param with name "${param.name}". '
         'The existing param has type "${param.value.runtimeType.toString()}" and not "${T.toString()}".',
@@ -120,7 +100,7 @@ class _Params {
   }
 
   // ...........................................................................
-  final _params = Map<String, Param>();
+  final _params = Map<String, GgValue>();
 
   // ...........................................................................
   final _onChange = StreamController<void>.broadcast();
@@ -375,12 +355,12 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns the parameter with name or null if no parameter with name exists.
-  Param<T>? param<T>(String name) => _params.param(name);
+  GgValue<T>? param<T>(String name) => _params.param(name);
 
   // ...........................................................................
   /// Returns the param from this node or its parents
-  Param<T>? ownOrParentParam<T>(String name) {
-    Param<T>? result;
+  GgValue<T>? ownOrParentParam<T>(String name) {
+    GgValue<T>? result;
     GgRouteTreeNode? node = this;
     while (node != null && result == null) {
       result = node.param<T>(name);
@@ -392,8 +372,8 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns all parameters of the active path
-  Map<String, Param> get activeParams {
-    Map<String, Param> result = {};
+  Map<String, GgValue> get activeParams {
+    Map<String, GgValue> result = {};
     GgRouteTreeNode? node = this;
     while (node != null) {
       result.addAll(node._params._params);

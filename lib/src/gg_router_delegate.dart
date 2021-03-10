@@ -50,7 +50,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   RouteInformation get currentConfiguration {
     Map<String, dynamic> queryParameters = {};
     _root.activeParams.values.forEach((param) {
-      queryParameters[param.name] = param.value.toString();
+      queryParameters[param.name!] = param.value.toString();
     });
 
     final uri = Uri(
