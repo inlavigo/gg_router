@@ -303,8 +303,10 @@ main() {
         BuildContext? context;
 
         late GgRouterState rootRouter;
+        late GgRouterState rootRouter2;
         late GgRouterState router;
         late GgRouterState childRouter;
+        late String? lastBuiltParam;
 
         await setUp(tester, child: Builder(builder: (c0) {
           rootRouter = GgRouter.of(c0);
@@ -315,7 +317,16 @@ main() {
             return GgRouter({
               'childRoute$x': (c2) {
                 childRouter = GgRouter.of(c2);
-                return Container();
+                rootRouter2 = GgRouter.of(c2, rootRouter: true);
+                return GgRouteParams(
+                  params: {'param': GgRouteParam(seed: x)},
+                  child: Builder(
+                    builder: (c3) {
+                      lastBuiltParam = GgRouter.of(c3).param('param')?.value;
+                      return Container();
+                    },
+                  ),
+                );
               }
             });
           };
@@ -329,7 +340,7 @@ main() {
 
         expect(context!, isNotNull);
 
-        // .......................................................
+        // .............................................................
         // GgRouter.of(context) should give the current context's router
         expect(router, isInstanceOf<GgRouterState>());
         expect(childRouter, isInstanceOf<GgRouterState>());
@@ -357,6 +368,15 @@ main() {
         // of the route
         expect(router.routePath, '/routeA');
         expect(childRouter.routePath, '/routeA/childRouteA');
+
+        // .......................................................
+        // GgRouter.of(context).routeParam('param') should give the param
+        // with name 'param.
+        expect(lastBuiltParam, 'A');
+
+        // .............................................................
+        // GgRouter.of(context, rootRouter: true) should the root router
+        expect(rootRouter2, rootRouter);
 
         // .......................................................
         // GgRouter.of(context).indexOfActiveChild should give the index

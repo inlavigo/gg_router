@@ -72,34 +72,30 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   // ...........................................................................
   @override
   Future<void> setNewRoutePath(RouteInformation route) {
-    try {
-      if (route.location != null) {
-        late Uri uri;
-        try {
-          uri = Uri.parse(route.location!);
-        } catch (e) {
-          print('Error while parsing url ${route.location}');
-          return SynchronousFuture(null);
-        }
-
-        _root.activeChildPath = uri.pathSegments;
-        final Map<String, String> uriParams = {};
-
-        if (uri.hasQuery) {
-          final activeParams = _root.activeParams;
-          uri.queryParameters.forEach((key, value) {
-            if (activeParams.containsKey(key)) {
-              activeParams[key]!.stringValue = value;
-            } else {
-              uriParams[key] = value;
-            }
-          });
-        }
-
-        _root.uriParams = uriParams;
+    if (route.location != null) {
+      late Uri uri;
+      try {
+        uri = Uri.parse(route.location!);
+      } catch (e) {
+        print('Error while parsing url ${route.location}');
+        return SynchronousFuture(null);
       }
-    } catch (e) {
-      print('Error while setNewRoutePath url ${route.location}');
+
+      _root.activeChildPath = uri.pathSegments;
+      final Map<String, String> uriParams = {};
+
+      if (uri.hasQuery) {
+        final activeParams = _root.activeParams;
+        uri.queryParameters.forEach((key, value) {
+          if (activeParams.containsKey(key)) {
+            activeParams[key]!.stringValue = value;
+          } else {
+            uriParams[key] = value;
+          }
+        });
+      }
+
+      _root.uriParams = uriParams;
     }
 
     return SynchronousFuture(null);

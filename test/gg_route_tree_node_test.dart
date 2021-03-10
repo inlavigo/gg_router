@@ -909,9 +909,8 @@ main() {
         expect(root.uriParamForName('a'), null);
 
         // Now lets create a paramter b
-        childB.findOrCreateParam(name: 'b', seed: 22);
-
         // Early seed should be ignored because it has a invalid value (20inavlid).
+        childB.findOrCreateParam(name: 'b', seed: 22);
         expect(childB.param('b')?.value, 22);
       });
     });

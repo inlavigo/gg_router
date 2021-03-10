@@ -94,6 +94,14 @@ main() {
       await tester.pumpAndSettle();
       expect(routerDelegate.currentConfiguration.location!, 'routeA?a=6');
 
+      // ............................................
+      // Should not do anything if URL contains errors
+      final invalidRouteInformation = RouteInformation(location: ' \$d\$30:!!');
+      routerDelegate.setNewRoutePath(invalidRouteInformation);
+
+      await tester.pumpAndSettle();
+      expect(routerDelegate.currentConfiguration.location!, 'routeA?a=6');
+
       await tearDown(tester);
     });
 
