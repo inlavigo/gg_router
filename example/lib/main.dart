@@ -183,14 +183,14 @@ class GgRouterExample extends StatelessWidget {
   }
 
   // ...........................................................................
-  Widget _indexPage(BuildContext context) {
-    return Center(
-      child: Text(
-        'GgRouter',
-        style: Theme.of(context).textTheme.headline2,
-      ),
-    );
-  }
+  // Widget _indexPage(BuildContext context) {
+  //   return Center(
+  //     child: Text(
+  //       'GgRouter',
+  //       style: Theme.of(context).textTheme.headline2,
+  //     ),
+  //   );
+  // }
 
   // ...........................................................................
   Widget _sportsPage(BuildContext context) {
