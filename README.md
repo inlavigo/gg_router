@@ -1,13 +1,20 @@
-# GgRouter - Simple Routing for Flutter
+# GgRouter - Easy Routing for Flutter
 
-Easily nested routes to your flutter app. Navigate relatively and absolutely.
-Synchronize widget state and query params.
+A good routing and navigation system opens many doors: Deeply link to any place
+in your app. Navigate with ease from one widget to another. Restore the exact
+state of your app. GgRouter gives you a simple and powerful routing library for
+flutter built on the top of Navigator 2.0.
 
 ![Features](./img/gg_router_short.gif)
 
+With `GgRouter` routes and query params can be nested in the same way widgets
+are nested. Out of your widget and route hierarchy, `GgRouter` creates and
+maintains a route tree. When you navigate through the route tree, `GgRouter`
+will build the right widgets for you.
+
 ## Activate GgRouter
 
-In order to activate `GgRouter`, create a `MaterialApp.router(...)`
+To activate `GgRouter`, create a `MaterialApp.router(...)`
 and provide it with an instance of `GgRouterDelegate` and
 `GgRouterInformationParser`.
 
@@ -49,7 +56,7 @@ Widget build(BuildContext context){
 ### Index route
 
 To define a default route which is shown when none of the routes is selected,
-just add a route with an empty `''` name:
+add a route with an empty `''` name:
 
 ~~~dart
 @override
@@ -83,8 +90,8 @@ to the football page, no matter where you currently are in your application.
 
 ### Navigate to last route
 
-When you switching to a route you might want to open the child route that was
-opened, when you left the route the last time. Use the `_LAST_` keyword to
+When you switch to a route, you might want to open the child route that was
+opened when you left the route the last time. Use the `_LAST_` keyword to
 activate this route:
 
 ~~~dart
@@ -123,9 +130,9 @@ GgRouteParams(
 
 The param names `a`, `b`, and `c` must only be used one time in a route path.
 Different route paths can define the same parameter names. When switching a
-route, also the route parameters will switch.
+route, also the route parameters will change.
 
-### Use query params
+### Access query params
 
 To use the value of a query param in a widget, use these method:
 
@@ -137,7 +144,7 @@ To use the value of a query param in a widget, use these method:
 ## Error handling
 
 If you open a URI in the browser that is not defined using `GgRouter(...)`, an
-error is thrown. To handle that error assign an error handler to
+error is thrown. To handle that error, assign an error handler to
 `GgRouter.of(context).errorHandler`.
 
 ## Example
