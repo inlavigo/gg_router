@@ -7,7 +7,6 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/gg_router.dart';
-import 'package:gg_router/src/gg_route_tree_node_error.dart';
 
 class OtherClass {}
 

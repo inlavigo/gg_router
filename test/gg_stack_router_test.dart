@@ -11,37 +11,37 @@ import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
 
 main() {
-  group('GgOverlayRouter', () {
+  group('GgStackRouter', () {
     // .........................................................................
-    late GgEasyWidgetTest<GgRouterOverlayWidget, dynamic> ggOverlayRouter;
-    final key = GlobalKey(debugLabel: 'GgOverlayRouter');
+    late GgEasyWidgetTest<GgStackRouter, dynamic> ggOverlayRouter;
+    final key = GlobalKey(debugLabel: 'GgStackRouter');
     final baseKey = ValueKey('base');
     final Widget base = Container(key: baseKey);
 
-    final overlay0Key = ValueKey('overlay0');
-    final Widget overlay0 = Container(key: overlay0Key);
+    final routeOnTop0Key = ValueKey('routeOnTop0');
+    final Widget routeOnTop0 = Container(key: routeOnTop0Key);
 
-    final overlay1Key = ValueKey('overlay1');
-    final Widget overlay1 = Container(key: overlay1Key);
+    final routeOnTop1Key = ValueKey('routeOnTop1');
+    final Widget routeOnTop1 = Container(key: routeOnTop1Key);
     late GgRouterState baseRouter;
-    GgRouterState? overlayRouter;
+    GgRouterState? routeOnTopRouter;
 
     // .........................................................................
     setUp(WidgetTester tester) async {
-      final widget = GgRouterOverlayWidget(
+      final widget = GgStackRouter(
         key: key,
-        base: Builder(builder: (context) {
+        baseWidget: Builder(builder: (context) {
           baseRouter = GgRouter.of(context);
           return base;
         }),
-        overlays: {
-          'overlay0': (context) {
-            overlayRouter = GgRouter.of(context);
-            return overlay0;
+        routesOnTop: {
+          'routeOnTop0': (context) {
+            routeOnTopRouter = GgRouter.of(context);
+            return routeOnTop0;
           },
-          'overlay1': (context) {
-            overlayRouter = GgRouter.of(context);
-            return overlay1;
+          'routeOnTop1': (context) {
+            routeOnTopRouter = GgRouter.of(context);
+            return routeOnTop1;
           }
         },
       );
@@ -69,40 +69,40 @@ main() {
 
       // Initially only the base widget is shown
       expect(baseRouter.node.root.activeChildPathString, '');
-      expect(overlayRouter, isNull);
+      expect(routeOnTopRouter, isNull);
       expect(find.byKey(baseKey), findsOneWidget);
-      expect(find.byKey(overlay0Key), findsNothing);
-      expect(find.byKey(overlay1Key), findsNothing);
+      expect(find.byKey(routeOnTop0Key), findsNothing);
+      expect(find.byKey(routeOnTop1Key), findsNothing);
 
       // ..............................
-      // Now lets route to the overlay0
-      baseRouter.navigateTo('./overlay0');
+      // Now lets route to the routeOnTop0
+      baseRouter.navigateTo('./routeOnTop0');
       await tester.pumpAndSettle();
 
-      // The overlay0 should be shown infront of the base.
+      // The routeOnTop0 should be shown infront of the base.
       expect(find.byKey(baseKey), findsOneWidget);
-      expect(find.byKey(overlay0Key), findsOneWidget);
-      expect(find.byKey(overlay1Key), findsNothing);
+      expect(find.byKey(routeOnTop0Key), findsOneWidget);
+      expect(find.byKey(routeOnTop1Key), findsNothing);
 
       // ..............................
-      // Now lets route to the overlay1
-      baseRouter.navigateTo('./overlay1');
+      // Now lets route to the routeOnTop1
+      baseRouter.navigateTo('./routeOnTop1');
       await tester.pumpAndSettle();
 
-      // The overlay1 should be shown infront of the base.
+      // The routeOnTop1 should be shown infront of the base.
       expect(find.byKey(baseKey), findsOneWidget);
-      expect(find.byKey(overlay0Key), findsNothing);
-      expect(find.byKey(overlay1Key), findsOneWidget);
+      expect(find.byKey(routeOnTop0Key), findsNothing);
+      expect(find.byKey(routeOnTop1Key), findsOneWidget);
 
       // ..............................
       // Now lets route back to the base
       baseRouter.navigateTo('.');
       await tester.pumpAndSettle();
 
-      // No overlay should be shown anymore
+      // No routeOnTop should be shown anymore
       expect(find.byKey(baseKey), findsOneWidget);
-      expect(find.byKey(overlay0Key), findsNothing);
-      expect(find.byKey(overlay1Key), findsNothing);
+      expect(find.byKey(routeOnTop0Key), findsNothing);
+      expect(find.byKey(routeOnTop1Key), findsNothing);
 
       await tearDown(tester);
     });

@@ -10,9 +10,9 @@ import 'package:flutter/widgets.dart';
 import 'package:gg_router/gg_router.dart';
 
 main() {
-  group('GgRouteParamsWidget', () {
+  group('GgRouteParams', () {
     // .........................................................................
-    final key = GlobalKey(debugLabel: 'GgRouteParamsWidget');
+    final key = GlobalKey(debugLabel: 'GgRouteParams');
     late GgRouteTreeNode rootNode;
     const paramName = 'a';
     const paramSeed = 5;
@@ -21,7 +21,7 @@ main() {
 
     // .........................................................................
     setUp(WidgetTester tester, {Widget? child}) async {
-      final widget = GgRouteParamsWidget(
+      final widget = GgRouteParams(
         key: key,
         params: {
           paramName: GgRouteParam(seed: paramSeed),
@@ -65,7 +65,7 @@ main() {
         (WidgetTester tester) async {
       await setUp(
         tester,
-        child: GgRouteParamsWidget(
+        child: GgRouteParams(
           params: {'a': GgRouteParam(seed: 5)},
           child: Container(),
         ),

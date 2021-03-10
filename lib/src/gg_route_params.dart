@@ -6,11 +6,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
-import './gg_route_param.dart';
 
-class GgRouteParamsWidget extends StatelessWidget {
+// #############################################################################
+class GgRouteParam<T> {
+  GgRouteParam({required this.seed});
+
   // ...........................................................................
-  GgRouteParamsWidget({
+  final T seed;
+}
+
+// #############################################################################
+class GgRouteParams extends StatelessWidget {
+  // ...........................................................................
+  GgRouteParams({
     Key? key,
     required this.child,
     required this.params,
@@ -35,8 +43,8 @@ class GgRouteParamsWidget extends StatelessWidget {
     // Check if any of the parent route param widgets already contains a
     // parameter with same name.
     context.visitAncestorElements((element) {
-      GgRouteParamsWidget? parentWidget = element.widget is GgRouteParamsWidget
-          ? element.widget as GgRouteParamsWidget
+      GgRouteParams? parentWidget = element.widget is GgRouteParams
+          ? element.widget as GgRouteParams
           : null;
 
       if (parentWidget != null) {

@@ -8,18 +8,17 @@ import 'package:flutter/material.dart';
 
 import 'gg_router.dart';
 
-/// Allows to define a bunch of routes witch are displayed infront of a
-/// base widget.
-class GgRouterOverlayWidget extends StatelessWidget {
+/// Allows to define a bunch of routes on top of a base widget.
+class GgStackRouter extends StatelessWidget {
   // ...........................................................................
-  const GgRouterOverlayWidget({
+  const GgStackRouter({
     Key? key,
-    required this.base,
-    required this.overlays,
+    required this.baseWidget,
+    required this.routesOnTop,
   }) : super(key: key);
 
-  final Widget base;
-  final Map<String, Widget Function(BuildContext)> overlays;
+  final Widget baseWidget;
+  final Map<String, Widget Function(BuildContext)> routesOnTop;
 
   // ...........................................................................
   @override
@@ -29,12 +28,12 @@ class GgRouterOverlayWidget extends StatelessWidget {
       builder: (context, snapshot) {
         final node = GgRouter.of(context).node;
         if (node.activeChild == null) {
-          return base;
+          return baseWidget;
         } else {
           return Stack(
             children: [
-              base,
-              GgRouter(overlays),
+              baseWidget,
+              GgRouter(routesOnTop),
             ],
           );
         }

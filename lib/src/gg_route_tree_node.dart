@@ -10,7 +10,25 @@ import 'package:flutter/foundation.dart';
 import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
 import 'dart:async' show Stream;
 
-import 'gg_route_tree_node_error.dart';
+// #############################################################################
+class GgRouteTreeNodeError extends Error {
+  // ...........................................................................
+  GgRouteTreeNodeError({
+    required this.id,
+    required this.message,
+    this.node,
+  });
+
+  // ...........................................................................
+  final String message;
+  final String id;
+  final GgRouteTreeNode? node;
+
+  // ...........................................................................
+  GgRouteTreeNodeError withNode(GgRouteTreeNode node) {
+    return GgRouteTreeNodeError(id: id, message: message, node: node);
+  }
+}
 
 // #############################################################################
 class _Params {

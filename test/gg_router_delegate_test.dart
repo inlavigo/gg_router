@@ -21,7 +21,7 @@ main() {
       final builder =
           (Map<String, GgRouteParam> params) => (BuildContext context) {
                 router = GgRouter.of(context);
-                return GgRouteParamsWidget(child: Container(), params: params);
+                return GgRouteParams(child: Container(), params: params);
               };
 
       final paramsA = GgRouteParam(seed: 5);

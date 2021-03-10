@@ -217,16 +217,16 @@ class GgRouterExample extends StatelessWidget {
       body: GgRouter(
         {
           'basketball': (context) {
-            return GgRouteParamsWidget(
+            return GgRouteParams(
               params: {
                 'visit': GgRouteParam<bool>(seed: false),
               },
-              child: GgRouterOverlayWidget(
-                base: Listener(
+              child: GgStackRouter(
+                baseWidget: Listener(
                   child: _bigIcon(context, Icons.sports_basketball),
                   onPointerUp: (_) => GgRouter.of(context).navigateTo('dialog'),
                 ),
-                overlays: {
+                routesOnTop: {
                   'dialog': _dialog,
                 },
               ),
