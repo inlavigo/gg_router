@@ -185,12 +185,12 @@ main() {
       // Test if node hierarchy is synchronized correctly
 
       // By default the default route should be selected
-      expect(lastBuiltNode.pathString, '/');
+      expect(lastBuiltNode.path, '/');
 
       // Now activate /a0 and check if node the hierarchy was rebuilt
       lastBuiltNode.child(name: 'a0').isActive = true;
       await tester.pumpAndSettle();
-      expect(lastBuiltNode.pathString, '/a0');
+      expect(lastBuiltNode.path, '/a0');
       expect(routeSegment, 'a0');
       expect(routePath, '/a0');
       expect(childRouteSegment, null);
@@ -198,26 +198,26 @@ main() {
       // Now activate /a0/a11 and check if node the hierarchy was rebuilt
       lastBuiltNode.child(name: 'a11').isActive = true;
       await tester.pumpAndSettle();
-      expect(lastBuiltNode.pathString, '/a0/a11');
+      expect(lastBuiltNode.path, '/a0/a11');
       expect(routeSegment, 'a11');
       expect(routePath, '/a0/a11');
 
       // Now activate /b0 -> /b0/b10 should become active
       lastBuiltNode.parent!.parent!.child(name: 'b0').isActive = true;
       await tester.pumpAndSettle();
-      expect(lastBuiltNode.pathString, '/b0/b10');
+      expect(lastBuiltNode.path, '/b0/b10');
 
       // Now activate /b11 -> /b0/b11 should become active
       lastBuiltNode.parent!.child(name: 'b11').isActive = true;
       await tester.pumpAndSettle();
-      expect(lastBuiltNode.pathString, '/b0/b11');
+      expect(lastBuiltNode.path, '/b0/b11');
 
       // Now let's activate an invalid route. ->
       // The previous defined route should stay active
       lastBuiltNode.parent!.child(name: 'unknown').isActive = true;
       await tester.pumpAndSettle();
       await tester.pumpAndSettle();
-      expect(lastBuiltNode.pathString, '/b0/b11');
+      expect(lastBuiltNode.path, '/b0/b11');
 
       // ..............................................................
       // Test if the url is updated correctly from the widget hierarchy
@@ -225,11 +225,11 @@ main() {
       routerDelegate.addListener(() {
         lastUpdateUrl = routerDelegate.currentConfiguration.location;
       });
-      lastBuiltNode.parent!.parent!.activeChildPath = ['a0', 'a11'];
+      lastBuiltNode.parent!.parent!.activeChildPathSegments = ['a0', 'a11'];
       await tester.pumpAndSettle();
       expect(lastUpdateUrl, 'a0/a11');
 
-      lastBuiltNode.parent!.parent!.activeChildPath = ['b0', 'b10'];
+      lastBuiltNode.parent!.parent!.activeChildPathSegments = ['b0', 'b10'];
       await tester.pumpAndSettle();
       expect(lastUpdateUrl, 'b0/b10');
 
@@ -239,7 +239,7 @@ main() {
           RouteInformation(location: 'a0/a10');
 
       await tester.pumpAndSettle();
-      expect(lastBuiltNode.pathString, '/a0/a10');
+      expect(lastBuiltNode.path, '/a0/a10');
 
       // .................................................................
       // Test if an invalid url makes GgRouter showing an error widget.
@@ -251,7 +251,7 @@ main() {
       routeInformationProvider.routeInformation =
           RouteInformation(location: 'a0/invalidRoute');
       await tester.pumpAndSettle();
-      expect(lastBuiltNode.pathString, '/a0/a10');
+      expect(lastBuiltNode.path, '/a0/a10');
       expect(receivedError!.id, 'GRC008448');
       expect(receivedError!.message,
           'Route "/a0" has no child named "invalidRoute".');
@@ -278,22 +278,22 @@ main() {
       // ...............
       // Press a0 button -> should activate '/a0/a11'
       await a0Button.press();
-      expect(lastBuiltNode.pathString, '/a0/a11');
+      expect(lastBuiltNode.path, '/a0/a11');
 
       // Press back button -> should activate '/a0'
       final backButton =
           GgEasyWidgetTest(find.byKey(ValueKey('backButton')), tester);
       await backButton.press();
-      expect(lastBuiltNode.pathString, '/a0');
+      expect(lastBuiltNode.path, '/a0');
 
       // Press b0 Button -> Should activate '/b0/b10'
       await b0Button.press();
-      expect(lastBuiltNode.pathString, '/b0/b10');
+      expect(lastBuiltNode.path, '/b0/b10');
 
       // ...............
       // Press a0Only Button -> Should activate '/a0'
       await a0OnlyButton.press();
-      expect(lastBuiltNode.pathString, '/a0');
+      expect(lastBuiltNode.path, '/a0');
     });
 
     // .........................................................................

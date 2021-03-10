@@ -8,16 +8,26 @@ import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
 
 // #############################################################################
+/// A single route parameter.
 class GgRouteParam<T> {
+  // ...........................................................................
+  /// Constructor.
+  /// - [seed] The initial value of the route parameter.
   GgRouteParam({required this.seed});
 
   // ...........................................................................
+  /// The initial value of the route parameter.
   final T seed;
 }
 
 // #############################################################################
+/// Use this widget to insert a list of route parameters into the currently
+/// active route.
 class GgRouteParams extends StatelessWidget {
   // ...........................................................................
+  /// Constructor.
+  /// - [key] - The widget's key.
+
   GgRouteParams({
     Key? key,
     required this.child,
@@ -27,7 +37,12 @@ class GgRouteParams extends StatelessWidget {
         );
 
   // ...........................................................................
+  /// The parameters that will be assigned to the current route tree node.
   final Map<String, GgRouteParam> params;
+
+  /// The parameters that will be associated with the route tree node. Important:
+  /// The parameters are only assigned the first time. On later instantiations
+  /// of this object, the existing parameter instances will be taken.
   final Widget child;
 
   // ...........................................................................
@@ -37,6 +52,10 @@ class GgRouteParams extends StatelessWidget {
     _writeParamsToNode(context);
     return child;
   }
+
+  // ######################
+  // Private
+  // ######################
 
   // ...........................................................................
   void _checkParams(BuildContext context) {

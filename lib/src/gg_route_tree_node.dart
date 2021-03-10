@@ -11,6 +11,7 @@ import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
 import 'dart:async' show Stream;
 
 // #############################################################################
+/// An error that is reported when a URI cannot be assigned to a route path
 class GgRouteTreeNodeError extends Error {
   // ...........................................................................
   GgRouteTreeNodeError({
@@ -31,6 +32,7 @@ class GgRouteTreeNodeError extends Error {
 }
 
 // #############################################################################
+/// Internal management of route parameters
 class _Params {
   _Params() {
     _initParams();
@@ -145,12 +147,13 @@ class _Params {
 }
 
 // #############################################################################
-/// RouteNode represents a node in a route tree.
+/// GgRouteTreeNode represents a node in a route tree.
 class GgRouteTreeNode {
   // ########################
   // Constructor & Destructor
   // ########################
 
+  /// The node's constructor.
   GgRouteTreeNode({
     required this.name,
     this.parent,
@@ -161,7 +164,7 @@ class GgRouteTreeNode {
     _initChildren();
     _initIsActive();
     _initActiveChild();
-    _initActiveDescendands();
+    _initActiveDescendants();
     _initOwnOrChildParamChange();
     _initSubscriptions();
   }
@@ -171,9 +174,10 @@ class GgRouteTreeNode {
   dispose() => _dispose.reversed.forEach((d) => d());
 
   // ...........................................................................
+  /// A string representation of the node outputting the path of the node.
   @override
   String toString() {
-    return pathString;
+    return path;
   }
 
   // ############################
@@ -189,6 +193,7 @@ class GgRouteTreeNode {
   final GgRouteTreeNode? parent;
 
   // ...........................................................................
+  ///  The root parent of this node or the node itself, when it is a node.
   GgRouteTreeNode get root {
     var result = this;
     while (result.parent != null) {
@@ -199,10 +204,11 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
+  /// Returns true, if this node is root.
   bool get isRoot => parent == null;
 
   // ...........................................................................
-  /// Returns the index in the paren'ts children array.
+  /// Returns the index in the parent's children array.
   int get index => parent?._children.keys.toList().indexOf(name) ?? 0;
 
   // ######################
@@ -214,6 +220,7 @@ class GgRouteTreeNode {
   ///
   /// - [isActive] = true: Also the parent nodes are set to active.
   /// - [isActive] = false: Also all child nodes are set to inactive.
+  /// - At a time only one path in the tree can be cative.
   set isActive(bool isActive) {
     if (_isActive.value == isActive) {
       return;
@@ -247,6 +254,7 @@ class GgRouteTreeNode {
   // ######################
 
   // ...........................................................................
+  /// Returns the node's children.
   Iterable<GgRouteTreeNode> get children => _children.values;
 
   // ...........................................................................
@@ -261,13 +269,13 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  /// Returns true, if node has child with name
+  /// Returns true if the node has a child with [name].
   bool hasChild({required String name}) {
     return _children.containsKey(name);
   }
 
   // ...........................................................................
-  /// Removes the child
+  /// Removes the [child].
   void removeChild(GgRouteTreeNode child) {
     if (identical(_children[child.name], child)) {
       _unlistenNode(child);
@@ -279,7 +287,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  /// Returns descendand that matches the path. Creates the node when needed.
+  /// Returns descendant that matches the path. Creates the node when needed.
   /// - `.` addresses node itself
   /// - `..` addresses parent node
   /// - '_LAST_' - addresses child that was last active
@@ -318,7 +326,7 @@ class GgRouteTreeNode {
   // ######################
 
   // ...........................................................................
-  /// Returns the active child or null, if no child is active.
+  /// Returns the active child or null if no child is active.
   GgRouteTreeNode? get activeChild => _activeChild.value;
 
   // ...........................................................................
@@ -326,15 +334,16 @@ class GgRouteTreeNode {
   Stream<GgRouteTreeNode?> get activeChildDidChange => _activeChild.stream;
 
   // ...........................................................................
+  /// Returns the child that was previously active.
   GgRouteTreeNode? get previousActiveChild => _previousActiveChild;
 
   // ######################
-  // Active Descendands
+  // Active Descendants
   // ######################
 
   // ...........................................................................
-  /// Returns a list containing all active descendands.
-  List<GgRouteTreeNode> get activeDescendands {
+  /// Returns a list containing all active descendants.
+  List<GgRouteTreeNode> get activeDescendants {
     GgRouteTreeNode? activeChild = _activeChild.value;
 
     final List<GgRouteTreeNode> result = [];
@@ -347,22 +356,22 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  /// A stream informing when the active descendands change.
-  Stream<List<GgRouteTreeNode>> get activeDescendandsDidChange =>
-      _activeDescendands.stream;
+  /// A stream that informs when the active descendants change.
+  Stream<List<GgRouteTreeNode>> get activeDescendantsDidChange =>
+      _activeDescendants.stream;
 
   // ######################
   // Params
   // ######################
 
   // ...........................................................................
-  /// Finds or creates a route param with [name]. The parameter is initialized
-  /// with [seed].
+  /// Finds or route param with [name].
+  /// If no param exists, one is created and initialized with [seed].
   GgValue<T> findOrCreateParam<T>({required String name, required T seed}) {
     final es = uriParamForName(name);
 
     if (es != null) {
-      removeUriParamForParam(name);
+      _removeUriParamForParam(name);
     }
 
     var result = _params.findOrCreateParam<T>(
@@ -372,11 +381,11 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  /// Returns the parameter with name or null if no parameter with name exists.
+  /// Returns the parameter with [name] or [null] if no parameter with name exists.
   GgValue<T>? param<T>(String name) => _params.param(name);
 
   // ...........................................................................
-  /// Returns the param from this node or its parents
+  /// Returns the param from this node or its parents.
   GgValue<T>? ownOrParentParam<T>(String name) {
     GgValue<T>? result;
     GgRouteTreeNode? node = this;
@@ -389,7 +398,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  /// Returns all parameters of the active path
+  /// Returns all parameters of the active path.
   Map<String, GgValue> get activeParams {
     Map<String, GgValue> result = {};
     GgRouteTreeNode? node = this;
@@ -402,13 +411,15 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  /// Returns true if param with [name] exists, otherwise false is returned.
+  /// Returns true if param with [name] exists, otherwise [false] is returned.
   bool hasParam(String name) => _params.hasParam(name);
 
   // ...........................................................................
+  /// A stream that informs when the node's parameters change.
   Stream<void> get onOwnParamChange => _params.onChange;
 
   // ...........................................................................
+  /// A stream that informs when the node's own or its child parameters change.
   Stream<void> get onOwnOrChildParamChange => _ownOrChildParamChange.stream;
 
   // ######################
@@ -416,14 +427,15 @@ class GgRouteTreeNode {
   // ######################
 
   // ...........................................................................
-  /// Returns the own path until root
-  late List<String> path;
+  /// Returns the path of this node as a list of segments.
+  late List<String> pathSegments;
 
   // ...........................................................................
-  late String pathString;
+  /// Returns the path of this node as a string.
+  late String path;
 
   // ...........................................................................
-  /// Returns the hash of the own path
+  /// Returns the hash of the own path.
   late int pathHashCode;
 
   // ######################
@@ -431,15 +443,15 @@ class GgRouteTreeNode {
   // ######################
 
   // ...........................................................................
-  /// Returns the path of active children.
-  List<String> get activeChildPath =>
-      activeDescendands.map((e) => e.name).toList();
+  /// Returns the path of active children as a list of path segments.
+  List<String> get activeChildPathSegments =>
+      activeDescendants.map((e) => e.name).toList();
 
   // ...........................................................................
   /// Creates and activates children according to the segments in [path]
   /// - `..` addresses parent node
   /// - `.` addresses node itself
-  set activeChildPath(List<String> path) {
+  set activeChildPathSegments(List<String> path) {
     final node = descendand(path: path);
     node.isActive = true;
 
@@ -451,7 +463,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  String get activeChildPathString => activeChildPath.join('/');
+  String get activeChildPath => activeChildPathSegments.join('/');
 
   // ...........................................................................
   /// Activates the path in the node hierarchy.
@@ -462,34 +474,20 @@ class GgRouteTreeNode {
   void navigateTo(String path) => _navigateTo(path);
 
   // ######################
-  // Early seed
+  // Uri parameters
   // ######################
 
-  /// If params are created the first time, the params are initialized with
-  /// early seed, but only when given
+  /// Use [uriParams] to apply parameters taken from a URI to the active tree.
+  /// These parameters are used to initialize node parameters.
   Map<String, String> uriParams = {};
 
   // ...........................................................................
+  /// Returns the URI parameter for a given parameter [name].
+  /// Returns [null], if no URI parameter exists for that name.
   String? uriParamForName(String name) {
     GgRouteTreeNode? node = this;
     String? seed;
     while (node != null && seed == null) {
-      seed = node.uriParams[name];
-      node = node.parent;
-    }
-
-    return seed;
-  }
-
-  // ...........................................................................
-  String? removeUriParamForParam(String name) {
-    // Early seed is only used the first time
-    GgRouteTreeNode? node = this;
-    String? seed;
-    while (node != null && seed == null) {
-      if (node.uriParams.containsKey(name)) {
-        node.uriParams.remove(name);
-      }
       seed = node.uriParams[name];
       node = node.parent;
     }
@@ -518,6 +516,9 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
+  /// Set an [errorHandler] which informs about errors. E.g., if a URI cannot be
+  /// applied to the node tree, this error handler will be called.
+  /// You can set an error handler only one time.
   set errorHandler(void Function(GgRouteTreeNodeError)? errorHandler) {
     if (errorHandler != null && _errorHandler != null) {
       throw ArgumentError(
@@ -528,6 +529,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
+  /// Returns the error handler.
   void Function(GgRouteTreeNodeError)? get errorHandler => _errorHandler;
 
   // ######################
@@ -553,14 +555,14 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   _initPath() {
-    path = parent == null
+    pathSegments = parent == null
         ? []
         : [
-            ...parent!.path,
+            ...parent!.pathSegments,
             if (name.isNotEmpty) name,
           ];
-    pathString = '/' + path.join('/');
-    pathHashCode = pathString.hashCode;
+    path = '/' + pathSegments.join('/');
+    pathHashCode = path.hashCode;
   }
 
   // ########
@@ -629,6 +631,24 @@ class GgRouteTreeNode {
     _subscriptions.remove(node);
   }
 
+  // # URI Params
+
+  // ...........................................................................
+  String? _removeUriParamForParam(String name) {
+    // Early seed is only used the first time
+    GgRouteTreeNode? node = this;
+    String? seed;
+    while (node != null && seed == null) {
+      if (node.uriParams.containsKey(name)) {
+        node.uriParams.remove(name);
+      }
+      seed = node.uriParams[name];
+      node = node.parent;
+    }
+
+    return seed;
+  }
+
   // ########
   // isActive
 
@@ -670,7 +690,7 @@ class GgRouteTreeNode {
     _activeChild.value?.isActive = false;
     _activeChild.value = child;
 
-    _updateActiveDescendands();
+    _updateActiveDescendants();
   }
 
   // ...........................................................................
@@ -680,23 +700,23 @@ class GgRouteTreeNode {
     }
     _previousActiveChild = _activeChild.value ?? _previousActiveChild;
     _activeChild.value = null;
-    _updateActiveDescendands();
+    _updateActiveDescendants();
   }
 
   // #################
-  // activeDescendands
+  // activeDescendants
 
   // ...........................................................................
-  final _activeDescendands =
+  final _activeDescendants =
       GgValue<List<GgRouteTreeNode>>(seed: [], compare: listEquals);
 
-  _initActiveDescendands() {
-    _dispose.add(() => _activeDescendands.dispose());
+  _initActiveDescendants() {
+    _dispose.add(() => _activeDescendants.dispose());
   }
 
-  _updateActiveDescendands() {
-    _activeDescendands.value = activeDescendands;
-    parent?._updateActiveDescendands();
+  _updateActiveDescendants() {
+    _activeDescendants.value = activeDescendants;
+    parent?._updateActiveDescendants();
   }
 
   // ################
@@ -704,7 +724,7 @@ class GgRouteTreeNode {
   _navigateTo(String path) {
     final startElement = path.startsWith('/') ? root : this;
     final pathComponents = path.split('/');
-    startElement.activeChildPath = pathComponents;
+    startElement.activeChildPathSegments = pathComponents;
   }
 
   // ##############

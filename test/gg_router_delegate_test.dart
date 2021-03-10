@@ -67,12 +67,12 @@ main() {
       router.navigateTo('/routeC');
       await tester.pumpAndSettle();
       expect(routerDelegate.currentConfiguration.location!, 'routeC?c=7&d=8');
-      expect(router.node.root.activeChildPathString, 'routeC');
+      expect(router.node.root.activeChildPath, 'routeC');
 
       // ....................................................
       // Should apply RouteInformation to the route node tree
       routerDelegate.setNewRoutePath(RouteInformation(location: '/routeA'));
-      expect(router.node.root.activeChildPathString, 'routeA');
+      expect(router.node.root.activeChildPath, 'routeA');
       expect(routerDelegate.currentConfiguration.location!, 'routeA?a=5');
       await tester.pumpAndSettle();
 

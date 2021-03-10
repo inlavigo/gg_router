@@ -8,17 +8,30 @@ import 'package:flutter/material.dart';
 
 import 'gg_router.dart';
 
-/// Allows to define a bunch of routes on top of a base widget.
+/// Use [GgStackRouter] to show a selected route infront of an backgroundWidget.
 class GgStackRouter extends StatelessWidget {
   // ...........................................................................
+
+  /// Constructor.
+  /// - [key] The widget's key.
+  /// - [backgroundWidget] The background widget.
+  /// - [foregroundRoutes] A list of routes which are shown infront of
+  ///   [backgroundWidget]. Only the route is shown which matches the currently
+  ///   active path segment.
   const GgStackRouter({
     Key? key,
-    required this.baseWidget,
-    required this.routesOnTop,
+    required this.backgroundWidget,
+    required this.foregroundRoutes,
   }) : super(key: key);
 
-  final Widget baseWidget;
-  final Map<String, Widget Function(BuildContext)> routesOnTop;
+  // ...........................................................................
+  /// The background widget.
+  final Widget backgroundWidget;
+
+  // ...........................................................................
+  /// The list of routes which are shown infront of the [backgroundWidget].
+  /// Only the route belonging to the active child route is shown.
+  final Map<String, Widget Function(BuildContext)> foregroundRoutes;
 
   // ...........................................................................
   @override
@@ -28,12 +41,12 @@ class GgStackRouter extends StatelessWidget {
       builder: (context, snapshot) {
         final node = GgRouter.of(context).node;
         if (node.activeChild == null) {
-          return baseWidget;
+          return backgroundWidget;
         } else {
           return Stack(
             children: [
-              baseWidget,
-              GgRouter(routesOnTop),
+              backgroundWidget,
+              GgRouter(foregroundRoutes),
             ],
           );
         }

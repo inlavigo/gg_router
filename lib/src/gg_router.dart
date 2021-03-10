@@ -10,12 +10,27 @@ import 'package:gg_value/gg_value.dart';
 import 'gg_route_tree_node.dart';
 
 // #############################################################################
+/// Use [GgRouter] to connect your widget hierarchy with a nested route tree.
 class GgRouter extends StatefulWidget {
+  // ...........................................................................
+  /// Constructor, which takes a map of child widgets. Depending on the currently
+  /// selected routed one of the child widgets is shown.
+  ///
+  /// ```
+  /// GgRouter({
+  ///   '':       (context) => Text('The index screen'),
+  ///   'green':  (context) => Container(color: Colors.green),
+  ///   'yellow': (context) => Container(color: Colors.red),
+  ///   'red':    (context) => Container(color: Colors.red),
+  /// })
+  /// ```
   const GgRouter(this.children)
       : _rootChild = null,
         _rootNode = null,
         super();
 
+  // ...........................................................................
+  /// This method is called by [GgRouterDelegate] to create the root instance.
   const GgRouter.root(
       {Key? key, required Widget child, required GgRouteTreeNode node})
       : _rootChild = child,
@@ -24,6 +39,7 @@ class GgRouter extends StatefulWidget {
         super(key: key);
 
   // ...........................................................................
+  /// The child routes of this router.
   final Map<String, Widget Function(BuildContext)> children;
 
   // ...........................................................................
@@ -31,6 +47,8 @@ class GgRouter extends StatefulWidget {
   GgRouterState createState() => GgRouterState();
 
   // ...........................................................................
+  /// This error message is thrown when you forget to instaniate a
+  /// [GgRouterDelegate] before instantiating a GgRouter.
   static const noGgRouterDelegateFoundError =
       'Did not find an instance of GgRouterDelegate.\n'
       'Please wrap your GgRouter into a MaterialApp.router(...) and '
@@ -38,6 +56,7 @@ class GgRouter extends StatefulWidget {
       'For more details look into "gg_router/example/main.dart".';
 
   // ...........................................................................
+  /// Returns the next [GgRouterState] instance in the widget tree.
   static GgRouterState of(
     BuildContext context, {
     bool rootRouter = false,
@@ -75,6 +94,10 @@ class GgRouter extends StatefulWidget {
     return routerWidgetState!;
   }
 
+  // ######################
+  // Private
+  // ######################
+
   // ...........................................................................
   bool get _isRoot => _rootChild != null;
   final Widget? _rootChild;
@@ -84,39 +107,55 @@ class GgRouter extends StatefulWidget {
 // #############################################################################
 class GgRouterState extends State<GgRouter> {
   // ...........................................................................
+  /// The [GgRouteTreeNode] assigned to a [GgRouter] instance.
   late GgRouteTreeNode node;
 
   // ...........................................................................
+  /// Activates the path in the node hierarchy.
+  /// - [path] can be absolute, e.g. `/a/b/c`
+  /// - [path] can be relative, e.g. `b/c` or `./b/c`
+  /// - [path] can address parent element, e.g. `../`
+  /// - [path] can address root, e.g. `/`
   void navigateTo(String path) {
     node.navigateTo(path);
   }
 
   // ...........................................................................
+  /// Returns the name of the route, this [GgRouter] instance is assigned.
+  /// Returns null if the route doesn't have a name.
   String? get routeName {
     return node.name;
   }
 
   // ...........................................................................
+  /// Returns the name of the active child route.
+  /// Returns [null] if no child is active.
   String? get routeNameOfActiveChild {
     return node.activeChild?.name;
   }
 
   // ...........................................................................
+  /// Returns the index of the active child.
+  /// Returns null, if no child is active.
+  /// You can use that index to highlight the right entry in a menu for example.
   int? get indexOfActiveChild {
     return node.activeChild?.index;
   }
 
   // ...........................................................................
+  /// Returns the path of this [GgRoute] instance.
   String get routePath {
-    return node.pathString;
+    return node.path;
   }
 
   // ...........................................................................
+  /// Use this stream to be informed when the active child changes.
   Stream<void> get onActiveChildChange {
     return node.activeChildDidChange;
   }
 
   // ...........................................................................
+  /// Use this method to change the param with [name] or to listen to changes.
   GgValue? param(String name) => node.ownOrParentParam(name);
 
   // ...........................................................................
@@ -125,6 +164,10 @@ class GgRouterState extends State<GgRouter> {
     final b = widget._isRoot ? _buildRoot : _buildNonRoot;
     return b(context);
   }
+
+  // ######################
+  // Private
+  // ######################
 
   // ...........................................................................
   Widget _buildRoot(BuildContext context) {
@@ -163,7 +206,7 @@ class GgRouterState extends State<GgRouter> {
             GgRouteTreeNodeError(
               id: 'GRC008448',
               message:
-                  'Route "${parentNode.pathString}" has no child named "${invalidNode.name}".',
+                  'Route "${parentNode.path}" has no child named "${invalidNode.name}".',
             ),
           );
         }

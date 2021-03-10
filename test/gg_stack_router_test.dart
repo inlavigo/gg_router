@@ -30,11 +30,11 @@ main() {
     setUp(WidgetTester tester) async {
       final widget = GgStackRouter(
         key: key,
-        baseWidget: Builder(builder: (context) {
+        backgroundWidget: Builder(builder: (context) {
           baseRouter = GgRouter.of(context);
           return base;
         }),
-        routesOnTop: {
+        foregroundRoutes: {
           'routeOnTop0': (context) {
             routeOnTopRouter = GgRouter.of(context);
             return routeOnTop0;
@@ -68,7 +68,7 @@ main() {
       expect(ggOverlayRouter.height, 600);
 
       // Initially only the base widget is shown
-      expect(baseRouter.node.root.activeChildPathString, '');
+      expect(baseRouter.node.root.activeChildPath, '');
       expect(routeOnTopRouter, isNull);
       expect(find.byKey(baseKey), findsOneWidget);
       expect(find.byKey(routeOnTop0Key), findsNothing);

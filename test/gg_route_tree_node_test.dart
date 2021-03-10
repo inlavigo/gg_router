@@ -79,7 +79,7 @@ main() {
     // #########################################################################
     group('toString', () {
       test('should return the path of the node', () {
-        expect(childC.toString(), childC.pathString);
+        expect(childC.toString(), childC.path);
       });
     });
 
@@ -439,19 +439,19 @@ main() {
     });
 
     // #########################################################################
-    group('activeDescendands', () {
-      test('should return a list with all active descendands', () {
+    group('activeDescendants', () {
+      test('should return a list with all active descendants', () {
         fakeAsync((fake) {
           init();
           // Initially no child is active
-          expect(root.activeDescendands, []);
+          expect(root.activeDescendants, []);
 
           // Now let's set childB to active
           childB.isActive = true;
           fake.flushMicrotasks();
 
           // The complete path from root to childB should be active
-          expect(root.activeDescendands.map((e) => e.name).toList(),
+          expect(root.activeDescendants.map((e) => e.name).toList(),
               ['child-a0', 'child-b']);
         });
       });
@@ -668,24 +668,24 @@ main() {
     });
 
     // #########################################################################
-    group('activeDescendandsDidChange', () {
-      test('should return a stream which informs about the active descendands',
+    group('activeDescendantsDidChange', () {
+      test('should return a stream which informs about the active descendants',
           () {
         fakeAsync((fake) {
           init();
 
-          // Listen to active descendands
-          List<GgRouteTreeNode>? activeDescendands;
+          // Listen to active descendants
+          List<GgRouteTreeNode>? activeDescendants;
           var updateCounter = 0;
-          final s = root.activeDescendandsDidChange.listen((event) {
-            activeDescendands = event;
+          final s = root.activeDescendantsDidChange.listen((event) {
+            activeDescendants = event;
             updateCounter++;
           });
 
           // Initially no updates should be delivered
           fake.flushMicrotasks();
           expect(updateCounter, 0);
-          expect(activeDescendands, null);
+          expect(activeDescendants, null);
 
           // Now lets set childC active
           childC.isActive = true;
@@ -693,7 +693,7 @@ main() {
           // The complete path from root to childC should become active
           fake.flushMicrotasks();
           expect(updateCounter, 1);
-          expect(activeDescendands?.map((e) => e.name).toList(),
+          expect(activeDescendants?.map((e) => e.name).toList(),
               ['child-a0', 'child-b', 'child-c']);
 
           // Now let's set root inactive
@@ -703,7 +703,7 @@ main() {
           // All nodes are set to inactive
           fake.flushMicrotasks();
           expect(updateCounter, 1);
-          expect(activeDescendands, []);
+          expect(activeDescendants, []);
 
           s.cancel();
         });
@@ -716,10 +716,10 @@ main() {
           'should return a list of path segments starting with the root and '
           'ending with the nodes name itself.', () {
         init();
-        expect(root.path, []);
-        expect(childA0.path, ['child-a0']);
-        expect(childB.path, ['child-a0', 'child-b']);
-        expect(childC.path, ['child-a0', 'child-b', 'child-c']);
+        expect(root.pathSegments, []);
+        expect(childA0.pathSegments, ['child-a0']);
+        expect(childB.pathSegments, ['child-a0', 'child-b']);
+        expect(childC.pathSegments, ['child-a0', 'child-b', 'child-c']);
       });
     });
 
@@ -729,10 +729,10 @@ main() {
           'should return a list of path segments starting with the root and '
           'ending with the nodes name itself.', () {
         init();
-        expect(root.pathString, '/');
-        expect(childA0.pathString, '/child-a0');
-        expect(childB.pathString, '/child-a0/child-b');
-        expect(childC.pathString, '/child-a0/child-b/child-c');
+        expect(root.path, '/');
+        expect(childA0.path, '/child-a0');
+        expect(childB.path, '/child-a0/child-b');
+        expect(childC.path, '/child-a0/child-b/child-c');
       });
     });
 
@@ -758,10 +758,11 @@ main() {
       test('should return a list of path segments of active child nodes', () {
         init();
         childC.isActive = true;
-        expect(root.activeChildPath, ['child-a0', 'child-b', 'child-c']);
-        expect(childA0.activeChildPath, ['child-b', 'child-c']);
-        expect(childB.activeChildPath, ['child-c']);
-        expect(childC.activeChildPath, []);
+        expect(
+            root.activeChildPathSegments, ['child-a0', 'child-b', 'child-c']);
+        expect(childA0.activeChildPathSegments, ['child-b', 'child-c']);
+        expect(childB.activeChildPathSegments, ['child-c']);
+        expect(childC.activeChildPathSegments, []);
       });
     });
 
@@ -778,7 +779,7 @@ main() {
         expect(childC.isActive, false);
 
         // Activate all nodes in the path
-        root.activeChildPath = ['child-a0', 'child-b', 'child-c'];
+        root.activeChildPathSegments = ['child-a0', 'child-b', 'child-c'];
 
         expect(root.isActive, true);
         expect(root.activeChild, childA0);
@@ -795,7 +796,7 @@ main() {
         expect(childC.activeChild, null);
 
         // Deactivate all children
-        root.activeChildPath = [];
+        root.activeChildPathSegments = [];
         expect(root.isActive, true);
         expect(childA0.isActive, false);
         expect(childA1.isActive, false);
@@ -805,7 +806,7 @@ main() {
 
       test('should create new child nodes, if not existing', () {
         init();
-        root.activeChildPath = ['x', 'y', 'z'];
+        root.activeChildPathSegments = ['x', 'y', 'z'];
         final x = root.child(name: 'x');
         final y = x.child(name: 'y');
         final z = y.child(name: 'z');
@@ -819,20 +820,21 @@ main() {
       test('should disable children that are not selected', () {
         init();
         childC.isActive = true;
-        expect(root.activeChildPath.join('/'), 'child-a0/child-b/child-c');
-        root.activeChildPath = ['child-a0', 'child-b'];
-        expect(root.activeChildPath.join('/'), 'child-a0/child-b');
+        expect(
+            root.activeChildPathSegments.join('/'), 'child-a0/child-b/child-c');
+        root.activeChildPathSegments = ['child-a0', 'child-b'];
+        expect(root.activeChildPathSegments.join('/'), 'child-a0/child-b');
       });
 
       test('should handle ".." as parent segment', () {
         init();
-        childC.activeChildPath = ['..', '..', '..', 'child-a1'];
-        expect(root.activeChildPath.join('/'), 'child-a1');
+        childC.activeChildPathSegments = ['..', '..', '..', 'child-a1'];
+        expect(root.activeChildPathSegments.join('/'), 'child-a1');
       });
 
       test('should handle "." the element itself', () {
         init();
-        childC.activeChildPath = ['.', '..', 'child-b'];
+        childC.activeChildPathSegments = ['.', '..', 'child-b'];
       });
     });
 
@@ -841,25 +843,25 @@ main() {
       test('Should activate the given relative path', () {
         init();
         root.navigateTo('child-a0/child-b/child-c');
-        expect(root.activeChildPathString, 'child-a0/child-b/child-c');
+        expect(root.activeChildPath, 'child-a0/child-b/child-c');
       });
 
       test('Should activate the given absolute path', () {
         init();
         childC.navigateTo('/child-a1');
-        expect(root.activeChildPathString, 'child-a1');
+        expect(root.activeChildPath, 'child-a1');
       });
 
       test('Should interpret ".." as parent element', () {
         init();
         childC.navigateTo('../../');
-        expect(root.activeChildPathString, 'child-a0');
+        expect(root.activeChildPath, 'child-a0');
       });
 
       test('Should interpret "." as the element itself', () {
         init();
         childB.navigateTo('./child-c');
-        expect(root.activeChildPathString, 'child-a0/child-b/child-c');
+        expect(root.activeChildPath, 'child-a0/child-b/child-c');
       });
     });
 

@@ -222,11 +222,11 @@ class GgRouterExample extends StatelessWidget {
                 'visit': GgRouteParam<bool>(seed: false),
               },
               child: GgStackRouter(
-                baseWidget: Listener(
+                backgroundWidget: Listener(
                   child: _bigIcon(context, Icons.sports_basketball),
                   onPointerUp: (_) => GgRouter.of(context).navigateTo('dialog'),
                 ),
-                routesOnTop: {
+                foregroundRoutes: {
                   'dialog': _dialog,
                 },
               ),

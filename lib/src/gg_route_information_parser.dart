@@ -8,6 +8,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 // .............................................................................
+/// This [GgRouteInformationParser] needed when initializing a [Router] or a
+/// [MaterialApp.router] instance.
+///
+/// ```
+/// MaterialApp.router(
+///   title: "GgRouterExample",
+///   routerDelegate: GgRouterDelegate(child: ...),
+///   routeInformationParser: GgRouteInformationParser(),
+/// );
+/// ```
 class GgRouteInformationParser
     extends RouteInformationParser<RouteInformation> {
   // ...........................................................................
