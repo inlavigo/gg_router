@@ -61,7 +61,7 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   _initErrorHandler(BuildContext context) {
-    final node = GgRouter.of(context).node;
+    final node = GgRouterWidget.of(context).node;
     node.errorHandler = null;
     node.errorHandler = (error) {
       final snackBar = SnackBar(
@@ -103,7 +103,7 @@ class GgRouterExample extends StatelessWidget {
   // ...........................................................................
   Widget _routeButton(String title, String route) {
     return Builder(builder: (context) {
-      final router = GgRouter.of(context);
+      final router = GgRouterWidget.of(context);
 
       return StreamBuilder(
         stream: router.onActiveChildChange,
@@ -130,7 +130,7 @@ class GgRouterExample extends StatelessWidget {
               key: ValueKey('dialogCloseButton'),
               icon: Icon(Icons.close),
               onPressed: () {
-                GgRouter.of(context).navigateTo('..');
+                GgRouterWidget.of(context).navigateTo('..');
               },
             ),
           ),
@@ -150,7 +150,7 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   Widget _checkBox(BuildContext context) {
-    final GgValue param = GgRouter.of(context).ownOrParentParam('visit')!;
+    final GgValue param = GgRouterWidget.of(context).param('visit')!;
 
     return Row(children: [
       Expanded(child: Container()),
@@ -174,7 +174,7 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   Widget _sportsPage(BuildContext context) {
-    final router = GgRouter.of(context);
+    final router = GgRouterWidget.of(context);
 
     return Scaffold(
       key: ValueKey('sportsPage'),
@@ -224,7 +224,8 @@ class GgRouterExample extends StatelessWidget {
               child: GgRouterOverlayWidget(
                 base: Listener(
                   child: _bigIcon(context, Icons.sports_basketball),
-                  onPointerUp: (_) => GgRouter.of(context).navigateTo('dialog'),
+                  onPointerUp: (_) =>
+                      GgRouterWidget.of(context).navigateTo('dialog'),
                 ),
                 overlays: {
                   'dialog': _dialog,
@@ -241,7 +242,7 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   Widget _transportationPage(BuildContext context) {
-    final router = GgRouter.of(context);
+    final router = GgRouterWidget.of(context);
 
     return Scaffold(
       key: ValueKey('transportationPage'),
@@ -293,7 +294,7 @@ class GgRouterExample extends StatelessWidget {
 
 // ...........................................................................
   Widget _placesPage(BuildContext context) {
-    final router = GgRouter.of(context);
+    final router = GgRouterWidget.of(context);
 
     return Scaffold(
       bottomNavigationBar: StreamBuilder(

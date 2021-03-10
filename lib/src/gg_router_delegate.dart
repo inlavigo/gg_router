@@ -6,7 +6,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:gg_router/src/gg_router.dart';
+import 'package:gg_router/gg_router.dart';
 
 import 'gg_route_tree_node.dart';
 
@@ -33,7 +33,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
-    return GgRouter(
+    return GgRouterWidget.root(
       child: Overlay(
         initialEntries: [
           OverlayEntry(builder: (context) {
