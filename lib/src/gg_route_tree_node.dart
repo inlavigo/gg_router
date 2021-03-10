@@ -42,7 +42,7 @@ class _Params {
   GgValue<T> findOrCreateParam<T>({
     required GgRouteTreeNode parent,
     required T seed,
-    required String? earlySeed,
+    required String? uriParam,
     required String name,
     bool spam = false,
   }) {
@@ -54,11 +54,11 @@ class _Params {
         spam: spam,
       );
 
-      if (earlySeed != null) {
+      if (uriParam != null) {
         try {
-          result.stringValue = earlySeed;
+          result.stringValue = uriParam;
         } catch (e) {
-          print('Was not write value $earlySeed to param $name');
+          print('Was not write uriParam $uriParam to param $name');
         }
       }
 
@@ -359,14 +359,14 @@ class GgRouteTreeNode {
   /// Finds or creates a route param with [name]. The parameter is initialized
   /// with [seed].
   GgValue<T> findOrCreateParam<T>({required String name, required T seed}) {
-    final es = earlySeedForParam(name);
+    final es = uriParamForName(name);
 
     if (es != null) {
-      removeEarlySeedForParam(name);
+      removeUriParamForParam(name);
     }
 
     var result = _params.findOrCreateParam<T>(
-        parent: this, seed: seed, earlySeed: es, name: name);
+        parent: this, seed: seed, uriParam: es, name: name);
 
     return result;
   }
@@ -467,14 +467,14 @@ class GgRouteTreeNode {
 
   /// If params are created the first time, the params are initialized with
   /// early seed, but only when given
-  Map<String, String> earlySeed = {};
+  Map<String, String> uriParams = {};
 
   // ...........................................................................
-  String? earlySeedForParam(String name) {
+  String? uriParamForName(String name) {
     GgRouteTreeNode? node = this;
     String? seed;
     while (node != null && seed == null) {
-      seed = node.earlySeed[name];
+      seed = node.uriParams[name];
       node = node.parent;
     }
 
@@ -482,15 +482,15 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  String? removeEarlySeedForParam(String name) {
+  String? removeUriParamForParam(String name) {
     // Early seed is only used the first time
     GgRouteTreeNode? node = this;
     String? seed;
     while (node != null && seed == null) {
-      if (node.earlySeed.containsKey(name)) {
-        node.earlySeed.remove(name);
+      if (node.uriParams.containsKey(name)) {
+        node.uriParams.remove(name);
       }
-      seed = node.earlySeed[name];
+      seed = node.uriParams[name];
       node = node.parent;
     }
 

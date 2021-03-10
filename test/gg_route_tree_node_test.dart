@@ -864,49 +864,55 @@ main() {
     });
 
     // #########################################################################
-    group('earlySeed, earlySeedForParam, removeEarlySeedForParam', () {
+    group('uriParams, uriParamForName, removeUriParamForParam', () {
       test(
           'should allow to specify default values that are used to initialize route params',
           () {
         init();
 
         // Let's set an early seed at the root
-        root.earlySeed = {'a': '10', 'b': '20'};
+        root.uriParams = {'a': '10', 'b': '20invalid'};
 
         // The seed should be avalable on all nodes of the tree
         expect(
-            childC.earlySeedForParam(
+            childC.uriParamForName(
               'a',
             ),
             '10');
 
         expect(
-            childB.earlySeedForParam(
+            childB.uriParamForName(
               'a',
             ),
             '10');
 
         expect(
-            root.earlySeedForParam(
+            root.uriParamForName(
               'a',
             ),
             '10');
 
         expect(
-            childC.earlySeedForParam(
+            childC.uriParamForName(
               'b',
             ),
-            '20');
+            '20invalid');
 
         // Now lets create a paramter a
         childB.findOrCreateParam(name: 'a', seed: 11);
 
-        // The parameter should be initialized with earlySeed
+        // The parameter should be initialized with uriParams
         expect(childB.param('a')?.value, 10);
 
         // Early seed should only be used the first time.
         // Thus it should be deleted now.
-        expect(root.earlySeedForParam('a'), null);
+        expect(root.uriParamForName('a'), null);
+
+        // Now lets create a paramter b
+        childB.findOrCreateParam(name: 'b', seed: 22);
+
+        // Early seed should be ignored because it has a invalid value (20inavlid).
+        expect(childB.param('b')?.value, 22);
       });
     });
 

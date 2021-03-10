@@ -83,10 +83,10 @@ main() {
       router.node.param('a')!.value = 6;
 
       // ..............................
-      // Should write unknown parameters to earlySeed
+      // Should write unknown parameters to uriParams
       routerDelegate
           .setNewRoutePath(RouteInformation(location: '/routeA?unknown=456'));
-      expect(router.node.earlySeedForParam('unknown'), '456');
+      expect(router.node.uriParamForName('unknown'), '456');
 
       // ............................................
       // Should write changes of a param to the route

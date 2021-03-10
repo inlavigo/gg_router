@@ -83,7 +83,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
         }
 
         _root.activeChildPath = uri.pathSegments;
-        final Map<String, String> earlySeed = {};
+        final Map<String, String> uriParams = {};
 
         if (uri.hasQuery) {
           final activeParams = _root.activeParams;
@@ -91,12 +91,12 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
             if (activeParams.containsKey(key)) {
               activeParams[key]!.stringValue = value;
             } else {
-              earlySeed[key] = value;
+              uriParams[key] = value;
             }
           });
         }
 
-        _root.earlySeed = earlySeed;
+        _root.uriParams = uriParams;
       }
     } catch (e) {
       print('Error while setNewRoutePath url ${route.location}');
