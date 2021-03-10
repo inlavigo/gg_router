@@ -55,7 +55,7 @@ class GgRouterExample extends StatelessWidget {
           _initErrorHandler(context);
           return GgRouter(
             {
-              '': _indexPage,
+              //'': _indexPage,
               'sports': _sportsPage,
               'transportation': _transportationPage,
               'places': _placesPage,
