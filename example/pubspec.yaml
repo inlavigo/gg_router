@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  shared_preferences: ^2.0.4
   gg_router:
     path: ../
   gg_value: ^1.0.3-dev.1

@@ -20,6 +20,7 @@ main() {
     late GgRouterDelegate routerDelegate;
     late String currentUri;
 
+    GgEasyWidgetTest? indexPage;
     GgEasyWidgetTest? sportsPage;
     GgEasyWidgetTest? transportationPage;
     GgEasyWidgetTest? placesPage;
@@ -28,9 +29,9 @@ main() {
     late GgEasyWidgetTest transportationButton;
     late GgEasyWidgetTest placesButton;
 
-    late GgEasyWidgetTest bottomBarButton0;
-    late GgEasyWidgetTest bottomBarButton1;
-    late GgEasyWidgetTest bottomBarButton2;
+    GgEasyWidgetTest? bottomBarButton0;
+    GgEasyWidgetTest? bottomBarButton1;
+    GgEasyWidgetTest? bottomBarButton2;
 
     // .........................................................................
     GgEasyWidgetTest? page(String key, WidgetTester tester) {
@@ -43,6 +44,7 @@ main() {
 
     // .........................................................................
     updatePages(WidgetTester tester) {
+      indexPage = page('indexPage', tester);
       sportsPage = page('sportsPage', tester);
       transportationPage = page('transportationPage', tester);
       placesPage = page('placesPage', tester);
@@ -79,11 +81,12 @@ main() {
         of: bottomNavigationBar,
         matching: find.byType(Icon),
       );
-      expect(icons.evaluate().length, 3);
 
-      bottomBarButton0 = GgEasyWidgetTest(icons.at(0), tester);
-      bottomBarButton1 = GgEasyWidgetTest(icons.at(1), tester);
-      bottomBarButton2 = GgEasyWidgetTest(icons.at(2), tester);
+      if (icons.evaluate().length == 3) {
+        bottomBarButton0 = GgEasyWidgetTest(icons.at(0), tester);
+        bottomBarButton1 = GgEasyWidgetTest(icons.at(1), tester);
+        bottomBarButton2 = GgEasyWidgetTest(icons.at(2), tester);
+      }
     }
 
     // .........................................................................
@@ -101,7 +104,7 @@ main() {
               ? bottomBarButton1
               : bottomBarButton2;
 
-      final gesture = await tester.startGesture(button.absoluteFrame.center);
+      final gesture = await tester.startGesture(button!.absoluteFrame.center);
       await gesture.up();
       await tester.pumpAndSettle();
       update(tester);
@@ -131,8 +134,18 @@ main() {
       expect(ggRouterExample.width, 800);
       expect(ggRouterExample.height, 600);
 
-      // ..........................................
-      // Initially only sports page should be shown
+      // ........................................
+      // Initially the index page should be shown
+      expect(indexPage, isNotNull);
+      expect(sportsPage, isNull);
+      expect(transportationPage, isNull);
+      expect(placesPage, isNull);
+
+      // ..................................
+      // Click on sports menu item
+      // => Sports page should only be shown
+      await sportsButton.press();
+      update(tester);
       expect(sportsPage, isNotNull);
       expect(transportationPage, isNull);
       expect(placesPage, isNull);
@@ -166,6 +179,11 @@ main() {
         (WidgetTester tester) async {
       await setUp(tester);
 
+      // .......................
+      // Jump to the sports page
+      await sportsButton.press();
+      update(tester);
+
       // ..........................
       // Click on the first button
       // => Basketball page should open
@@ -192,6 +210,11 @@ main() {
         'transportation should show a bottom navigation bar with tree items',
         (WidgetTester tester) async {
       await setUp(tester);
+
+      // .......................
+      // Jump to the sports page
+      await sportsButton.press();
+      update(tester);
 
       // .............................
       // Switch to transportation page
@@ -226,6 +249,7 @@ main() {
       // .............................
       // Switch to transportation page
       await placesButton.press();
+      update(tester);
 
       // ..........................
       // Click on the first button
@@ -254,6 +278,11 @@ main() {
         'the last opened sports sub-page should be opeend',
         (WidgetTester tester) async {
       await setUp(tester);
+
+      // .......................
+      // Jump to the sports page
+      await sportsButton.press();
+      update(tester);
 
       // .............................
       // Open the football sports page
@@ -285,6 +314,11 @@ main() {
         'Clicking the close button should switch back.',
         (WidgetTester tester) async {
       await setUp(tester);
+
+      // .......................
+      // Jump to the sports page
+      await sportsButton.press();
+      update(tester);
       expect(currentUri, startsWith('sports/basketball'));
 
       // ....................................................

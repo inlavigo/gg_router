@@ -55,7 +55,7 @@ class GgRouterExample extends StatelessWidget {
           _initErrorHandler(context);
           return GgRouter(
             {
-              //'': _indexPage,
+              '': _indexPage,
               'sports': _sportsPage,
               'transportation': _transportationPage,
               'places': _placesPage,
@@ -183,14 +183,15 @@ class GgRouterExample extends StatelessWidget {
   }
 
   // ...........................................................................
-  // Widget _indexPage(BuildContext context) {
-  //   return Center(
-  //     child: Text(
-  //       'GgRouter',
-  //       style: Theme.of(context).textTheme.headline2,
-  //     ),
-  //   );
-  // }
+  Widget _indexPage(BuildContext context) {
+    return Center(
+      key: ValueKey('indexPage'),
+      child: Text(
+        'GgRouter',
+        style: Theme.of(context).textTheme.headline2,
+      ),
+    );
+  }
 
   // ...........................................................................
   Widget _sportsPage(BuildContext context) {

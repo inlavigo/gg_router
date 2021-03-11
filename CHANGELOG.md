@@ -1,3 +1,9 @@
+# Change Log
+
+## 1.0.0-beta.3 - March 11th, 2021
+
+* Added an index route example
+
 ## 1.0.0-beta.2 - March 10th, 2021
 
 * Fixed the unit tests for the example.
