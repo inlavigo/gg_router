@@ -503,6 +503,22 @@ main() {
           ),
         );
 
+        // ...............................................................
+        // Let's try to create a param with the name of an existing child.
+        // This should give an exception.
+        expect(
+          () => root.findOrCreateParam(name: 'child-a0', seed: 5),
+          throwsA(
+            predicate(
+              (GgRouteTreeNodeError e) {
+                expect(e.message,
+                    'Error: Cannot create param with name "child-a0". There is already a child node with the same name.');
+                return true;
+              },
+            ),
+          ),
+        );
+
         // ..................................................
         // Dispose the root. This should also dispose delete all params
         root.dispose();
@@ -933,13 +949,13 @@ main() {
         // Let's set an error on childC
         final error = GgRouteTreeNodeError(
           id: 'GRC008447',
-          message: 'Error message',
+          message: 'Something went wrong.',
           node: childC,
         );
         childC.setError(error);
 
         // ........................................
-        expect(error.toString(), error.message);
+        expect(error.toString(), 'Error GRC008447: Something went wrong.');
 
         // ........................................
         // It should arrive at roo'ts error handler
@@ -966,11 +982,16 @@ main() {
         // This should cause an exception.
         root.errorHandler = null;
         expect(() => root.setError(error), throwsException);
+
+        // .........................
+        // Assign a node to an error
+        final errorWithNode = error.withNode(root);
+        expect(errorWithNode.node, root);
       });
     });
 
     // #########################################################################
-    group('set and get json', () {
+    group('set json', () {
       late GgRouteTreeNode root;
       late GgRouteTreeNode child;
       late GgRouteTreeNode grandChild;
@@ -1055,6 +1076,41 @@ main() {
         root.json = '{"unknownParam": 123}';
         root.findOrCreateParam(name: 'unknownParam', seed: 5);
         expect(root.param('unknownParam')?.value, 123);
+      });
+    });
+
+    // #########################################################################
+    group('get json', () {
+      test('should return a JSON string of the object', () {
+        final root = GgRouteTreeNode(name: '');
+        expect(root.json, '{}');
+
+        final child = root.child(name: 'child');
+        expect(root.json, '{"child":{}}');
+
+        final grand = child.child(name: 'grand');
+        expect(root.json, '{"child":{"grand":{}}}');
+
+        final parsedFoo = OtherClass();
+
+        root.findOrCreateParam(name: 'int', seed: 5);
+        child.findOrCreateParam(name: 'double', seed: 5.5);
+        grand.findOrCreateParam(name: 'bool', seed: false);
+        grand.findOrCreateParam(name: 'string', seed: 'hello');
+        grand.findOrCreateParam(
+          name: 'foo',
+          seed: OtherClass(),
+          stringify: (_) => 'Foo',
+          parse: (_) => parsedFoo,
+        );
+
+        final expectedJson =
+            '{"int":5,"child":{"double":5.5,"grand":{"bool":false,"string":"hello","foo":"Foo"}}}';
+        expect(root.json, expectedJson);
+
+        root.json = expectedJson;
+        final parsedGrand = root.child(name: 'child').child(name: 'grand');
+        expect(parsedGrand.param('foo')?.value, parsedFoo);
       });
     });
   });

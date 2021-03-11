@@ -6,7 +6,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'package:gg_value/gg_value.dart';
 import 'package:flutter/foundation.dart';
 import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
@@ -34,7 +33,7 @@ class GgRouteTreeNodeError extends Error {
 
   // ...........................................................................
   @override
-  toString() => message;
+  toString() => 'Error $id: $message';
 }
 
 // #############################################################################
@@ -53,6 +52,8 @@ class _Params {
     required dynamic? uriParam,
     required String name,
     bool spam = false,
+    T Function(String)? parse,
+    String Function(T)? stringify,
   }) {
     var result = _params[name];
     if (result == null) {
@@ -60,6 +61,8 @@ class _Params {
         seed: seed,
         name: name,
         spam: spam,
+        stringify: stringify,
+        parse: parse,
       );
 
       if (uriParam != null) {
@@ -379,15 +382,35 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Finds or route param with [name].
   /// If no param exists, one is created and initialized with [seed].
-  GgValue<T> findOrCreateParam<T>({required String name, required T seed}) {
+  /// - [stringify] is used to convert the value of the parameter to string.
+  /// - [parse] is used parse a string into the value
+  GgValue<T> findOrCreateParam<T>({
+    required String name,
+    required T seed,
+    T Function(String)? parse,
+    String Function(T)? stringify,
+  }) {
     final es = uriParamForName(name);
+
+    if (hasChild(name: name)) {
+      throw GgRouteTreeNodeError(
+          id: 'GRC008478',
+          message: 'Error: Cannot create param with name "$name". '
+              'There is already a child node with the same name.');
+    }
 
     if (es != null) {
       _removeUriParamForParam(name);
     }
 
     var result = _params.findOrCreateParam<T>(
-        parent: this, seed: seed, uriParam: es, name: name);
+      parent: this,
+      seed: seed,
+      uriParam: es,
+      name: name,
+      parse: parse,
+      stringify: stringify,
+    );
 
     return result;
   }
@@ -815,8 +838,18 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   Object _generateJson() {
-    debugger();
-    return Object();
+    final result = Map();
+
+    // Write parameters into JSON object
+    _params._params.forEach((name, value) {
+      result[name] = value.jsonDecodedValue;
+    });
+
+    // Write children into JSON object
+    _children.forEach((name, child) {
+      result[name] = child._generateJson();
+    });
+    return result;
   }
 }
 
