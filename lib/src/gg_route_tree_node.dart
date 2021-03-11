@@ -5,6 +5,8 @@
 // found in the LICENSE file in the root of this package.
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
 import 'package:gg_value/gg_value.dart';
 import 'package:flutter/foundation.dart';
 import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
@@ -29,6 +31,10 @@ class GgRouteTreeNodeError extends Error {
   GgRouteTreeNodeError withNode(GgRouteTreeNode node) {
     return GgRouteTreeNodeError(id: id, message: message, node: node);
   }
+
+  // ...........................................................................
+  @override
+  toString() => message;
 }
 
 // #############################################################################
@@ -44,7 +50,7 @@ class _Params {
   GgValue<T> findOrCreateParam<T>({
     required GgRouteTreeNode parent,
     required T seed,
-    required String? uriParam,
+    required dynamic? uriParam,
     required String name,
     bool spam = false,
   }) {
@@ -58,7 +64,11 @@ class _Params {
 
       if (uriParam != null) {
         try {
-          result.stringValue = uriParam;
+          if (uriParam is String) {
+            result.stringValue = uriParam;
+          } else {
+            result.value = uriParam;
+          }
         } catch (e) {
           print('Was not write uriParam $uriParam to param $name');
         }
@@ -481,14 +491,14 @@ class GgRouteTreeNode {
 
   /// Use [uriParams] to apply parameters taken from a URI to the active tree.
   /// These parameters are used to initialize node parameters.
-  Map<String, String> uriParams = {};
+  Map<String, dynamic> uriParams = {};
 
   // ...........................................................................
   /// Returns the URI parameter for a given parameter [name].
   /// Returns null, if no URI parameter exists for that name.
-  String? uriParamForName(String name) {
+  dynamic? uriParamForName(String name) {
     GgRouteTreeNode? node = this;
-    String? seed;
+    dynamic? seed;
     while (node != null && seed == null) {
       seed = node.uriParams[name];
       node = node.parent;
@@ -533,6 +543,33 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns the error handler.
   void Function(GgRouteTreeNodeError)? get errorHandler => _errorHandler;
+
+  // ######################
+  // JSON handling
+  // ######################
+
+  // ...........................................................................
+  /// Reads the JSON string and creates routes and  parameters. Parameters that
+  /// are not still existing in the route tree are safed in the right nodes for
+  /// later use.
+  set json(String json) {
+    late Object object;
+    try {
+      object = jsonDecode(json);
+    } catch (e) {
+      throw GgRouteTreeNodeError(
+          id: 'GRC008475', message: 'Error while decoding JSON: $e');
+    }
+
+    _parseJson(object);
+  }
+
+  // ...........................................................................
+  /// Converts the route tree into a JSON string
+  String get json {
+    final json = _generateJson();
+    return jsonEncode(json);
+  }
 
   // ######################
   // Private
@@ -733,6 +770,54 @@ class GgRouteTreeNode {
   // Error handling
 
   Function(GgRouteTreeNodeError)? _errorHandler;
+
+  // ##############
+  // JSON handling
+
+  // ...........................................................................
+  void _parseJson(Object json) {
+    if (json is Map) {
+      final map = json as Map<String, dynamic>;
+      map.forEach((key, value) {
+        // If the value is a map, create a child
+        if (value is Map) {
+          child(name: key)._parseJson(value);
+        } else {
+          // If an param exists, parse the value into the param
+
+          try {
+            if (hasParam(key)) {
+              if (value is num || value is bool) {
+                param(key)!.value = value;
+              } else {
+                param(key)!.stringValue = value;
+              }
+            } else {
+              uriParams[key] = value;
+            }
+          } catch (e) {
+            throw GgRouteTreeNodeError(
+                id: 'GRC008477',
+                message:
+                    'Error while parsing value "$value" for attribute with name "$key" on path "$path": $e');
+          }
+        }
+      });
+    } else {
+      throw GgRouteTreeNodeError(
+        id: 'GRC008476',
+        message:
+            'Error while reading JSON path "$path". Expected object of type Map, but got ${json.runtimeType}.',
+        node: this,
+      );
+    }
+  }
+
+  // ...........................................................................
+  Object _generateJson() {
+    debugger();
+    return Object();
+  }
 }
 
 // #############################################################################

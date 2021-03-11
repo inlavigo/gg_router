@@ -939,6 +939,9 @@ main() {
         childC.setError(error);
 
         // ........................................
+        expect(error.toString(), error.message);
+
+        // ........................................
         // It should arrive at roo'ts error handler
         expect(lastErrorReceivedOnRoot, isNotNull);
         expect(lastErrorReceivedOnRoot, error);
@@ -963,6 +966,95 @@ main() {
         // This should cause an exception.
         root.errorHandler = null;
         expect(() => root.setError(error), throwsException);
+      });
+    });
+
+    // #########################################################################
+    group('set and get json', () {
+      late GgRouteTreeNode root;
+      late GgRouteTreeNode child;
+      late GgRouteTreeNode grandChild;
+
+      setUp(() {
+        root = GgRouteTreeNode(name: '');
+        root.findOrCreateParam(name: 'rootParam', seed: 1);
+        child = root.child(name: 'child');
+        child.findOrCreateParam(name: 'childParam', seed: 1.1);
+        grandChild = child.child(name: 'grandChild');
+        grandChild.findOrCreateParam(name: 'grandChildParam', seed: false);
+      });
+
+      test('should throw an exception if json string is invalid', () {
+        expect(() => root.json = 'a#39f',
+            throwsA(predicate((GgRouteTreeNodeError e) {
+          expect(e.message, startsWith('Error while decoding JSON:'));
+          return true;
+        })));
+      });
+
+      test('should throw an exception if JSON contains an invalid object type',
+          () {
+        expect(() => root.json = '[]',
+            throwsA(predicate((GgRouteTreeNodeError error) {
+          expect(error.message,
+              'Error while reading JSON path "/". Expected object of type Map, but got List<dynamic>.');
+          return true;
+        })));
+      });
+
+      test('should throw an exception when a param has a wrong format', () {
+        root.findOrCreateParam(name: 'int', seed: 10);
+
+        expect(() => root.json = '{"int": "hello"}',
+            throwsA(predicate((GgRouteTreeNodeError error) {
+          expect(
+              error.message,
+              startsWith(
+                  'Error while parsing value "hello" for attribute with name "int" on path "/":'));
+          return true;
+        })));
+      });
+
+      test('should create routes contained in the JSON string', () {
+        root.json = '{"a0":{}, "a1":{}}';
+        expect(root.hasChild(name: 'a0'), isTrue);
+        expect(root.hasChild(name: 'a1'), isTrue);
+      });
+
+      test('should directly update existing parameters', () {
+        // .......................................................
+        // Create four params of type int, double, bool and string
+        root.findOrCreateParam(name: 'int', seed: 10);
+        root.findOrCreateParam(name: 'double', seed: 11.11);
+        root.findOrCreateParam(name: 'bool', seed: false);
+        root.findOrCreateParam(name: 'string', seed: 'hello');
+
+        // .......................................
+        // Overwrite the existing values with JSON
+        root.json =
+            '{"int": 20, "double": 12.12, "bool": true, "string": "world"}';
+
+        // ...............................................
+        // Check if the params have been updated correctly
+        expect(root.param('int')?.value, 20);
+        expect(root.param('double')?.value, 12.12);
+        expect(root.param('bool')?.value, true);
+        expect(root.param('string')?.value, 'world');
+      });
+
+      test('should also parse nested structures correctly', () {
+        root.json =
+            '{"rootParam": 6, "child":{"childParam": 2.2, "grandChild":{"grandChildParam": true}}}';
+
+        expect(root.param('rootParam')?.value, 6);
+        expect(child.param('childParam')?.value, 2.2);
+        expect(grandChild.param('grandChildParam')?.value, true);
+      });
+
+      test('should remember unknown json params for later use', () {
+        root.json = '{"unknownParam": 123}';
+        root.findOrCreateParam(name: 'unknownParam', seed: 5);
+        expect(root.param('unknownParam')?.value, 123);
       });
     });
   });
