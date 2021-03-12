@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
+import 'package:gg_value/gg_value.dart';
 
 // #############################################################################
 class TestRouteInformationProvider extends RouteInformationProvider
@@ -187,8 +188,13 @@ main() {
       // By default the default route should be selected
       expect(lastBuiltNode.path, '/');
 
+      // The right widget indices should have been assigned
+      expect(lastBuiltNode.child('').widgetIndex, 0);
+      expect(lastBuiltNode.child('a0').widgetIndex, 1);
+      expect(lastBuiltNode.child('b0').widgetIndex, 2);
+
       // Now activate /a0 and check if node the hierarchy was rebuilt
-      lastBuiltNode.child(name: 'a0').isActive = true;
+      lastBuiltNode.child('a0').isActive = true;
       await tester.pumpAndSettle();
       expect(lastBuiltNode.path, '/a0');
       expect(routeSegment, 'a0');
@@ -196,25 +202,25 @@ main() {
       expect(childRouteSegment, null);
 
       // Now activate /a0/a11 and check if node the hierarchy was rebuilt
-      lastBuiltNode.child(name: 'a11').isActive = true;
+      lastBuiltNode.child('a11').isActive = true;
       await tester.pumpAndSettle();
       expect(lastBuiltNode.path, '/a0/a11');
       expect(routeSegment, 'a11');
       expect(routePath, '/a0/a11');
 
       // Now activate /b0 -> /b0/b10 should become active
-      lastBuiltNode.parent!.parent!.child(name: 'b0').isActive = true;
+      lastBuiltNode.parent!.parent!.child('b0').isActive = true;
       await tester.pumpAndSettle();
       expect(lastBuiltNode.path, '/b0/b10');
 
       // Now activate /b11 -> /b0/b11 should become active
-      lastBuiltNode.parent!.child(name: 'b11').isActive = true;
+      lastBuiltNode.parent!.child('b11').isActive = true;
       await tester.pumpAndSettle();
       expect(lastBuiltNode.path, '/b0/b11');
 
       // Now let's activate an invalid route. ->
       // The previous defined route should stay active
-      lastBuiltNode.parent!.child(name: 'unknown').isActive = true;
+      lastBuiltNode.parent!.child('unknown').isActive = true;
       await tester.pumpAndSettle();
       await tester.pumpAndSettle();
       expect(lastBuiltNode.path, '/b0/b11');
@@ -260,7 +266,7 @@ main() {
       // Invalid URLs should be removed from the route tree
       expect(lastBuiltNode.root.hasChild(name: 'a0'), true);
       expect(
-        lastBuiltNode.root.child(name: 'a0').hasChild(name: 'invalidRoute'),
+        lastBuiltNode.root.child('a0').hasChild(name: 'invalidRoute'),
         false,
       );
 
@@ -431,5 +437,61 @@ main() {
         await tearDown(tester);
       },
     );
+
+    // .........................................................................
+    testWidgets(
+        'should update indexOfActiveChild when order of widgets changes',
+        (WidgetTester tester) async {
+      routeInformationProvider = TestRouteInformationProvider();
+
+      final showAAtFirstPlace = GgValue(seed: false);
+
+      await setUp(tester,
+          child: StreamBuilder(
+              stream: showAAtFirstPlace.stream,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Container();
+                }
+
+                // Create route a. Route a will be on first place in variant 1
+                // and on second place in variant 2.
+                final routeA = (_) {
+                  final router = GgRouter.of(context);
+                  final indexOfActiveChild = router.indexOfActiveChild;
+                  if (showAAtFirstPlace.value) {
+                    expect(indexOfActiveChild, 0);
+                    expect(router.routeNameOfActiveChild, 'a');
+                  } else {
+                    expect(indexOfActiveChild, 1);
+                    expect(router.routeNameOfActiveChild, 'a');
+                  }
+
+                  return Container();
+                };
+
+                return StreamBuilder(
+                    stream: GgRouter.of(context).onActiveChildChange,
+                    builder: (context, snapshot) {
+                      // Exchange the places of route 'a'
+                      return showAAtFirstPlace.value
+                          ? GgRouter({
+                              'a': routeA,
+                              'b': (_) => Container(),
+                            })
+                          : GgRouter({
+                              'b': (_) => Container(),
+                              'a': routeA,
+                            });
+                    });
+              }));
+
+      await tester.pumpAndSettle();
+      showAAtFirstPlace.value = true;
+      routerDelegate.root.navigateTo('a');
+      await tester.pumpAndSettle();
+      showAAtFirstPlace.value = false;
+      await tester.pumpAndSettle();
+    });
   });
 }

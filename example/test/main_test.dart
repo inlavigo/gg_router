@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
 import 'package:gg_router_example/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 main() {
   group('GgRouterExample', () {
@@ -32,6 +33,16 @@ main() {
     GgEasyWidgetTest? bottomBarButton0;
     GgEasyWidgetTest? bottomBarButton1;
     GgEasyWidgetTest? bottomBarButton2;
+
+    // .........................................................................
+    initSharedPreferences({String? state}) {
+      final lastState = state ?? '{}';
+
+      // .......................................
+      // Put the lastState to shared preferences
+      SharedPreferences.setMockInitialValues(
+          {'lastApplicationState': lastState});
+    }
 
     // .........................................................................
     GgEasyWidgetTest? page(String key, WidgetTester tester) {
@@ -111,7 +122,8 @@ main() {
     }
 
     // .........................................................................
-    setUp(WidgetTester tester) async {
+    setUp(WidgetTester tester, {String? lastState}) async {
+      initSharedPreferences(state: lastState);
       final widget = GgRouterExample(key: key);
       await tester.pumpWidget(widget);
       final ggRouterExampleFinder = find.byWidget(widget);
@@ -395,6 +407,56 @@ main() {
       await tester.pumpAndSettle(Duration(seconds: 5));
 
       await tearDown(tester);
+    });
+
+    // .........................................................................
+    testWidgets('The last state should be loaded from shared preferences.',
+        (WidgetTester tester) async {
+      // ................................................................
+      // Define an application state which makes transportion/bus active
+      // by default.
+
+      final activeChildKey = GgRouteTreeNode.activeChildJsonKey;
+      final lastState = '''
+      {
+        "$activeChildKey":"transportation",
+        "transportation":{
+        "$activeChildKey":"bus"
+        }
+      }
+      ''';
+
+      // .......................................
+      // Start the application, and expect that it is on transportation/bus
+      await setUp(tester, lastState: lastState);
+      await tester.pumpAndSettle();
+      update(tester);
+      expect(routerDelegate.root.activeChildPath, 'transportation/bus');
+      expect(indexPage, isNull);
+      expect(sportsPage, isNull);
+      expect(transportationPage, isNotNull);
+      expect(placesPage, isNull);
+    });
+
+    // .........................................................................
+    testWidgets('State changes should be saved to shared preferences',
+        (WidgetTester tester) async {
+      initSharedPreferences();
+
+      final activeChildKey = GgRouteTreeNode.activeChildJsonKey;
+      // .......................................
+      // Start the application, and expect that it is on transportation/bus
+      await setUp(tester);
+      routerDelegate.root.navigateTo('places/hospital');
+      await tester.pumpAndSettle();
+      update(tester);
+      expect(indexPage, isNull);
+      expect(sportsPage, isNull);
+      expect(transportationPage, isNull);
+      expect(placesPage, isNotNull);
+      final preferences = await SharedPreferences.getInstance();
+      expect(preferences.getString('lastApplicationState'),
+          contains('"$activeChildKey":"hospital"'));
     });
   });
 }

@@ -6,6 +6,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
 import 'package:gg_router/gg_router.dart';
 
 import 'gg_route_tree_node.dart';
@@ -24,14 +25,19 @@ import 'gg_route_tree_node.dart';
 class GgRouterDelegate extends RouterDelegate<RouteInformation>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
   // ...........................................................................
-  /// The constructor. Takes a child widget to be rendered.
-  GgRouterDelegate({required this.child})
-      : navigatorKey = GlobalKey<NavigatorState>() {
+  /// The constructor.
+  GgRouterDelegate({
+    required this.child,
+    this.saveState,
+    this.restoreState,
+  }) : navigatorKey = GlobalKey<NavigatorState>() {
+    _restoreState();
+    _initSaveStateTrigger();
     _listenToRouteChanges();
     _listenToParameterChanges();
   }
 
-// ...........................................................................
+  // ...........................................................................
   /// Call this function if the delegate is not needed anymore.
   @override
   void dispose() {
@@ -42,7 +48,22 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   // ...........................................................................
   /// The navigator key needed by [PopNavigatorRouterDelegateMixin].
   final GlobalKey<NavigatorState> navigatorKey;
+
+  // ...........................................................................
+  /// The child containing the routes which will build the route node tree.
   Widget child;
+
+  // ...........................................................................
+  /// Returns the root router node
+  GgRouteTreeNode get root => _root;
+
+  // ...........................................................................
+  /// Set [saveState] to make the last state of the app automatically be safed.
+  void Function(String state)? saveState;
+
+  // ...........................................................................
+  /// Set [restoreState] to make the last state of the app being restored.
+  Future<String?> Function()? restoreState;
 
   // ...........................................................................
   /// Builds the widget tree.
@@ -81,7 +102,18 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   // ...........................................................................
   @override
   Future<void> setInitialRoutePath(RouteInformation configuration) {
-    return super.setInitialRoutePath(configuration);
+    // If the URI points to a certain location in the app, we jump to that
+    // location, no matter if the last saved position pointed to a different
+    // location.
+    bool isSpecialLocation = configuration.location != null
+        ? Uri.parse(configuration.location!).pathSegments.length > 0
+        : false;
+
+    if (isSpecialLocation) {
+      return super.setInitialRoutePath(configuration);
+    } else {
+      return SynchronousFuture(null);
+    }
   }
 
   // ...........................................................................
@@ -128,6 +160,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   _listenToRouteChanges() {
     final s = _root.activeDescendantsDidChange.listen((event) {
       notifyListeners();
+      _saveStateTrigger.trigger();
     });
 
     _dispose.add(s.cancel);
@@ -137,7 +170,25 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   _listenToParameterChanges() {
     final s = _root.onOwnOrChildParamChange.listen((event) {
       notifyListeners();
+      _saveStateTrigger.trigger();
     });
     _dispose.add(s.cancel);
+  }
+
+  // ...........................................................................
+  _restoreState() async {
+    final json = await restoreState?.call();
+    if (json != null) {
+      _root.json = json;
+    }
+  }
+
+  // ...........................................................................
+  late GgOncePerCycle _saveStateTrigger;
+  _initSaveStateTrigger() {
+    _saveStateTrigger = GgOncePerCycle(task: () {
+      final json = _root.json;
+      saveState?.call(json);
+    });
   }
 }

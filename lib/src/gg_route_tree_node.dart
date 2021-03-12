@@ -224,7 +224,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns the index in the parent's children array.
-  int get index => parent?._children.keys.toList().indexOf(name) ?? 0;
+  int? widgetIndex;
 
   // ######################
   // isActive
@@ -245,12 +245,12 @@ class GgRouteTreeNode {
 
     // Mark also ancestors to be active
     if (isActive) {
-      _previousActiveChild?.isActive = true;
+      _previouslyActiveChild?.isActive = true;
       parent?._childBecameActive(this);
     }
     // Mark also children to be inactive
     else {
-      _previousActiveChild = _activeChild.value;
+      _previouslyActiveChild = _activeChild.value;
       _children.values.forEach((child) => child.isActive = false);
       parent?._childBecameInactive(this);
     }
@@ -274,7 +274,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns a child node with [name]. If none exists, one is created.
-  GgRouteTreeNode child({required String name}) {
+  GgRouteTreeNode child(String name) {
     var child = _children[name];
     if (child == null) {
       child = GgRouteTreeNode(name: name, parent: this);
@@ -317,19 +317,20 @@ class GgRouteTreeNode {
         }
         result = result.parent!;
       } else if (element == '_LAST_') {
-        GgRouteTreeNode? previousActiveChild =
+        GgRouteTreeNode? previouslyActiveChild =
             result._currentOrPreviouslyActiveChild;
 
         if (path.last == element) {
-          while (previousActiveChild?._currentOrPreviouslyActiveChild != null) {
-            previousActiveChild =
-                previousActiveChild!._currentOrPreviouslyActiveChild;
+          while (
+              previouslyActiveChild?._currentOrPreviouslyActiveChild != null) {
+            previouslyActiveChild =
+                previouslyActiveChild!._currentOrPreviouslyActiveChild;
           }
         }
 
-        result = previousActiveChild ?? result;
+        result = previouslyActiveChild ?? result;
       } else {
-        result = result.child(name: element);
+        result = result.child(element);
       }
     });
 
@@ -350,7 +351,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns the child that was previously active.
-  GgRouteTreeNode? get previousActiveChild => _previousActiveChild;
+  GgRouteTreeNode? get previouslyActiveChild => _previouslyActiveChild;
 
   // ######################
   // Active Descendants
@@ -544,6 +545,7 @@ class GgRouteTreeNode {
         parent?.setError(err);
       } else {
         throw Exception(
+          '$err \n'
           'Please set an error handler using "node.errorHandler = ...", to capture routing errors.',
         );
       }
@@ -570,6 +572,13 @@ class GgRouteTreeNode {
   // ######################
   // JSON handling
   // ######################
+
+  // ...........................................................................
+  /// This key is used to store the active child name to JSON
+  static const activeChildJsonKey = '__activeChild';
+
+  /// This key is used to store the previously active child name to JSON
+  static const previouslyActiveChildJsonKey = '__previouslyActiveChild';
 
   // ...........................................................................
   /// Reads the JSON string and creates routes and  parameters. Parameters that
@@ -731,10 +740,10 @@ class GgRouteTreeNode {
   // activeChild
   // ...........................................................................
   final _activeChild = GgValue<GgRouteTreeNode?>(seed: null);
-  GgRouteTreeNode? _previousActiveChild;
+  GgRouteTreeNode? _previouslyActiveChild;
 
   GgRouteTreeNode? get _currentOrPreviouslyActiveChild =>
-      _activeChild.value ?? _previousActiveChild;
+      _activeChild.value ?? _previouslyActiveChild;
 
   _initActiveChild() {
     _dispose.add(() => _activeChild.dispose());
@@ -746,7 +755,7 @@ class GgRouteTreeNode {
       return;
     }
 
-    _previousActiveChild = _activeChild.value ?? _previousActiveChild;
+    _previouslyActiveChild = _activeChild.value ?? _previouslyActiveChild;
 
     isActive = true;
     _activeChild.value?.isActive = false;
@@ -760,7 +769,7 @@ class GgRouteTreeNode {
     if (_activeChild.value != child) {
       return;
     }
-    _previousActiveChild = _activeChild.value ?? _previousActiveChild;
+    _previouslyActiveChild = _activeChild.value ?? _previouslyActiveChild;
     _activeChild.value = null;
     _updateActiveDescendants();
   }
@@ -802,12 +811,27 @@ class GgRouteTreeNode {
     if (json is Map) {
       final map = json as Map<String, dynamic>;
       map.forEach((key, value) {
-        // If the value is a map, create a child
+        // ......................................
+        // Read children.
+        // If the value is a map, create a child.
         if (value is Map) {
-          child(name: key)._parseJson(value);
+          child(key)._parseJson(value);
         } else {
-          // If an param exists, parse the value into the param
+          // .................
+          // Read active child
+          if (key == activeChildJsonKey) {
+            child(value).isActive = true;
+          }
 
+          // ............................
+          // Read previously active child
+          if (key == previouslyActiveChildJsonKey) {
+            _previouslyActiveChild = child(value);
+          }
+
+          // ...........
+          // Read params
+          // If an param exists, parse the value into the param
           try {
             if (hasParam(key)) {
               if (value is num || value is bool) {
@@ -840,12 +864,22 @@ class GgRouteTreeNode {
   Object _generateJson() {
     final result = Map();
 
-    // Write parameters into JSON object
+    // Write active child
+    if (_activeChild.value != null) {
+      result[activeChildJsonKey] = _activeChild.value!.name;
+    }
+
+    // Write previously active child
+    if (_previouslyActiveChild != null) {
+      result[previouslyActiveChildJsonKey] = _previouslyActiveChild!.name;
+    }
+
+    // Write parameters
     _params._params.forEach((name, value) {
       result[name] = value.jsonDecodedValue;
     });
 
-    // Write children into JSON object
+    // Write children
     _children.forEach((name, child) {
       result[name] = child._generateJson();
     });

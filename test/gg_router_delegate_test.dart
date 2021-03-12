@@ -4,6 +4,7 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/gg_router.dart';
@@ -17,7 +18,11 @@ main() {
     late GgRouterState router;
 
     // .........................................................................
-    setUp(WidgetTester tester) async {
+    setUp(
+      WidgetTester tester, {
+      Function(String state)? saveState,
+      Future<String?> Function()? restoreState,
+    }) async {
       final builder =
           (Map<String, GgRouteParam> params) => (BuildContext context) {
                 router = GgRouter.of(context);
@@ -34,7 +39,11 @@ main() {
             builder({'c': GgRouteParam(seed: 7), 'd': GgRouteParam(seed: 8)}),
       });
       routeInformationParser = GgRouteInformationParser();
-      routerDelegate = GgRouterDelegate(child: widget);
+      routerDelegate = GgRouterDelegate(
+        child: widget,
+        saveState: saveState,
+        restoreState: restoreState,
+      );
       final app = MaterialApp.router(
           routeInformationParser: routeInformationParser,
           routerDelegate: routerDelegate);
@@ -61,6 +70,22 @@ main() {
       router.navigateTo('/routeB');
       await tester.pumpAndSettle();
       routeDidChange = true;
+
+      // ........................................................
+      // Set an initial route configuration with a null location.
+      // => no routing should happen
+      var result =
+          routerDelegate.setInitialRoutePath(RouteInformation(location: null));
+      expect(result, isInstanceOf<SynchronousFuture<void>>());
+      await result;
+
+      // ........................................................
+      // Navigate to the root route. This should also lead to no navigation.
+      // The app will navigate to the last saved state.
+      result =
+          routerDelegate.setInitialRoutePath(RouteInformation(location: '/'));
+      expect(result, isInstanceOf<SynchronousFuture<void>>());
+      await result;
 
       // ...........................................
       // Should provide the RouteInformation for the currently set path
@@ -103,6 +128,36 @@ main() {
       expect(routerDelegate.currentConfiguration.location!, 'routeA?a=6');
 
       await tearDown(tester);
+    });
+
+    // .........................................................................
+    testWidgets('should load the data given by restoreState callback',
+        (WidgetTester tester) async {
+      await setUp(
+        tester,
+        restoreState: () => SynchronousFuture(
+            '{"routeB":{"b": 1234}, "${GgRouteTreeNode.activeChildJsonKey}":"routeB"}'),
+      );
+      expect(routerDelegate.root.activeChildPath, 'routeB');
+      expect(routerDelegate.root.child('routeB').param('b')?.value, 1234);
+    });
+
+    // .........................................................................
+    testWidgets(
+        'should save the route state automatically when a save callback is given',
+        (WidgetTester tester) async {
+      String? savedData;
+
+      // Setup delegate with a saveState callback
+      await setUp(tester, saveState: (state) => savedData = state);
+      await tester.pumpAndSettle();
+      savedData = null;
+
+      // Change the route. The new route state should be saved automatically.
+      routerDelegate.root.navigateTo('routeB');
+      await tester.pumpAndSettle();
+      expect(savedData,
+          contains('"${GgRouteTreeNode.activeChildJsonKey}":"routeB"'));
     });
 
     // .........................................................................

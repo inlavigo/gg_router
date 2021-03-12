@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
 import 'package:gg_value/gg_value.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'configure_nonweb.dart' if (dart.library.html) 'configure_web.dart';
 
 void main() {
@@ -27,7 +28,11 @@ class GgRouterExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: "GgRouterExample",
-      routerDelegate: GgRouterDelegate(child: _appContent),
+      routerDelegate: GgRouterDelegate(
+        child: _appContent,
+        saveState: _saveState,
+        restoreState: _restoreState,
+      ),
       routeInformationParser: GgRouteInformationParser(),
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData(brightness: Brightness.dark),
@@ -362,5 +367,18 @@ class GgRouterExample extends StatelessWidget {
         },
       ),
     );
+  }
+
+  // ...........................................................................
+  _saveState(String state) async {
+    (await (SharedPreferences.getInstance()))
+        .setString('lastApplicationState', state);
+  }
+
+  // ...........................................................................
+  Future<String?> _restoreState() async {
+    final result = (await (SharedPreferences.getInstance()))
+        .getString('lastApplicationState');
+    return result;
   }
 }

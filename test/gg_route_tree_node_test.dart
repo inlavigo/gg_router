@@ -116,12 +116,9 @@ main() {
 
     // #########################################################################
     group('index', () {
-      test('returns which child of its parent this node is', () {
+      test('returns null by default and needs to be initialized by GgRouter',
+          () {
         init();
-        expect(root.index, 0);
-        expect(childA0.index, 0);
-        expect(childA1.index, 1);
-        expect(root.child(name: 'a').index, 2);
       });
     });
 
@@ -248,13 +245,13 @@ main() {
     group('child(name)', () {
       test('Should return an existing child, when possible', () {
         init();
-        expect(root.child(name: 'child-a0'), same(childA0));
-        expect(childA0.child(name: 'child-b'), same(childB));
+        expect(root.child('child-a0'), same(childA0));
+        expect(childA0.child('child-b'), same(childB));
       });
 
       test('Should create and return a new child, when not existing', () {
         init();
-        final childA1 = root.child(name: 'child-a1');
+        final childA1 = root.child('child-a1');
         expect(childA1.name, 'child-a1');
         expect(childA1.parent, root);
         expect(root.children.length, 2);
@@ -383,19 +380,19 @@ main() {
     });
 
     // #########################################################################
-    group('previousActiveChild', () {
+    group('previouslyActiveChild', () {
       test('should return the child that was active before', () {
         init();
         expect(root.activeChild, null);
-        expect(root.previousActiveChild, null);
+        expect(root.previouslyActiveChild, null);
         childA0.isActive = true;
-        expect(root.previousActiveChild, null);
+        expect(root.previouslyActiveChild, null);
         expect(root.activeChild, childA0);
         childA1.isActive = true;
-        expect(root.previousActiveChild, childA0);
+        expect(root.previouslyActiveChild, childA0);
         expect(root.activeChild, childA1);
         childA1.isActive = false;
-        expect(root.previousActiveChild, childA1);
+        expect(root.previouslyActiveChild, childA1);
         expect(root.activeChild, null);
       });
     });
@@ -664,7 +661,7 @@ main() {
 
           // Let's add another child, and check if changes on the new child's
           // params are communicated.
-          final newChild = childC.child(name: 'new-child');
+          final newChild = childC.child('new-child');
           newChild.findOrCreateParam(name: 'k', seed: 5);
           fake.flushMicrotasks();
           expect(calls0, 1);
@@ -823,9 +820,9 @@ main() {
       test('should create new child nodes, if not existing', () {
         init();
         root.activeChildPathSegments = ['x', 'y', 'z'];
-        final x = root.child(name: 'x');
-        final y = x.child(name: 'y');
-        final z = y.child(name: 'z');
+        final x = root.child('x');
+        final y = x.child('y');
+        final z = y.child('z');
 
         expect(root.isActive, true);
         expect(x.isActive, true);
@@ -999,9 +996,9 @@ main() {
       setUp(() {
         root = GgRouteTreeNode(name: '');
         root.findOrCreateParam(name: 'rootParam', seed: 1);
-        child = root.child(name: 'child');
+        child = root.child('child');
         child.findOrCreateParam(name: 'childParam', seed: 1.1);
-        grandChild = child.child(name: 'grandChild');
+        grandChild = child.child('grandChild');
         grandChild.findOrCreateParam(name: 'grandChildParam', seed: false);
       });
 
@@ -1077,6 +1074,14 @@ main() {
         root.findOrCreateParam(name: 'unknownParam', seed: 5);
         expect(root.param('unknownParam')?.value, 123);
       });
+
+      test('should restore active and previously active child', () {
+        root.json =
+            '{"${GgRouteTreeNode.activeChildJsonKey}": "int", "${GgRouteTreeNode.previouslyActiveChildJsonKey}": "bool"}';
+
+        expect(root.activeChild, root.child('int'));
+        expect(root.previouslyActiveChild, root.child('bool'));
+      });
     });
 
     // #########################################################################
@@ -1085,10 +1090,10 @@ main() {
         final root = GgRouteTreeNode(name: '');
         expect(root.json, '{}');
 
-        final child = root.child(name: 'child');
+        final child = root.child('child');
         expect(root.json, '{"child":{}}');
 
-        final grand = child.child(name: 'grand');
+        final grand = child.child('grand');
         expect(root.json, '{"child":{"grand":{}}}');
 
         final parsedFoo = OtherClass();
@@ -1109,8 +1114,21 @@ main() {
         expect(root.json, expectedJson);
 
         root.json = expectedJson;
-        final parsedGrand = root.child(name: 'child').child(name: 'grand');
+        final parsedGrand = root.child('child').child('grand');
         expect(parsedGrand.param('foo')?.value, parsedFoo);
+      });
+
+      test('should also save active and previously active child', () {
+        final root = GgRouteTreeNode(name: '');
+        root.child('previouslyActiveChild').isActive = true;
+        root.child('activeChild').isActive = true;
+        final json = root.json;
+
+        final rootCopy = GgRouteTreeNode(name: '');
+        rootCopy.json = json;
+        expect(rootCopy.activeChild, rootCopy.child('activeChild'));
+        expect(rootCopy.previouslyActiveChild,
+            rootCopy.child('previouslyActiveChild'));
       });
     });
   });

@@ -139,7 +139,7 @@ class GgRouterState extends State<GgRouter> {
   /// Returns null, if no child is active.
   /// You can use that index to highlight the right entry in a menu for example.
   int? get indexOfActiveChild {
-    return node.activeChild?.index;
+    return node.activeChild?.widgetIndex;
   }
 
   // ...........................................................................
@@ -199,7 +199,7 @@ class GgRouterState extends State<GgRouter> {
 
         if (!routeIsValid) {
           final invalidNode = nodeToBeShown;
-          nodeToBeShown = parentNode.previousActiveChild;
+          nodeToBeShown = parentNode.previouslyActiveChild;
           nodeToBeShown?.isActive = true;
           parentNode.removeChild(invalidNode);
           parentNode.setError(
@@ -210,6 +210,14 @@ class GgRouterState extends State<GgRouter> {
             ),
           );
         }
+
+        // ........................
+        // Update the child indexes
+        int i = 0;
+        widget.children.keys.forEach((key) {
+          parentNode.child(key).widgetIndex = i;
+          i++;
+        });
 
         // ..............................................
         // If parentNode has no activeChild, look, if a child widget with
@@ -226,7 +234,7 @@ class GgRouterState extends State<GgRouter> {
         // If no active child is defined and no default route is defined,
         // take the first possible child.
         if (nodeToBeShown == null) {
-          nodeToBeShown = parentNode.child(name: widget.children.keys.first);
+          nodeToBeShown = parentNode.child(widget.children.keys.first);
         }
 
         // .............................
@@ -250,7 +258,7 @@ class GgRouterState extends State<GgRouter> {
   // ...........................................................................
   _createChildNodes(GgRouteTreeNode parentNode) {
     widget.children.keys.forEach((routeName) {
-      parentNode.child(name: routeName);
+      parentNode.child(routeName);
     });
   }
 
