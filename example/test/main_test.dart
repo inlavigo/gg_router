@@ -126,6 +126,7 @@ main() {
       initSharedPreferences(state: lastState);
       final widget = GgRouterExample(key: key);
       await tester.pumpWidget(widget);
+      await tester.pumpAndSettle();
       final ggRouterExampleFinder = find.byWidget(widget);
       ggRouterExample = GgEasyWidgetTest(ggRouterExampleFinder, tester);
       updateRouterDelegate(tester);

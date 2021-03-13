@@ -4,6 +4,8 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,6 +19,9 @@ main() {
     late GgRouteInformationParser routeInformationParser;
     late GgRouterState router;
 
+    const exampleData =
+        '{"routeB":{"b": 1234}, "${GgRouteTreeNode.activeChildJsonKey}":"routeB"}';
+
     // .........................................................................
     setUp(
       WidgetTester tester, {
@@ -26,7 +31,8 @@ main() {
       final builder =
           (Map<String, GgRouteParam> params) => (BuildContext context) {
                 router = GgRouter.of(context);
-                return GgRouteParams(child: Container(), params: params);
+                return GgRouteParams(
+                    child: Container(key: ValueKey('content')), params: params);
               };
 
       final paramsA = GgRouteParam(seed: 5);
@@ -76,7 +82,7 @@ main() {
       // => no routing should happen
       var result =
           routerDelegate.setInitialRoutePath(RouteInformation(location: null));
-      expect(result, isInstanceOf<SynchronousFuture<void>>());
+      expect(result, isInstanceOf<Future<void>>());
       await result;
 
       // ........................................................
@@ -84,12 +90,13 @@ main() {
       // The app will navigate to the last saved state.
       result =
           routerDelegate.setInitialRoutePath(RouteInformation(location: '/'));
-      expect(result, isInstanceOf<SynchronousFuture<void>>());
+      expect(result, isInstanceOf<Future<void>>());
       await result;
 
       // ...........................................
       // Should provide the RouteInformation for the currently set path
-      router.navigateTo('/routeC');
+      result = routerDelegate
+          .setInitialRoutePath(RouteInformation(location: '/routeC'));
       await tester.pumpAndSettle();
       expect(routerDelegate.currentConfiguration.location!, 'routeC?c=7&d=8');
       expect(router.node.root.activeChildPath, 'routeC');
@@ -135,8 +142,7 @@ main() {
         (WidgetTester tester) async {
       await setUp(
         tester,
-        restoreState: () => SynchronousFuture(
-            '{"routeB":{"b": 1234}, "${GgRouteTreeNode.activeChildJsonKey}":"routeB"}'),
+        restoreState: () => SynchronousFuture(exampleData),
       );
       expect(routerDelegate.root.activeChildPath, 'routeB');
       expect(routerDelegate.root.child('routeB').param('b')?.value, 1234);
@@ -158,6 +164,36 @@ main() {
       await tester.pumpAndSettle();
       expect(savedData,
           contains('"${GgRouteTreeNode.activeChildJsonKey}":"routeB"'));
+    });
+
+    // .........................................................................
+    testWidgets('should show an empty container until data is loaded',
+        (WidgetTester tester) async {
+      // Setup a completer yielding last saved state
+      final loadData = Completer<String?>();
+
+      // Start application.
+      await setUp(
+        tester,
+        restoreState: () => loadData.future,
+      );
+
+      // Until completer has not completed, a loading
+      // screen should be shown.
+      var loadingScreen = find.byKey(ValueKey('RouterDelegateLoadingScreen'));
+      expect(loadingScreen, findsOneWidget);
+      var content = find.byKey(ValueKey('content'));
+      expect(content, findsNothing);
+
+      await tester.pumpAndSettle();
+
+      // Now lets complete the loading
+      loadData.complete(exampleData);
+      await tester.pumpAndSettle();
+      loadingScreen = find.byKey(ValueKey('RouterDelegateLoadingScreen'));
+      expect(loadingScreen, findsNothing);
+      content = find.byKey(ValueKey('content'));
+      expect(content, findsOneWidget);
     });
 
     // .........................................................................

@@ -4,6 +4,8 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
@@ -69,15 +71,24 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   /// Builds the widget tree.
   @override
   Widget build(BuildContext context) {
-    return GgRouter.root(
-      child: Overlay(
-        initialEntries: [
-          OverlayEntry(builder: (context) {
-            return child;
-          }),
-        ],
-      ),
-      node: _root,
+    return FutureBuilder(
+      future: _restoreIsDone.future,
+      builder: (context, _) {
+        if (!_restoreIsDone.isCompleted) {
+          return Container(key: ValueKey('RouterDelegateLoadingScreen'));
+        }
+
+        return GgRouter.root(
+          child: Overlay(
+            initialEntries: [
+              OverlayEntry(builder: (context) {
+                return child;
+              }),
+            ],
+          ),
+          node: _root,
+        );
+      },
     );
   }
 
@@ -101,18 +112,18 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
   // ...........................................................................
   @override
-  Future<void> setInitialRoutePath(RouteInformation configuration) {
-    // If the URI points to a certain location in the app, we jump to that
-    // location, no matter if the last saved position pointed to a different
-    // location.
-    bool isSpecialLocation = configuration.location != null
+  Future<void> setInitialRoutePath(RouteInformation configuration) async {
+    // Wait until restore is ready
+    await _restoreIsDone.future;
+
+    // Check if URI needs navigation
+    bool needsNavigate = configuration.location != null
         ? Uri.parse(configuration.location!).pathSegments.length > 0
         : false;
 
-    if (isSpecialLocation) {
-      return super.setInitialRoutePath(configuration);
-    } else {
-      return SynchronousFuture(null);
+    // If yes, navigate
+    if (needsNavigate) {
+      super.setInitialRoutePath(configuration);
     }
   }
 
@@ -176,11 +187,21 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   }
 
   // ...........................................................................
-  _restoreState() async {
-    final json = await restoreState?.call();
-    if (json != null) {
-      _root.json = json;
+  final _restoreIsDone = Completer();
+
+  // ...........................................................................
+  _restoreState() {
+    if (restoreState == null) {
+      _restoreIsDone.complete();
+      return;
     }
+
+    restoreState!.call().then((json) {
+      if (json != null) {
+        _root.json = json;
+      }
+      _restoreIsDone.complete();
+    });
   }
 
   // ...........................................................................
