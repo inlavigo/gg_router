@@ -107,6 +107,13 @@ class GgRouter extends StatefulWidget {
 // #############################################################################
 class GgRouterState extends State<GgRouter> {
   // ...........................................................................
+  @override
+  dispose() {
+    _dispose.reversed.forEach((d) => d());
+    super.dispose();
+  }
+
+  // ...........................................................................
   /// The [GgRouteTreeNode] assigned to a [GgRouter] instance.
   late GgRouteTreeNode node;
 
@@ -170,6 +177,9 @@ class GgRouterState extends State<GgRouter> {
   // ######################
 
   // ...........................................................................
+  final List<Function()> _dispose = [];
+
+  // ...........................................................................
   Widget _buildRoot(BuildContext context) {
     node = widget._rootNode!;
     _isReady = true;
@@ -177,7 +187,96 @@ class GgRouterState extends State<GgRouter> {
   }
 
   // ...........................................................................
+  Widget _widgetToBeShown = Container();
+  var _isListening = false;
+
+  // ...........................................................................
+  _listenToActiveChild(BuildContext context) {
+    if (_isListening) {
+      return;
+    }
+
+    final parentNode = GgRouter.of(context).node;
+
+    _createChildNodes(parentNode);
+
+    assert(widget.children.length > 0);
+    final s = parentNode.activeChildDidChange.listen((nodeToBeShown) {
+      _isReady = false;
+
+      GgRouteTreeNode? nodeToBeShown = parentNode.activeChild;
+
+      // ...............................................
+      // Use previous route, if current route is invalid
+      bool routeIsValid = nodeToBeShown == null ||
+          widget.children.keys.contains(nodeToBeShown.name);
+
+      if (!routeIsValid) {
+        final invalidNode = nodeToBeShown;
+        nodeToBeShown = parentNode.previouslyActiveChild;
+        nodeToBeShown?.isActive = true;
+        parentNode.removeChild(invalidNode);
+        parentNode.setError(
+          GgRouteTreeNodeError(
+            id: 'GRC008448',
+            message:
+                'Route "${parentNode.path}" has no child named "${invalidNode.name}".',
+          ),
+        );
+      }
+
+      // ........................
+      // Update the child indexes
+      int i = 0;
+      widget.children.keys.forEach((key) {
+        parentNode.child(key).widgetIndex = i;
+        i++;
+      });
+
+      // ..............................................
+      // If parentNode has no activeChild, look, if a child widget with
+      // key "" is defined. If such a child widget is available,
+      // return that child widget directly. This widget will be assigned
+      // to the parent route, therefor no other node needs to be
+      // activated.
+      if (nodeToBeShown == null && widget.children.keys.contains("")) {
+        final defaultWidget = widget.children[""]!;
+        setState(() {
+          _widgetToBeShown = defaultWidget(context);
+        });
+        return;
+      }
+
+      // ..............................................
+      // If no active child is defined and no default route is defined,
+      // take the first possible child.
+      if (nodeToBeShown == null) {
+        nodeToBeShown = parentNode.child(widget.children.keys.first);
+      }
+
+      // .............................
+      // Activate the node to be shown
+      nodeToBeShown.isActive = true;
+
+      // .....................................
+      // Show the widget belonging to the node
+      final widgetToBeShown = widget.children[nodeToBeShown.name]!;
+
+      node = nodeToBeShown;
+      _isReady = true;
+
+      setState(() {
+        _widgetToBeShown = widgetToBeShown(context);
+      });
+    });
+
+    _dispose.add(s.cancel);
+  }
+
+  // ...........................................................................
   Widget _buildNonRoot(BuildContext context) {
+    _listenToActiveChild(context);
+
     final parentNode = GgRouter.of(context).node;
 
     _createChildNodes(parentNode);

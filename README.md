@@ -11,7 +11,7 @@ are nested. Out of your widget and route hierarchy, `GgRouter` creates and
 maintains a route tree. When you navigate through the route tree, `GgRouter`
 will build the right widgets for you.
 
-## Content <!-- omit in toc -->
+## Content
 
 - [Initialize GgRouter](#initialize-ggrouter)
 - [Define routes](#define-routes)
@@ -28,6 +28,8 @@ will build the right widgets for you.
   - [Access query params](#access-query-params)
 - [Save and restore](#save-and-restore)
 - [Error handling](#error-handling)
+- [Example](#example)
+- [Features and bugs](#features-and-bugs)
 
 ## Initialize GgRouter
 
@@ -172,10 +174,10 @@ If you open a URI in the browser that is not defined using `GgRouter(...)`, an
 error is thrown. To handle that error, assign an error handler to
 `GgRouter.of(context).errorHandler`.
 
-## Example <!-- omit in toc -->
+## Example
 
 An example demonstrating all of the features above can be found in `example/main.dart`.
 
-## Features and bugs <!-- omit in toc -->
+## Features and bugs
 
 Please file feature requests and bugs at [GitHub](https://github.com/inlavigo/gg_router).
