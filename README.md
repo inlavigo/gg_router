@@ -1,9 +1,8 @@
 # GgRouter - Easy Routing for Flutter
 
-A good routing and navigation system opens many doors: Deeply link to any place
-in your app. Navigate with ease from one widget to another. Restore the exact
-state of your app. GgRouter gives you a simple and powerful routing library for
-flutter built on the top of Navigator 2.0.
+GgRouter gives you a simple and powerful routing library for flutter built on
+the top of Navigator 2.0. Deeply link to any place in your app. Navigate with
+ease from one widget to another. Restore the exact state of your app.
 
 ![Features](./img/gg_router_short.gif)
 
@@ -12,9 +11,27 @@ are nested. Out of your widget and route hierarchy, `GgRouter` creates and
 maintains a route tree. When you navigate through the route tree, `GgRouter`
 will build the right widgets for you.
 
-## Activate GgRouter
+## Content <!-- omit in toc -->
 
-To activate `GgRouter`, create a `MaterialApp.router(...)` instance
+- [Initialize GgRouter](#initialize-ggrouter)
+- [Define routes](#define-routes)
+  - [Basic routes](#basic-routes)
+  - [Index route](#index-route)
+  - [Nested routes](#nested-routes)
+- [Navigation](#navigation)
+  - [Navigate absolutely](#navigate-absolutely)
+  - [Navigate relatively](#navigate-relatively)
+  - [Navigate to last route](#navigate-to-last-route)
+  - [Navigation Bars](#navigation-bars)
+- [URI query params](#uri-query-params)
+  - [Define query params](#define-query-params)
+  - [Access query params](#access-query-params)
+- [Save and restore](#save-and-restore)
+- [Error handling](#error-handling)
+
+## Initialize GgRouter
+
+To initialize `GgRouter`, create a `MaterialApp.router(...)` instance
 and provide it with an instance of `GgRouterDelegate` and
 `GgRouterInformationParser`.
 
@@ -141,16 +158,24 @@ To use the value of a query param in a widget, use these method:
 - Use `GgRouter.of(context).param('a')?.stream` to observe value changes of
   query param `a`.
 
+## Save and restore
+
+`GgRouter` constructor offers a `saveState` and `restorState` callback:
+
+- `saveState` will be called with a JSON string when the route state changes.
+- `restoreState` will be called at the very first beginning and allows you
+  to restore a previously defined state.
+
 ## Error handling
 
 If you open a URI in the browser that is not defined using `GgRouter(...)`, an
 error is thrown. To handle that error, assign an error handler to
 `GgRouter.of(context).errorHandler`.
 
-## Example
+## Example <!-- omit in toc -->
 
 An example demonstrating all of the features above can be found in `example/main.dart`.
 
-## Features and bugs
+## Features and bugs <!-- omit in toc -->
 
 Please file feature requests and bugs at [GitHub](https://github.com/inlavigo/gg_router).
