@@ -1,6 +1,6 @@
 name: gg_router
 description: GgRouter - Create nested routes with ease. Intuitive relative and absolute navigation.
-version: 1.0.0-beta.3
+version: 1.0.0-beta.4
 homepage: "https://github.com/inlavigo/gg_router"
 
 environment:
