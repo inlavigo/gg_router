@@ -9,113 +9,33 @@ import 'package:gg_router/gg_router.dart';
 import 'package:gg_value/gg_value.dart';
 import 'gg_route_tree_node.dart';
 
+/// A callback GgRouter uses to animate appearing and disappearing widgets.
+/// - [context] The current build context.
+/// - [animation] The ongoing animation.
+/// - [child] The child to appear or disappear.
+/// - [nodeIn] The node currently appearing.
+/// - [nodeOut] The node currently disappearing.
+typedef GgAnimationBuilder = Widget Function(
+  BuildContext context,
+  Animation animation,
+  Widget child,
+  GgRouteTreeNode nodeIn,
+  GgRouteTreeNode nodeOut,
+);
+
 // #############################################################################
-/// Use [GgRouter] to connect your widget hierarchy with a nested route tree.
-class GgRouter extends StatefulWidget {
+class GgRouterCore extends StatelessWidget {
+  const GgRouterCore({Key? key, required this.child, required this.node})
+      : super(key: key);
   // ...........................................................................
-  /// Constructor, which takes a map of child widgets. Depending on the currently
-  /// selected routed one of the child widgets is shown.
-  ///
-  /// ```
-  /// GgRouter({
-  ///   '':       (context) => Text('The index screen'),
-  ///   'green':  (context) => Container(color: Colors.green),
-  ///   'yellow': (context) => Container(color: Colors.red),
-  ///   'red':    (context) => Container(color: Colors.red),
-  /// })
-  /// ```
-  const GgRouter(this.children)
-      : _rootChild = null,
-        _rootNode = null,
-        super();
-
-  // ...........................................................................
-  /// This method is called by [GgRouterDelegate] to create the root instance.
-  const GgRouter.root(
-      {Key? key, required Widget child, required GgRouteTreeNode node})
-      : _rootChild = child,
-        _rootNode = node,
-        children = const {},
-        super(key: key);
-
-  // ...........................................................................
-  /// The child routes of this router.
-  final Map<String, Widget Function(BuildContext)> children;
+  final Widget child;
+  final GgRouteTreeNode node;
 
   // ...........................................................................
   @override
-  GgRouterState createState() => GgRouterState();
-
-  // ...........................................................................
-  /// This error message is thrown when you forget to instaniate a
-  /// [GgRouterDelegate] before instantiating a GgRouter.
-  static const noGgRouterDelegateFoundError =
-      'Did not find an instance of GgRouterDelegate.\n'
-      'Please wrap your GgRouter into a MaterialApp.router(...) and '
-      'assign an instance of GgRouterDelegate to "routerDelegate".\n'
-      'For more details look into "gg_router/example/main.dart".';
-
-  // ...........................................................................
-  /// Returns the next [GgRouterState] instance in the widget tree.
-  static GgRouterState of(
-    BuildContext context, {
-    bool rootRouter = false,
-  }) {
-    GgRouterState? routerWidgetState;
-    if (context is StatefulElement && context.state is GgRouterState) {
-      routerWidgetState = context.state as GgRouterState;
-    }
-    if (rootRouter) {
-      routerWidgetState =
-          context.findRootAncestorStateOfType<GgRouterState>() ??
-              routerWidgetState;
-    } else {
-      // Normally we would just look for the next GgRouterWidgeState in the
-      // widget hierarchy.
-      // But in the case of routes named "", we need to go one level higher,
-      // i.e. we need to look for the next router that has a node assigned.
-      GgRouteTreeNode? node;
-      BuildContext? c = context;
-
-      while (node == null && c != null) {
-        final state = c.findAncestorStateOfType<GgRouterState>();
-        node = (state?._isReady ?? false) ? state!.node : null;
-        c = state?.context;
-        routerWidgetState = state ?? routerWidgetState;
-      }
-    }
-
-    assert(() {
-      if (routerWidgetState == null) {
-        throw FlutterError(noGgRouterDelegateFoundError);
-      }
-      return true;
-    }());
-    return routerWidgetState!;
+  Widget build(BuildContext context) {
+    return child;
   }
-
-  // ######################
-  // Private
-  // ######################
-
-  // ...........................................................................
-  bool get _isRoot => _rootChild != null;
-  final Widget? _rootChild;
-  final GgRouteTreeNode? _rootNode;
-}
-
-// #############################################################################
-class GgRouterState extends State<GgRouter> {
-  // ...........................................................................
-  @override
-  dispose() {
-    _dispose.reversed.forEach((d) => d());
-    super.dispose();
-  }
-
-  // ...........................................................................
-  /// The [GgRouteTreeNode] assigned to a [GgRouter] instance.
-  late GgRouteTreeNode node;
 
   // ...........................................................................
   /// Activates the path in the node hierarchy.
@@ -164,6 +84,131 @@ class GgRouterState extends State<GgRouter> {
   // ...........................................................................
   /// Use this method to change the param with [name] or to listen to changes.
   GgValue? param(String name) => node.ownOrParentParam(name);
+}
+
+// #############################################################################
+/// Use [GgRouter] to connect your widget hierarchy with a nested route tree.
+class GgRouter extends StatefulWidget {
+  // ...........................................................................
+  /// Constructor, which takes a map of child routes. Depending on the currently
+  /// selected routed one of the child routes is shown.
+  ///
+  /// To animate widgets when switching a route, specify an [inAnimation] and
+  /// an [outAnimation]. The first is applied to the widget appearing on
+  /// the screen. The second is applied to the one disappearing.
+  /// ```
+  /// GgRouter({
+  ///   '':       (context) => Text('The index screen'),
+  ///   'green':  (context) => Container(color: Colors.green),
+  ///   'yellow': (context) => Container(color: Colors.red),
+  ///   'red':    (context) => Container(color: Colors.red),
+  /// })
+  /// ```
+  GgRouter(
+    this.children, {
+    Key? key,
+    this.inAnimation,
+    this.outAnimation,
+  })  : _rootChild = null,
+        _rootNode = null,
+        super(key: key ?? ValueKey(children.hashCode)) {
+    _checkAnimations();
+  }
+
+  // ...........................................................................
+  /// This method is called by [GgRouterDelegate] to create the root instance.
+  const GgRouter.root(
+      {Key? key, required Widget child, required GgRouteTreeNode node})
+      : _rootChild = child,
+        _rootNode = node,
+        children = const {},
+        inAnimation = null,
+        outAnimation = null,
+        super(key: key);
+
+  // ...........................................................................
+  /// The child routes of this router.
+  final Map<String, Widget Function(BuildContext)> children;
+
+  /// This animation is applied to the widget appearing on route transitions.
+  final GgAnimationBuilder? inAnimation;
+
+  /// this animation is applied to the widget disappearing on route transitions.
+  final GgAnimationBuilder? outAnimation;
+
+  // ...........................................................................
+  @override
+  GgRouterState createState() => GgRouterState();
+
+  // ...........................................................................
+  /// This error message is thrown when you forget to instaniate a
+  /// [GgRouterDelegate] before instantiating a GgRouter.
+  static const noGgRouterDelegateFoundError =
+      'Did not find an instance of GgRouterDelegate.\n'
+      'Please wrap your GgRouter into a MaterialApp.router(...) and '
+      'assign an instance of GgRouterDelegate to "routerDelegate".\n'
+      'For more details look into "gg_router/example/main.dart".';
+
+  // ...........................................................................
+  /// Returns the next [GgRouterState] instance in the widget tree.
+  static GgRouterCore of(
+    BuildContext context, {
+    bool rootRouter = false,
+  }) {
+    GgRouterCore? core = context.findAncestorWidgetOfExactType<GgRouterCore>();
+
+    if (rootRouter) {
+      final rootRouterState =
+          context.findRootAncestorStateOfType<GgRouterState>()!;
+      core = rootRouterState.rootRouterCore;
+    }
+
+    assert(() {
+      if (core == null) {
+        throw FlutterError(noGgRouterDelegateFoundError);
+      }
+      return true;
+    }());
+    return core!;
+  }
+
+  // ######################
+  // Private
+  // ######################
+
+  // ...........................................................................
+  bool get _isRoot => _rootChild != null;
+  final Widget? _rootChild;
+  final GgRouteTreeNode? _rootNode;
+
+  _checkAnimations() {
+    final inAnimationIsDefined = inAnimation != null;
+    final outAnimationIsDefined = outAnimation != null;
+    if (inAnimationIsDefined != outAnimationIsDefined) {
+      throw ArgumentError('');
+    }
+  }
+}
+
+// #############################################################################
+class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
+  // ...........................................................................
+  @override
+  dispose() {
+    _dispose.reversed.forEach((d) => d());
+    super.dispose();
+  }
+
+  // ...........................................................................
+  @override
+  initState() {
+    _animation =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+    super.initState();
+    _observeActiveNode();
+
+    _initRootRouterCore();
+  }
 
   // ...........................................................................
   @override
@@ -180,178 +225,215 @@ class GgRouterState extends State<GgRouter> {
   final List<Function()> _dispose = [];
 
   // ...........................................................................
-  Widget _buildRoot(BuildContext context) {
-    node = widget._rootNode!;
-    _isReady = true;
-    return widget._rootChild!;
-  }
+  GgRouteTreeNode? _previousActiveNode;
+  GgRouteTreeNode? _activeNode;
+  bool _isIndexRoute = false;
 
   // ...........................................................................
-  Widget _widgetToBeShown = Container();
-  var _isListening = false;
-
-  // ...........................................................................
-  _listenToActiveChild(BuildContext context) {
-    if (_isListening) {
+  _observeActiveNode() {
+    // .........................................................................
+    // If widget is a root widget, the root node will always be the active node.
+    if (widget._isRoot) {
+      _previousActiveNode = null;
+      _activeNode = widget._rootNode;
       return;
     }
 
+    // ...............................
+    // Get the responsible parent node
     final parentNode = GgRouter.of(context).node;
 
+    // ...............................
+    // For each child route, create a node
     _createChildNodes(parentNode);
 
-    assert(widget.children.length > 0);
-    final s = parentNode.activeChildDidChange.listen((nodeToBeShown) {
-      _isReady = false;
-
-      GgRouteTreeNode? nodeToBeShown = parentNode.activeChild;
-
-      // ...............................................
-      // Use previous route, if current route is invalid
-      bool routeIsValid = nodeToBeShown == null ||
-          widget.children.keys.contains(nodeToBeShown.name);
-
-      if (!routeIsValid) {
-        final invalidNode = nodeToBeShown;
-        nodeToBeShown = parentNode.previouslyActiveChild;
-        nodeToBeShown?.isActive = true;
-        parentNode.removeChild(invalidNode);
-        parentNode.setError(
-          GgRouteTreeNodeError(
-            id: 'GRC008448',
-            message:
-                'Route "${parentNode.path}" has no child named "${invalidNode.name}".',
-          ),
-        );
-      }
-
-      // ........................
-      // Update the child indexes
-      int i = 0;
-      widget.children.keys.forEach((key) {
-        parentNode.child(key).widgetIndex = i;
-        i++;
-      });
-
-      // ..............................................
-      // If parentNode has no activeChild, look, if a child widget with
-      // key "" is defined. If such a child widget is available,
-      // return that child widget directly. This widget will be assigned
-      // to the parent route, therefor no other node needs to be
-      // activated.
-      if (nodeToBeShown == null && widget.children.keys.contains("")) {
-        final defaultWidget = widget.children[""]!;
-        setState(() {
-          _widgetToBeShown = defaultWidget(context);
-        });
-        return;
-      }
-
-      // ..............................................
-      // If no active child is defined and no default route is defined,
-      // take the first possible child.
-      if (nodeToBeShown == null) {
-        nodeToBeShown = parentNode.child(widget.children.keys.first);
-      }
-
-      // .............................
-      // Activate the node to be shown
-      nodeToBeShown.isActive = true;
-
-      // .....................................
-      // Show the widget belonging to the node
-      final widgetToBeShown = widget.children[nodeToBeShown.name]!;
-
-      node = nodeToBeShown;
-      _isReady = true;
-
-      setState(() {
-        _widgetToBeShown = widgetToBeShown(context);
-      });
+    // ........................
+    // Observe the active child
+    final s = parentNode.activeChildDidChange.listen((_) {
+      _updateActiveChild();
     });
+
+    _updateActiveChild();
 
     _dispose.add(s.cancel);
   }
 
   // ...........................................................................
-  Widget _buildNonRoot(BuildContext context) {
-    _listenToActiveChild(context);
-
+  _updateActiveChild() {
     final parentNode = GgRouter.of(context).node;
 
-    _createChildNodes(parentNode);
+    // If parentNode is not active, we do not change anything.
+    if (!parentNode.isActive) {
+      return;
+    }
 
-    assert(widget.children.length > 0);
+    // Let's get the active child
+    GgRouteTreeNode? newActiveNode = parentNode.activeChild;
 
-    // Create a stream builder rebuilding the tree on active child change.
-    final result = StreamBuilder<GgRouteTreeNode?>(
-      stream: parentNode.activeChildDidChange,
-      builder: (context, snapShot) {
-        _isReady = false;
+    // ....................................................................
+    // Delete the node from the tree if no widget for the node is existing
+    bool routeIsValid = newActiveNode == null ||
+        widget.children.keys.contains(newActiveNode.name);
 
-        GgRouteTreeNode? nodeToBeShown = parentNode.activeChild;
+    if (!routeIsValid) {
+      final invalidNode = newActiveNode;
+      newActiveNode = parentNode.previouslyActiveChild;
+      newActiveNode?.isActive = true;
+      parentNode.removeChild(invalidNode);
+      parentNode.setError(
+        GgRouteTreeNodeError(
+          id: 'GRC008448',
+          message:
+              'Route "${parentNode.path}" has no child named "${invalidNode.name}".',
+        ),
+      );
+    }
 
-        // ...............................................
-        // Use previous route, if current route is invalid
-        bool routeIsValid = nodeToBeShown == null ||
-            widget.children.keys.contains(nodeToBeShown.name);
+    // ........................
+    // Update the child indexes
+    int i = 0;
+    widget.children.keys.forEach((key) {
+      final child = parentNode.child(key);
+      bool isIndexRoute = child.name.length == 0;
+      if (!isIndexRoute) {
+        child.widgetIndex = i;
+        i++;
+      }
+    });
 
-        if (!routeIsValid) {
-          final invalidNode = nodeToBeShown;
-          nodeToBeShown = parentNode.previouslyActiveChild;
-          nodeToBeShown?.isActive = true;
-          parentNode.removeChild(invalidNode);
-          parentNode.setError(
-            GgRouteTreeNodeError(
-              id: 'GRC008448',
-              message:
-                  'Route "${parentNode.path}" has no child named "${invalidNode.name}".',
-            ),
-          );
-        }
+    // ..............................................
+    // If parentNode has no activeChild, look, if a child widget with
+    // key "" is defined. If such a child widget is available,
+    // return that child widget directly. This widget will be assigned
+    // to the parent route, therefor no other node needs to be
+    // activated.
+    _isIndexRoute = newActiveNode == null && widget.children.keys.contains("");
 
-        // ........................
-        // Update the child indexes
-        int i = 0;
-        widget.children.keys.forEach((key) {
-          parentNode.child(key).widgetIndex = i;
-          i++;
+    if (_isIndexRoute) {
+      newActiveNode = null;
+    }
+
+    // ..............................................
+    // If no active child is defined and no index route is defined,
+    // take the first possible child.
+    else if (newActiveNode == null) {
+      newActiveNode = parentNode.child(widget.children.keys.first);
+    }
+
+    // .............................
+    // Activate the node to be shown
+
+    setState(() {
+      newActiveNode?.isActive = true;
+      _previousActiveNode = _activeNode;
+      _activeNode = newActiveNode;
+    });
+  }
+
+  // ...........................................................................
+  GgRouterCore? rootRouterCore;
+
+  // ...........................................................................
+  _initRootRouterCore() {
+    if (widget._isRoot) {
+      rootRouterCore =
+          GgRouterCore(child: widget._rootChild!, node: widget._rootNode!);
+    }
+  }
+
+  // ...........................................................................
+  Widget _buildRoot(BuildContext context) {
+    widget._rootNode!.isActive = true;
+    return rootRouterCore!;
+  }
+
+  // ...........................................................................
+  Widget _buildNonRoot(BuildContext context) {
+    // If we have an index route, the index route is returned directly.
+    // It will belong to the parent context.
+    if (_isIndexRoute) {
+      final defaultWidget = widget.children[""]!;
+      return defaultWidget(context);
+    }
+
+    // .....................................
+    // Show the widget belonging to the node
+    final appearingWidget =
+        _activeNode != null ? widget.children[_activeNode!.name] : null;
+
+    final disappearingWidget = _previousActiveNode != null
+        ? widget.children[_previousActiveNode!.name]
+        : null;
+
+    // ...............................
+    // Estimate if animation is needed
+    bool animationIsNeeded = disappearingWidget != null &&
+        appearingWidget != null &&
+        disappearingWidget != appearingWidget &&
+        widget.inAnimation != null &&
+        widget.outAnimation != null &&
+        !_animation.isAnimating;
+
+    if (animationIsNeeded) {
+      return _animate(
+        appearingWidget,
+        disappearingWidget,
+        _activeNode!,
+        _previousActiveNode!,
+      );
+    } else {
+      return _activeNode != null
+          ? GgRouterCore(
+              child: Builder(
+                builder: (context) {
+                  return appearingWidget?.call(context) ?? Container();
+                },
+              ),
+              node: _activeNode!)
+          : Container();
+    }
+  }
+
+  // ...........................................................................
+  _animate(
+    Widget Function(BuildContext) appearingWidget,
+    Widget Function(BuildContext) disappearingWidget,
+    GgRouteTreeNode appearingNode,
+    GgRouteTreeNode disappearingNode,
+  ) {
+    _animation.reset();
+    _animation.forward();
+
+    final inWidget = () => widget.inAnimation!.call(
+          context,
+          _animation,
+          GgRouterCore(
+            child: Builder(builder: (context) => appearingWidget(context)),
+            node: appearingNode,
+          ),
+          disappearingNode,
+          appearingNode,
+        );
+
+    final outWidget = () => widget.outAnimation!.call(
+          context,
+          _animation,
+          GgRouterCore(
+            child: Builder(builder: (context) => disappearingWidget(context)),
+            node: disappearingNode,
+          ),
+          disappearingNode,
+          appearingNode,
+        );
+
+    return AnimatedBuilder(
+        animation: _animation,
+        builder: (context, widget) {
+          return Stack(children: [
+            outWidget(),
+            inWidget(),
+          ]);
         });
-
-        // ..............................................
-        // If parentNode has no activeChild, look, if a child widget with
-        // key "" is defined. If such a child widget is available,
-        // return that child widget directly. This widget will be assigned
-        // to the parent route, therefor no other node needs to be
-        // activated.
-        if (nodeToBeShown == null && widget.children.keys.contains("")) {
-          final defaultWidget = widget.children[""]!;
-          return defaultWidget(context);
-        }
-
-        // ..............................................
-        // If no active child is defined and no default route is defined,
-        // take the first possible child.
-        if (nodeToBeShown == null) {
-          nodeToBeShown = parentNode.child(widget.children.keys.first);
-        }
-
-        // .............................
-        // Activate the node to be shown
-        nodeToBeShown.isActive = true;
-
-        // .....................................
-        // Show the widget belonging to the node
-        final widgetToBeShown = widget.children[nodeToBeShown.name]!;
-
-        node = nodeToBeShown;
-        _isReady = true;
-
-        return widgetToBeShown(context);
-      },
-    );
-
-    return result;
   }
 
   // ...........................................................................
@@ -361,6 +443,5 @@ class GgRouterState extends State<GgRouter> {
     });
   }
 
-  // ...........................................................................
-  bool _isReady = false;
+  late AnimationController _animation;
 }

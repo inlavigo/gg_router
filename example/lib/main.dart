@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
 import 'package:gg_value/gg_value.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'configure_nonweb.dart' if (dart.library.html) 'configure_web.dart';
 
 void main() {
@@ -21,7 +22,7 @@ const debugShowCheckedModeBanner = false;
 
 // .............................................................................
 class GgRouterExample extends StatelessWidget {
-  const GgRouterExample({Key? key}) : super(key: key);
+  GgRouterExample({Key? key}) : super(key: key);
 
   // ...........................................................................
   @override
@@ -65,6 +66,9 @@ class GgRouterExample extends StatelessWidget {
               'transportation': _transportationPage,
               'places': _placesPage,
             },
+            key: ValueKey('/'),
+            inAnimation: _zoomIn,
+            outAnimation: _zoomOut,
           );
         },
       ),
@@ -261,6 +265,9 @@ class GgRouterExample extends StatelessWidget {
           'football': (c) => _bigIcon(c, Icons.sports_football),
           'handball': (c) => _bigIcon(c, Icons.sports_handball),
         },
+        key: ValueKey('/sports'),
+        inAnimation: _fadeIn,
+        outAnimation: _fadeOut,
       ),
     );
   }
@@ -313,6 +320,9 @@ class GgRouterExample extends StatelessWidget {
           'bike': (c) => _bigIcon(c, Icons.directions_bike),
           'car': (c) => _bigIcon(c, Icons.directions_car),
         },
+        key: ValueKey('/transportation'),
+        inAnimation: _fadeIn,
+        outAnimation: _fadeOut,
       ),
     );
   }
@@ -320,6 +330,7 @@ class GgRouterExample extends StatelessWidget {
 // ...........................................................................
   Widget _placesPage(BuildContext context) {
     final router = GgRouter.of(context);
+    // return Container(color: Colors.green);
 
     return Scaffold(
       bottomNavigationBar: StreamBuilder(
@@ -365,6 +376,9 @@ class GgRouterExample extends StatelessWidget {
           'park': (c) => _bigIcon(c, Icons.park),
           'hospital': (c) => _bigIcon(c, Icons.local_hospital),
         },
+        key: ValueKey('/places'),
+        inAnimation: _fadeIn,
+        outAnimation: _fadeOut,
       ),
     );
   }
@@ -380,5 +394,75 @@ class GgRouterExample extends StatelessWidget {
     final result = (await (SharedPreferences.getInstance()))
         .getString('lastApplicationState');
     return result;
+  }
+
+  // ...........................................................................
+  Widget _zoomOut(
+    BuildContext context,
+    Animation animation,
+    Widget child,
+    GgRouteTreeNode disappearingRoute,
+    GgRouteTreeNode appearingRoute,
+  ) {
+    // In the first part of the animation the old widget is faded out
+    final scale = animation.value < 0.5
+        ? Curves.easeInOut.transform(1.0 - (animation.value * 2.0))
+        : 0.0;
+
+    return Transform.scale(
+      scale: scale,
+      child: child,
+    );
+  }
+
+  // ...........................................................................
+  Widget _zoomIn(
+    BuildContext context,
+    Animation animation,
+    Widget child,
+    GgRouteTreeNode disappearingRoute,
+    GgRouteTreeNode appearingRoute,
+  ) {
+    // In the second part of the animation the new widget is faded in
+    final scale = animation.value >= 0.5
+        ? Curves.easeInOut.transform(((animation.value - 0.5) * 2.0))
+        : 0.0;
+
+    return Transform.scale(
+      scale: scale,
+      child: child,
+    );
+  }
+
+  // ...........................................................................
+  Widget _fadeIn(
+    BuildContext context,
+    Animation animation,
+    Widget child,
+    GgRouteTreeNode disappearingRoute,
+    GgRouteTreeNode appearingRoute,
+  ) {
+    // In the second part of the animation the new widget is faded in
+    final opacity = animation.value >= 0.5
+        ? Curves.easeInOut.transform(((animation.value - 0.5) * 2.0))
+        : 0.0;
+
+    return Opacity(opacity: opacity, child: child);
+  }
+
+  // ...........................................................................
+  Widget _fadeOut(
+    BuildContext context,
+    Animation animation,
+    Widget child,
+    GgRouteTreeNode disappearingRoute,
+    GgRouteTreeNode appearingRoute,
+  ) {
+    // In the first part of the animation the old widget is faded out
+    final opacity = animation.value < 0.5
+        ? Curves.easeInOut.transform(1.0 - (animation.value * 2.0))
+        : 0.0;
+
+    return Opacity(opacity: opacity, child: child);
   }
 }

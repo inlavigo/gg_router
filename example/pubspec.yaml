@@ -13,6 +13,7 @@ dependencies:
   gg_router:
     path: ../
   gg_value: ^1.0.3-dev.1
+  gg_map_animation: ^0.9.0
 
 dev_dependencies:
   flutter_test:

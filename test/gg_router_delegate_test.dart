@@ -17,7 +17,7 @@ main() {
     // .........................................................................
     late GgRouterDelegate routerDelegate;
     late GgRouteInformationParser routeInformationParser;
-    late GgRouterState router;
+    late GgRouterCore router;
 
     const exampleData =
         '{"routeB":{"b": 1234}, "${GgRouteTreeNode.activeChildJsonKey}":"routeB"}';

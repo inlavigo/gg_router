@@ -23,8 +23,8 @@ main() {
 
     final routeOnTop1Key = ValueKey('routeOnTop1');
     final Widget routeOnTop1 = Container(key: routeOnTop1Key);
-    late GgRouterState baseRouter;
-    GgRouterState? routeOnTopRouter;
+    late GgRouterCore baseRouter;
+    GgRouterCore? routeOnTopRouter;
 
     // .........................................................................
     setUp(WidgetTester tester) async {

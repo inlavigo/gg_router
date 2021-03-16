@@ -189,9 +189,9 @@ main() {
       expect(lastBuiltNode.path, '/');
 
       // The right widget indices should have been assigned
-      expect(lastBuiltNode.child('').widgetIndex, 0);
-      expect(lastBuiltNode.child('a0').widgetIndex, 1);
-      expect(lastBuiltNode.child('b0').widgetIndex, 2);
+      expect(lastBuiltNode.child('').widgetIndex, null);
+      expect(lastBuiltNode.child('a0').widgetIndex, 0);
+      expect(lastBuiltNode.child('b0').widgetIndex, 1);
 
       // Now activate /a0 and check if node the hierarchy was rebuilt
       lastBuiltNode.child('a0').isActive = true;
@@ -308,10 +308,10 @@ main() {
       (WidgetTester tester) async {
         BuildContext? context;
 
-        late GgRouterState rootRouter;
-        late GgRouterState rootRouter2;
-        late GgRouterState router;
-        late GgRouterState childRouter;
+        late GgRouterCore rootRouter;
+        late GgRouterCore rootRouter2;
+        late GgRouterCore router;
+        late GgRouterCore childRouter;
         late String? lastBuiltParam;
 
         await setUp(tester, child: Builder(builder: (c0) {
@@ -348,8 +348,8 @@ main() {
 
         // .............................................................
         // GgRouter.of(context) should give the current context's router
-        expect(router, isInstanceOf<GgRouterState>());
-        expect(childRouter, isInstanceOf<GgRouterState>());
+        expect(router, isInstanceOf<GgRouterCore>());
+        expect(childRouter, isInstanceOf<GgRouterCore>());
 
         // .......................................................
         // GgRouter.of(context).node should give the route node assigned to the
@@ -493,5 +493,51 @@ main() {
       showAAtFirstPlace.value = false;
       await tester.pumpAndSettle();
     });
+
+    // #########################################################################
+    // group('Route animations', () {
+    //   testWidgets('switch between two siblings', (WidgetTester tester) async {
+    //     final routeAKey = Key('routeA');
+    //     final routeBKey = Key('routeB');
+
+    //     // ................................
+    //     // Create a route with two siblings
+    //     final router = GgRouter({
+    //       'routeA': (context) => Container(key: routeAKey),
+    //       'routeB': (context) => Container(key: routeBKey),
+    //     });
+
+    //     // ........................
+    //     // Create a router delegate
+    //     final routerDelegate = GgRouterDelegate(child: router);
+    //     final root = routerDelegate.root;
+    //     root.child('routeA').isActive = true;
+
+    //     // .............
+    //     // Create an app
+    //     await tester.pumpWidget(
+    //       MaterialApp.router(
+    //         routeInformationParser: GgRouteInformationParser(),
+    //         routerDelegate: routerDelegate,
+    //       ),
+    //     );
+    //     await tester.pumpAndSettle();
+
+    //     // ......................................
+    //     // At the beginning routeA should be shown
+    //     expect(find.byKey(routeAKey), findsOneWidget);
+    //     expect(find.byKey(routeBKey), findsNothing);
+
+    //     // ..........................
+    //     // Now let's switch to routeB
+    //     root.child('childB').isActive = true;
+
+    //     // At the beginning both, routeA and routeB should be visbible
+    //     // because both are animating
+    //     tester.pumpFrames(router, Duration(milliseconds: 1));
+    //     expect(find.byKey(routeAKey), findsOneWidget);
+    //     expect(find.byKey(routeBKey), findsOneWidget);
+    //   });
+    // });
   });
 }
