@@ -73,7 +73,7 @@ class _Params {
             result.value = uriParam;
           }
         } catch (e) {
-          print('Was not write uriParam $uriParam to param $name');
+          print('Was not able to write uriParam $uriParam to param $name');
         }
       }
 
@@ -173,6 +173,7 @@ class GgRouteTreeNode {
     required this.name,
     this.parent,
   }) {
+    _checkConsistency();
     _initParent();
     _initParams();
     _initPath();
@@ -202,6 +203,12 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// The name of the node. The name will appear as path segment in the URI.
   final String name;
+
+  /// ..........................................................................
+  /// Returns true if name only contains letters, numbers, minus and underscore
+  static bool isValidName(String name) {
+    return _nameRegEx.allMatches(name).length > 0;
+  }
 
   // ...........................................................................
   /// The parent node.
@@ -276,7 +283,8 @@ class GgRouteTreeNode {
   /// Returns a child node with [name]. If none exists, one is created.
   GgRouteTreeNode child(String name) {
     if (isIndexChild) {
-      throw ArgumentError('Index routes named "" must not have children.');
+      throw ArgumentError(
+          'The route "$path" is an index routes and must not have children.');
     }
 
     var child = _children[name];
@@ -306,7 +314,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  bool get isIndexChild => name == '' && !isRoot;
+  bool get isIndexChild => name == '_INDEX_';
 
   // ...........................................................................
   /// Returns descendant that matches the path. Creates the node when needed.
@@ -314,10 +322,6 @@ class GgRouteTreeNode {
   /// - `..` addresses parent node
   /// - '_LAST_' - addresses child that was last active
   GgRouteTreeNode descendand({required List<String> path}) {
-    if (this.isIndexChild) {
-      return _indexChildDescendand(path);
-    }
-
     var result = this;
     path.forEach((element) {
       if (element == '.' || element == '') {
@@ -620,17 +624,38 @@ class GgRouteTreeNode {
 
   final List<Function()> _dispose = [];
 
+  static final _nameRegEx = RegExp(
+    r"^[\w\d_-]+$",
+    caseSensitive: false,
+    multiLine: false,
+  );
+
+  // ########
+  // Checks
+  _checkConsistency() {
+    if (isRoot && name != '_ROOT_') {
+      throw GgRouteTreeNodeError(
+          id: 'GRC008501', message: 'Root nodes must have name "_ROOT_".');
+    }
+
+    if (name == '_ROOT_' && parent != null) {
+      throw GgRouteTreeNodeError(
+          id: 'GRC008503',
+          message:
+              'Nodes with name "_ROOT_" are root nodes and must not have a parent.');
+    }
+
+    if (!isValidName(name)) {
+      throw GgRouteTreeNodeError(
+          id: 'GRC008502',
+          message:
+              'The name "$name" is not a valid node name. Node names must only contain letters, numbers, underscore or minus.');
+    }
+  }
+
   // ########
   // parent
   _initParent() {
-    if (parent == null) {
-      if (name != '') {
-        throw ArgumentError(
-          'This node is a root node because parent is null. '
-          'Root notes must have an empty name, .e. ""',
-        );
-      }
-    }
     parent?._children[name] = this;
     parent?._listenToNode(this);
   }
@@ -801,19 +826,6 @@ class GgRouteTreeNode {
     parent?._updateActiveDescendants();
   }
 
-  // ##################
-  GgRouteTreeNode _indexChildDescendand(List<String> path) {
-    // Return the index item itself if path is '' or '.'
-    final first = path.isNotEmpty ? path.first : null;
-    if (path.length == 1 && (first == '' || first == '.')) {
-      return this;
-    }
-
-    // In all other cases forward the request to the index child's
-    // parent
-    return parent!.descendand(path: path);
-  }
-
   // ################
   // navigate
   _navigateTo(String path) {
@@ -918,6 +930,6 @@ final exampleRouteNode = ({
   GgRouteTreeNode? parent,
 }) =>
     GgRouteTreeNode(
-      name: name ?? '',
+      name: name ?? '_ROOT_',
       parent: parent,
     );

@@ -101,7 +101,8 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
     });
 
     final uri = Uri(
-      pathSegments: _root.activeChildPathSegments,
+      pathSegments: _root.activeChildPathSegments
+          .where((element) => element != '_INDEX_'),
       queryParameters: queryParameters.length > 0 ? queryParameters : null,
     );
 
@@ -165,7 +166,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
   // ...........................................................................
   final List<Function()> _dispose = [];
-  final _root = GgRouteTreeNode(name: '');
+  final _root = GgRouteTreeNode(name: '_ROOT_');
 
   // ...........................................................................
   _listenToRouteChanges() {

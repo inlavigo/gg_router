@@ -75,13 +75,13 @@ Widget build(BuildContext context){
 ### Index route
 
 To define a default route which is shown when none of the routes is selected,
-add a route with an empty `''` name:
+add a route with name `'_INDEX_'`:
 
 ~~~dart
 @override
 Widget build(BuildContext context){
   GgRouter({
-    '': _index,
+    '_INDEX_': _index,
     'sports': _sports,
     // ...
   })

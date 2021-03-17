@@ -94,7 +94,7 @@ main() {
         // The routes
         GgRouter(
           {
-            '': subBuilder,
+            '_INDEX_': subBuilder,
             'a0': (context) {
               return Column(
                 children: [
@@ -108,7 +108,7 @@ main() {
                     );
                   }),
                   GgRouter({
-                    '': subBuilder,
+                    '_INDEX_': subBuilder,
                     'a10': subBuilder,
                     'a11': subBuilder,
                   }),
@@ -172,12 +172,26 @@ main() {
   }
 
   group('GgRouter', () {
+    late GgRouteTreeNode index;
+    late GgRouteTreeNode a0;
+    late GgRouteTreeNode b0;
+    late GgRouteTreeNode a11;
+
+    update() {
+      index = lastBuiltNode;
+
+      a0 = lastBuiltNode.root.child('a0');
+      b0 = lastBuiltNode.root.child('b0');
+      a11 = a0.child('a11');
+    }
+
     // .........................................................................
     testWidgets('should allow to synchronize URI and widget hierarchy',
         (WidgetTester tester) async {
       // .................
       // Create the widget
       await setUp(tester);
+      update();
       updateAAndBButtons(tester);
       expect(ggRoute.width, 800);
       expect(ggRoute.height, 600);
@@ -186,24 +200,26 @@ main() {
       // Test if node hierarchy is synchronized correctly
 
       // By default the default route should be selected
-      expect(lastBuiltNode.path, '/');
+      expect(index.path, '/_INDEX_');
 
       // The right widget indices should have been assigned
-      expect(lastBuiltNode.child('').widgetIndex, null);
-      expect(lastBuiltNode.child('a0').widgetIndex, 0);
-      expect(lastBuiltNode.child('b0').widgetIndex, 1);
+      expect(index.widgetIndex, 0);
+      expect(a0.widgetIndex, 1);
+      expect(b0.widgetIndex, 2);
 
       // Now activate /a0 and check if node the hierarchy was rebuilt
-      lastBuiltNode.child('a0').isActive = true;
+      a0.isActive = true;
       await tester.pumpAndSettle();
-      expect(lastBuiltNode.path, '/a0');
-      expect(routeSegment, 'a0');
-      expect(routePath, '/a0');
+      update();
+      expect(lastBuiltNode.path, '/a0/_INDEX_');
+      expect(routeSegment, '_INDEX_');
+      expect(routePath, '/a0/_INDEX_');
       expect(childRouteSegment, null);
 
       // Now activate /a0/a11 and check if node the hierarchy was rebuilt
-      lastBuiltNode.child('a11').isActive = true;
+      a11.isActive = true;
       await tester.pumpAndSettle();
+      update();
       expect(lastBuiltNode.path, '/a0/a11');
       expect(routeSegment, 'a11');
       expect(routePath, '/a0/a11');
@@ -286,20 +302,20 @@ main() {
       await a0Button.press();
       expect(lastBuiltNode.path, '/a0/a11');
 
-      // Press back button -> should activate '/a0'
+      // Press back button -> should activate '/a0/_INDEX_'
       final backButton =
           GgEasyWidgetTest(find.byKey(ValueKey('backButton')), tester);
       await backButton.press();
-      expect(lastBuiltNode.path, '/a0');
+      expect(lastBuiltNode.path, '/a0/_INDEX_');
 
       // Press b0 Button -> Should activate '/b0/b10'
       await b0Button.press();
       expect(lastBuiltNode.path, '/b0/b10');
 
       // ...............
-      // Press a0Only Button -> Should activate '/a0'
+      // Press a0Only Button -> Should activate '/a0/_INDEX_'
       await a0OnlyButton.press();
-      expect(lastBuiltNode.path, '/a0');
+      expect(lastBuiltNode.path, '/a0/_INDEX_');
     });
 
     // .........................................................................

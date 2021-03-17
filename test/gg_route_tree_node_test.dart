@@ -18,7 +18,7 @@ main() {
   late GgRouteTreeNode childC;
 
   init() {
-    root = exampleRouteNode(name: '');
+    root = exampleRouteNode(name: '_ROOT_');
     childA0 = exampleRouteNode(name: 'child-a0', parent: root);
     childA1 = exampleRouteNode(name: 'child-a1', parent: root);
     childB = exampleRouteNode(name: 'child-b', parent: childA0);
@@ -62,17 +62,46 @@ main() {
     group('name', () {
       test('should return the name of the node', () {
         init();
-        expect(root.name, '');
+        expect(root.name, '_ROOT_');
         expect(childA0.name, 'child-a0');
         expect(childB.name, 'child-b');
         expect(childC.name, 'child-c');
         dispose();
       });
 
-      test('should throw an exception if name of an root note is not ""', () {
+      test('should throw an exception if name of an root node is not "_ROOT_"',
+          () {
         init();
         expect(() => GgRouteTreeNode(name: 'root', parent: null),
-            throwsArgumentError);
+            throwsA(predicate((GgRouteTreeNodeError error) {
+          expect(error.id, 'GRC008501');
+          expect(error.message, 'Root nodes must have name "_ROOT_".');
+          return true;
+        })));
+      });
+
+      test('should throw an exception if name contains invalid chars', () {
+        init();
+        expect(() => GgRouteTreeNode(name: 'root#3%', parent: root),
+            throwsA(predicate((GgRouteTreeNodeError error) {
+          expect(error.id, 'GRC008502');
+          expect(error.message,
+              'The name "root#3%" is not a valid node name. Node names must only contain letters, numbers, underscore or minus.');
+          return true;
+        })));
+      });
+
+      test(
+          'should throw an exception if name is "_ROOT_" and a parent is given',
+          () {
+        init();
+        expect(() => GgRouteTreeNode(name: '_ROOT_', parent: root),
+            throwsA(predicate((GgRouteTreeNodeError error) {
+          expect(error.id, 'GRC008503');
+          expect(error.message,
+              'Nodes with name "_ROOT_" are root nodes and must not have a parent.');
+          return true;
+        })));
       });
     });
 
@@ -121,7 +150,7 @@ main() {
         init();
         expect(root.widgetIndex, null);
         childA0.widgetIndex = 1;
-        expect(root.widgetIndex, 1);
+        expect(childA0.widgetIndex, 1);
       });
     });
 
@@ -262,10 +291,11 @@ main() {
 
       test('Should throw an exception, if node is an index route', () {
         init();
-        final indexNode = childA0.child('');
+        final indexNode = childA0.child('_INDEX_');
         expect(() => indexNode.child('xyz'),
             throwsA(predicate((ArgumentError f) {
-          expect(f.message, 'Index routes named "" must not have children.');
+          expect(f.message,
+              'The route "${indexNode.path}" is an index routes and must not have children.');
           return true;
         })));
       });
@@ -304,7 +334,7 @@ main() {
 
       test('returns true if node has no name, otherwise false', () {
         init();
-        expect(childA0.child('').isIndexChild, true);
+        expect(childA0.child('_INDEX_').isIndexChild, true);
         expect(childA0.isIndexChild, false);
       });
     });
@@ -323,7 +353,7 @@ main() {
         final result = root.descendand(path: ['x', 'y']);
         expect(result.name, 'y');
         expect(result.parent!.name, 'x');
-        expect(result.parent!.parent!.name, '');
+        expect(result.parent!.parent!.name, '_ROOT_');
       });
 
       test('should return the element itself, if path is empty', () {
@@ -355,28 +385,6 @@ main() {
       test('should ignore empty path segments', () {
         init();
         expect(root.descendand(path: ['', '', 'child-a1']), childA1);
-      });
-
-      // #########################################################################
-      group('indexChild nodes', () {
-        test('should return the grand parent if path segment is ".."', () {
-          init();
-          final indexChild = childA0.child('');
-          expect(indexChild.descendand(path: ['..']), childA0.parent);
-        });
-
-        test('should return the index child itself if path segment is "."', () {
-          init();
-          final indexChild = childA0.child('');
-          expect(indexChild.descendand(path: ['.']), indexChild);
-        });
-
-        test('should return the sibling if path segment is "./sibling"', () {
-          init();
-          final indexChild = childA0.child('');
-          final sibling = indexChild.descendand(path: ['sibling']);
-          expect(sibling.parent, childA0);
-        });
       });
 
       test(
@@ -1043,7 +1051,7 @@ main() {
       late GgRouteTreeNode grandChild;
 
       setUp(() {
-        root = GgRouteTreeNode(name: '');
+        root = GgRouteTreeNode(name: '_ROOT_');
         root.findOrCreateParam(name: 'rootParam', seed: 1);
         child = root.child('child');
         child.findOrCreateParam(name: 'childParam', seed: 1.1);
@@ -1136,7 +1144,7 @@ main() {
     // #########################################################################
     group('get json', () {
       test('should return a JSON string of the object', () {
-        final root = GgRouteTreeNode(name: '');
+        final root = GgRouteTreeNode(name: '_ROOT_');
         expect(root.json, '{}');
 
         final child = root.child('child');
@@ -1168,12 +1176,12 @@ main() {
       });
 
       test('should also save active and previously active child', () {
-        final root = GgRouteTreeNode(name: '');
+        final root = GgRouteTreeNode(name: '_ROOT_');
         root.child('previouslyActiveChild').isActive = true;
         root.child('activeChild').isActive = true;
         final json = root.json;
 
-        final rootCopy = GgRouteTreeNode(name: '');
+        final rootCopy = GgRouteTreeNode(name: '_ROOT_');
         rootCopy.json = json;
         expect(rootCopy.activeChild, rootCopy.child('activeChild'));
         expect(rootCopy.previouslyActiveChild,

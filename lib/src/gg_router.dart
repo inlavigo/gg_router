@@ -98,10 +98,10 @@ class GgRouter extends StatefulWidget {
   /// the screen. The second is applied to the one disappearing.
   /// ```
   /// GgRouter({
-  ///   '':       (context) => Text('The index screen'),
-  ///   'green':  (context) => Container(color: Colors.green),
-  ///   'yellow': (context) => Container(color: Colors.red),
-  ///   'red':    (context) => Container(color: Colors.red),
+  ///   '_INDEX_': (context) => Text('The index screen'),
+  ///   'green':   (context) => Container(color: Colors.green),
+  ///   'yellow':  (context) => Container(color: Colors.red),
+  ///   'red':     (context) => Container(color: Colors.red),
   /// })
   /// ```
   GgRouter(
@@ -112,6 +112,7 @@ class GgRouter extends StatefulWidget {
   })  : _rootChild = null,
         _rootNode = null,
         super(key: key ?? ValueKey(children.hashCode)) {
+    _checkChildren();
     _checkAnimations();
   }
 
@@ -188,6 +189,15 @@ class GgRouter extends StatefulWidget {
       throw ArgumentError('');
     }
   }
+
+  // ...........................................................................
+  _checkChildren() {
+    children.keys.forEach((name) {
+      if (!GgRouteTreeNode.isValidName(name)) {
+        throw ArgumentError('The name "$name" is not a valid route name.');
+      }
+    });
+  }
 }
 
 // #############################################################################
@@ -202,12 +212,10 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   // ...........................................................................
   @override
   initState() {
-    _animation =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
-    super.initState();
+    _initAnimation();
     _observeActiveNode();
-
     _initRootRouterCore();
+    super.initState();
   }
 
   // ...........................................................................
@@ -297,7 +305,15 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
       i++;
     });
 
-    // ..............................................
+    // ...................................................
+    // If no active child is defined, take the index route
+    if (newActiveNode == null) {
+      newActiveNode = widget.children.containsKey('_INDEX_')
+          ? parentNode.child('_INDEX_')
+          : null;
+    }
+
+    // ............................................................
     // If no active child is defined and no index route is defined,
     // take the first possible child.
     if (newActiveNode == null) {
@@ -307,7 +323,6 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // .............................
     // Activate the node to be shown
     setState(() {
-      newActiveNode?.isActive = true;
       _previousActiveNode = _activeNode;
       _activeNode = newActiveNode;
     });
@@ -332,6 +347,9 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
   // ...........................................................................
   Widget _buildNonRoot(BuildContext context) {
+    // Make sure, the shown active node is marked as beeing active
+    _activeNode?.isActive = true;
+
     // .....................................
     // Show the widget belonging to the node
     final appearingWidget =
@@ -348,8 +366,11 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
         disappearingWidget != appearingWidget &&
         widget.inAnimation != null &&
         widget.outAnimation != null &&
-        !_animation.isAnimating;
+        !_animation.isAnimating &&
+        !_animation.isCompleted;
 
+    // .........................................
+    // If animation is needed, perform animation
     if (animationIsNeeded) {
       return _animate(
         appearingWidget,
@@ -357,7 +378,15 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
         _activeNode!,
         _previousActiveNode!,
       );
-    } else {
+    }
+
+    // ....................................................
+    // If no animation is needed, only show the active node
+    else {
+      if (_animation.isCompleted) {
+        _animation.reset();
+      }
+
       return _activeNode != null
           ? GgRouterCore(
               child: Builder(
@@ -410,6 +439,18 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
             inWidget(),
           ]);
         });
+  }
+
+  // ...........................................................................
+  _initAnimation() {
+    _animation =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+
+    final listner = (status) {
+      setState(() {});
+    };
+    _animation.addStatusListener(listner);
+    _dispose.add(() => _animation.removeStatusListener(listner));
   }
 
   // ...........................................................................
