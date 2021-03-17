@@ -266,13 +266,13 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
       _updateVisibleChild();
     });
 
-    _updateVisibleChild();
+    _updateVisibleChild(isFirstTime: true);
 
     _dispose.add(s.cancel);
   }
 
   // ...........................................................................
-  _updateVisibleChild() {
+  _updateVisibleChild({bool isFirstTime = false}) {
     final parentNode = GgRouter.of(context).node;
 
     // If parentNode is not visible, we still show the previously visible child
@@ -327,6 +327,14 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // take the first possible child.
     if (newVisibleNode == null) {
       newVisibleNode = parentNode.child(widget.children.keys.first);
+    }
+
+    // ......................................................
+    // Activate the new visible node, but only the first time
+    // At later times the right nodes need to be addressed by
+    // navigate operations
+    if (isFirstTime) {
+      newVisibleNode.isVisible = true;
     }
 
     // .............................
