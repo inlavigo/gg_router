@@ -44,17 +44,17 @@ main() {
       test(
           'should remove all children from the node. '
           'Should remove the node from its parents list of children. '
-          'Should reset the active child property of its parent.', () {
+          'Should reset the visible child property of its parent.', () {
         init();
         final parent = childB.parent!;
-        childB.isActive = true;
+        childB.isVisible = true;
         expect(childB.children.length, 1);
         expect(parent.children.length, 1);
-        expect(parent.activeChild, childB);
+        expect(parent.visibleChild, childB);
         childB.dispose();
         expect(parent.children.length, 0);
         expect(childB.children.length, 0);
-        expect(parent.activeChild, null);
+        expect(parent.visibleChild, null);
       });
     });
 
@@ -155,107 +155,107 @@ main() {
     });
 
     // #########################################################################
-    group('isActive', () {
+    group('isVisible', () {
       test('should be false by default', () {
         init();
-        expect(root.isActive, false);
-        expect(childA0.isActive, false);
-        expect(childB.isActive, false);
-        expect(childC.isActive, false);
+        expect(root.isVisible, false);
+        expect(childA0.isVisible, false);
+        expect(childB.isVisible, false);
+        expect(childC.isVisible, false);
       });
 
       test(
-          'If isActive set to true, also all parent nodes should become active',
+          'If isVisible set to true, also all parent nodes should become visible',
           () {
         init();
-        childB.isActive = true;
-        expect(root.isActive, true);
-        expect(childB.isActive, true);
-        expect(childC.isActive, false);
+        childB.isVisible = true;
+        expect(root.isVisible, true);
+        expect(childB.isVisible, true);
+        expect(childC.isVisible, false);
       });
 
       test(
-          'If isActive set to true, the existing active child becomes inactive',
+          'If isVisible set to true, the existing visible child becomes invisible',
           () {
         init();
 
-        // Initally childA0 is active
-        childA0.isActive = true;
-        expect(root.isActive, true);
-        expect(childA0.isActive, true);
+        // Initally childA0 is visible
+        childA0.isVisible = true;
+        expect(root.isVisible, true);
+        expect(childA0.isVisible, true);
 
-        // Now we set childA1 to active
-        childA1.isActive = true;
+        // Now we set childA1 to visible
+        childA1.isVisible = true;
 
-        // childA0 should not be active anymore
-        expect(childA0.isActive, false);
-        expect(childA1.isActive, true);
+        // childA0 should not be visible anymore
+        expect(childA0.isVisible, false);
+        expect(childA1.isVisible, true);
       });
 
-      test('If isActive is set to false, als all child nodes become inactive',
+      test('If isVisible is set to false, als all child nodes become invisible',
           () {
         init();
 
-        // Currently the complete path is active
-        childC.isActive = true;
-        expect(root.isActive, true);
-        expect(childA0.isActive, true);
-        expect(childB.isActive, true);
-        expect(childC.isActive, true);
+        // Currently the complete path is visible
+        childC.isVisible = true;
+        expect(root.isVisible, true);
+        expect(childA0.isVisible, true);
+        expect(childB.isVisible, true);
+        expect(childC.isVisible, true);
 
-        // Now we set childA to inActive
-        childA0.isActive = false;
+        // Now we set childA to inVisible
+        childA0.isVisible = false;
 
-        // The parent is still active
-        expect(root.isActive, true);
+        // The parent is still visible
+        expect(root.isVisible, true);
 
-        // childA and its children are inactive
-        expect(childA0.isActive, false);
-        expect(childB.isActive, false);
-        expect(childC.isActive, false);
+        // childA and its children are invisible
+        expect(childA0.isVisible, false);
+        expect(childB.isVisible, false);
+        expect(childC.isVisible, false);
       });
 
       test(
-          'If isActive is set to false and then to true, thre previous active child becomes active also',
+          'If isVisible is set to false and then to true, thre previous visible child becomes visible also',
           () {
         init();
 
-        // Currently the complete path is active
-        childC.isActive = true;
-        expect(root.isActive, true);
-        expect(childC.isActive, true);
+        // Currently the complete path is visible
+        childC.isVisible = true;
+        expect(root.isVisible, true);
+        expect(childC.isVisible, true);
 
-        // Now we set childB to inActive
-        childB.isActive = false;
+        // Now we set childB to inVisible
+        childB.isVisible = false;
 
-        // Child c is inactive also
-        expect(childC.isActive, false);
+        // Child c is invisible also
+        expect(childC.isVisible, false);
 
-        // Now we set childB active again
-        childB.isActive = true;
+        // Now we set childB visible again
+        childB.isVisible = true;
 
-        // Child c should become active also
-        expect(childC.isActive, true);
+        // Child c should become visible also
+        expect(childC.isVisible, true);
       });
     });
 
     // #########################################################################
-    group('onIsActive', () {
-      test('should inform when isActive state changes', () {
+    group('onIsVisible', () {
+      test('should inform when isVisible state changes', () {
         init();
         fakeAsync((fake) {
-          bool? isActive;
-          final s = childB.onIsActive.listen((event) => isActive = event);
+          bool? isVisible;
+          final s = childB.onIsVisible.listen((event) => isVisible = event);
           fake.flushMicrotasks();
-          expect(isActive, isNull);
+          expect(isVisible, isNull);
 
-          childC.isActive = true;
+          childC.isVisible = true;
           fake.flushMicrotasks();
-          expect(isActive, isTrue);
+          expect(isVisible, isTrue);
 
-          childA0.isActive = false;
+          childA0.isVisible = false;
           fake.flushMicrotasks();
-          expect(isActive, isFalse);
+          expect(isVisible, isFalse);
 
           s.cancel();
         });
@@ -388,103 +388,104 @@ main() {
       });
 
       test(
-          'path == "_LAST_" returns the previously active child, when available',
+          'path == "_LAST_" returns the previously visible child, when available',
           () {
         init();
-        // Set childA0 active -> last active child is childA0
-        childA0.isActive = true;
+        // Set childA0 visible -> last visible child is childA0
+        childA0.isVisible = true;
         expect(root.descendand(path: ['_LAST_']), childA0);
 
-        // Set childA0 inactive -> last active child is still childA0
-        childA0.isActive = false;
+        // Set childA0 invisible -> last visible child is still childA0
+        childA0.isVisible = false;
         expect(root.descendand(path: ['_LAST_']), childA0);
 
-        // Set childA1 active
-        childA1.isActive = true;
+        // Set childA1 visible
+        childA1.isVisible = true;
         expect(root.descendand(path: ['_LAST_']), childA1);
 
-        // Set childA1 inactive -> last active child is still childA1
-        childA1.isActive = false;
+        // Set childA1 invisible -> last visible child is still childA1
+        childA1.isVisible = false;
         expect(root.descendand(path: ['_LAST_']), childA1);
 
         // ................................................................
-        // Set childC active -> last active child of root should be childAC
-        childC.isActive = true;
+        // Set childC visible -> last visible child of root should be childAC
+        childC.isVisible = true;
         expect(root.descendand(path: ['_LAST_']), childC);
 
-        // Now lets switch to childA1 branch -> childC should not be active anymore
-        childA1.isActive = true;
-        expect(childC.isActive, false);
+        // Now lets switch to childA1 branch -> childC should not be visible anymore
+        childA1.isVisible = true;
+        expect(childC.isVisible, false);
 
-        // Now lets navigate to childA0/_LAST_ -> childC should be active again
+        // Now lets navigate to childA0/_LAST_ -> childC should be visible again
         root.navigateTo('child-a0/_LAST_');
-        expect(childC.isActive, true);
+        expect(childC.isVisible, true);
       });
     });
 
     // #########################################################################
-    group('activeChild', () {
-      test('should return null, if no child is active', () {
+    group('visibleChild', () {
+      test('should return null, if no child is visible', () {
         init();
-        expect(root.activeChild, null);
+        expect(root.visibleChild, null);
       });
 
-      test('should return the active child, if one is active', () {
+      test('should return the visible child, if one is visible', () {
         init();
-        childA0.isActive = true;
-        expect(root.activeChild, childA0);
-      });
-    });
-
-    // #########################################################################
-    group('previouslyActiveChild', () {
-      test('should return the child that was active before', () {
-        init();
-        expect(root.activeChild, null);
-        expect(root.previouslyActiveChild, null);
-        childA0.isActive = true;
-        expect(root.previouslyActiveChild, null);
-        expect(root.activeChild, childA0);
-        childA1.isActive = true;
-        expect(root.previouslyActiveChild, childA0);
-        expect(root.activeChild, childA1);
-        childA1.isActive = false;
-        expect(root.previouslyActiveChild, childA1);
-        expect(root.activeChild, null);
+        childA0.isVisible = true;
+        expect(root.visibleChild, childA0);
       });
     });
 
     // #########################################################################
-    group('activeChildDidChange', () {
+    group('previouslyVisibleChild', () {
+      test('should return the child that was visible before', () {
+        init();
+        expect(root.visibleChild, null);
+        expect(root.previouslyVisibleChild, null);
+        childA0.isVisible = true;
+        expect(root.previouslyVisibleChild, null);
+        expect(root.visibleChild, childA0);
+        childA1.isVisible = true;
+        expect(root.previouslyVisibleChild, childA0);
+        expect(root.visibleChild, childA1);
+        childA1.isVisible = false;
+        expect(root.previouslyVisibleChild, childA1);
+        expect(root.visibleChild, null);
+      });
+    });
+
+    // #########################################################################
+    group('visibleChildDidChange', () {
       group('should return a steam', () {
         test(
-            'which delivers the child which became active'
-            ' or null if child became inactive', () {
+            'which delivers the child which became visible'
+            ' or null if child became invisible', () {
           fakeAsync((fake) {
             init();
 
-            // Listen to activeChildDidChange
-            GgRouteTreeNode? activeChild;
-            final s = root.activeChildDidChange.listen((c) => activeChild = c);
+            // Listen to visibleChildDidChange
+            GgRouteTreeNode? visibleChild;
+            final s =
+                root.visibleChildDidChange.listen((c) => visibleChild = c);
 
-            // Initially no child is active
+            // Initially no child is visible
             fake.flushMicrotasks();
-            expect(activeChild, null);
+            expect(visibleChild, null);
 
-            // Now let's make childA0 active
-            childA0.isActive = true;
+            // Now let's make childA0 visible
+            childA0.isVisible = true;
             fake.flushMicrotasks();
-            expect(activeChild, childA0);
+            expect(visibleChild, childA0);
 
-            // Now let's make childA1 active
-            childA1.isActive = true;
+            // Now let's make childA1 visible
+            childA1.isVisible = true;
             fake.flushMicrotasks();
-            expect(activeChild, childA1);
+            expect(visibleChild, childA1);
 
-            // Now let's make childA1 inactive.
-            childA1.isActive = false;
+            // Now let's make childA1 invisible.
+            childA1.isVisible = false;
             fake.flushMicrotasks();
-            expect(activeChild, null);
+            expect(visibleChild, null);
 
             s.cancel();
           });
@@ -493,19 +494,19 @@ main() {
     });
 
     // #########################################################################
-    group('activeDescendants', () {
-      test('should return a list with all active descendants', () {
+    group('visibleDescendants', () {
+      test('should return a list with all visible descendants', () {
         fakeAsync((fake) {
           init();
-          // Initially no child is active
-          expect(root.activeDescendants, []);
+          // Initially no child is visible
+          expect(root.visibleDescendants, []);
 
-          // Now let's set childB to active
-          childB.isActive = true;
+          // Now let's set childB to visible
+          childB.isVisible = true;
           fake.flushMicrotasks();
 
-          // The complete path from root to childB should be active
-          expect(root.activeDescendants.map((e) => e.name).toList(),
+          // The complete path from root to childB should be visible
+          expect(root.visibleDescendants.map((e) => e.name).toList(),
               ['child-a0', 'child-b']);
         });
       });
@@ -592,8 +593,8 @@ main() {
     });
 
     // #########################################################################
-    group('activeParams', () {
-      test('should return a map with all params of the active path', () {
+    group('visibleParams', () {
+      test('should return a map with all params of the visible path', () {
         init();
 
         // Lets define some vars
@@ -606,30 +607,30 @@ main() {
         final cName = 'c';
         final cValue = 3;
 
-        // Initally no params should be active
-        expect(root.activeParams, {});
+        // Initally no params should be visible
+        expect(root.visibleParams, {});
 
         // Let's create two params, one for childA0 and childA1 and childC
         childA0.findOrCreateParam(name: a0Name, seed: a0Value);
         childA1.findOrCreateParam(name: a1Name, seed: a1Value);
         childC.findOrCreateParam(name: cName, seed: cValue);
 
-        // root.activeParams should sill be empty, because
-        // none of the children is active
-        expect(root.activeParams, {});
+        // root.visibleParams should sill be empty, because
+        // none of the children is visible
+        expect(root.visibleParams, {});
 
         // Let's activate childC
-        childC.isActive = true;
+        childC.isVisible = true;
 
-        // Now active params should contain 3 and 1.
-        expect(root.activeParams.length, 2);
-        expect(root.activeParams[a0Name]?.value, a0Value);
-        expect(root.activeParams[cName]?.value, cValue);
+        // Now visible params should contain 3 and 1.
+        expect(root.visibleParams.length, 2);
+        expect(root.visibleParams[a0Name]?.value, a0Value);
+        expect(root.visibleParams[cName]?.value, cValue);
 
         // Let's activate child a1
-        childA1.isActive = true;
-        expect(root.activeParams.length, 1);
-        expect(root.activeParams[a1Name]?.value, a1Value);
+        childA1.isVisible = true;
+        expect(root.visibleParams.length, 1);
+        expect(root.visibleParams[a1Name]?.value, a1Value);
       });
     });
 
@@ -738,42 +739,42 @@ main() {
     });
 
     // #########################################################################
-    group('activeDescendantsDidChange', () {
-      test('should return a stream which informs about the active descendants',
+    group('visibleDescendantsDidChange', () {
+      test('should return a stream which informs about the visible descendants',
           () {
         fakeAsync((fake) {
           init();
 
-          // Listen to active descendants
-          List<GgRouteTreeNode>? activeDescendants;
+          // Listen to visible descendants
+          List<GgRouteTreeNode>? visibleDescendants;
           var updateCounter = 0;
-          final s = root.activeDescendantsDidChange.listen((event) {
-            activeDescendants = event;
+          final s = root.visibleDescendantsDidChange.listen((event) {
+            visibleDescendants = event;
             updateCounter++;
           });
 
           // Initially no updates should be delivered
           fake.flushMicrotasks();
           expect(updateCounter, 0);
-          expect(activeDescendants, null);
+          expect(visibleDescendants, null);
 
-          // Now lets set childC active
-          childC.isActive = true;
+          // Now lets set childC visible
+          childC.isVisible = true;
 
-          // The complete path from root to childC should become active
+          // The complete path from root to childC should become visible
           fake.flushMicrotasks();
           expect(updateCounter, 1);
-          expect(activeDescendants?.map((e) => e.name).toList(),
+          expect(visibleDescendants?.map((e) => e.name).toList(),
               ['child-a0', 'child-b', 'child-c']);
 
-          // Now let's set root inactive
+          // Now let's set root invisible
           updateCounter = 0;
-          root.isActive = false;
+          root.isVisible = false;
 
-          // All nodes are set to inactive
+          // All nodes are set to invisible
           fake.flushMicrotasks();
           expect(updateCounter, 1);
-          expect(activeDescendants, []);
+          expect(visibleDescendants, []);
 
           s.cancel();
         });
@@ -824,87 +825,87 @@ main() {
     });
 
     // #########################################################################
-    group('get activeChildPath', () {
-      test('should return a list of path segments of active child nodes', () {
+    group('get visibleChildPath', () {
+      test('should return a list of path segments of visible child nodes', () {
         init();
-        childC.isActive = true;
+        childC.isVisible = true;
         expect(
-            root.activeChildPathSegments, ['child-a0', 'child-b', 'child-c']);
-        expect(childA0.activeChildPathSegments, ['child-b', 'child-c']);
-        expect(childB.activeChildPathSegments, ['child-c']);
-        expect(childC.activeChildPathSegments, []);
+            root.visibleChildPathSegments, ['child-a0', 'child-b', 'child-c']);
+        expect(childA0.visibleChildPathSegments, ['child-b', 'child-c']);
+        expect(childB.visibleChildPathSegments, ['child-c']);
+        expect(childC.visibleChildPathSegments, []);
       });
     });
 
     // #########################################################################
-    group('set activeChildPath', () {
+    group('set visibleChildPath', () {
       test('should activate the segments according to the assigned path', () {
         init();
 
-        // Initially no node is active
-        expect(root.isActive, false);
-        expect(childA0.isActive, false);
-        expect(childA1.isActive, false);
-        expect(childB.isActive, false);
-        expect(childC.isActive, false);
+        // Initially no node is visible
+        expect(root.isVisible, false);
+        expect(childA0.isVisible, false);
+        expect(childA1.isVisible, false);
+        expect(childB.isVisible, false);
+        expect(childC.isVisible, false);
 
         // Activate all nodes in the path
-        root.activeChildPathSegments = ['child-a0', 'child-b', 'child-c'];
+        root.visibleChildPathSegments = ['child-a0', 'child-b', 'child-c'];
 
-        expect(root.isActive, true);
-        expect(root.activeChild, childA0);
+        expect(root.isVisible, true);
+        expect(root.visibleChild, childA0);
 
-        expect(childA0.isActive, true);
-        expect(childA0.activeChild, childB);
+        expect(childA0.isVisible, true);
+        expect(childA0.visibleChild, childB);
 
-        expect(childA1.isActive, false);
+        expect(childA1.isVisible, false);
 
-        expect(childB.isActive, true);
-        expect(childB.activeChild, childC);
+        expect(childB.isVisible, true);
+        expect(childB.visibleChild, childC);
 
-        expect(childC.isActive, true);
-        expect(childC.activeChild, null);
+        expect(childC.isVisible, true);
+        expect(childC.visibleChild, null);
 
         // Deactivate all children
-        root.activeChildPathSegments = [];
-        expect(root.isActive, true);
-        expect(childA0.isActive, false);
-        expect(childA1.isActive, false);
-        expect(childB.isActive, false);
-        expect(childC.isActive, false);
+        root.visibleChildPathSegments = [];
+        expect(root.isVisible, true);
+        expect(childA0.isVisible, false);
+        expect(childA1.isVisible, false);
+        expect(childB.isVisible, false);
+        expect(childC.isVisible, false);
       });
 
       test('should create new child nodes, if not existing', () {
         init();
-        root.activeChildPathSegments = ['x', 'y', 'z'];
+        root.visibleChildPathSegments = ['x', 'y', 'z'];
         final x = root.child('x');
         final y = x.child('y');
         final z = y.child('z');
 
-        expect(root.isActive, true);
-        expect(x.isActive, true);
-        expect(y.isActive, true);
-        expect(z.isActive, true);
+        expect(root.isVisible, true);
+        expect(x.isVisible, true);
+        expect(y.isVisible, true);
+        expect(z.isVisible, true);
       });
 
       test('should disable children that are not selected', () {
         init();
-        childC.isActive = true;
-        expect(
-            root.activeChildPathSegments.join('/'), 'child-a0/child-b/child-c');
-        root.activeChildPathSegments = ['child-a0', 'child-b'];
-        expect(root.activeChildPathSegments.join('/'), 'child-a0/child-b');
+        childC.isVisible = true;
+        expect(root.visibleChildPathSegments.join('/'),
+            'child-a0/child-b/child-c');
+        root.visibleChildPathSegments = ['child-a0', 'child-b'];
+        expect(root.visibleChildPathSegments.join('/'), 'child-a0/child-b');
       });
 
       test('should handle ".." as parent segment', () {
         init();
-        childC.activeChildPathSegments = ['..', '..', '..', 'child-a1'];
-        expect(root.activeChildPathSegments.join('/'), 'child-a1');
+        childC.visibleChildPathSegments = ['..', '..', '..', 'child-a1'];
+        expect(root.visibleChildPathSegments.join('/'), 'child-a1');
       });
 
       test('should handle "." the element itself', () {
         init();
-        childC.activeChildPathSegments = ['.', '..', 'child-b'];
+        childC.visibleChildPathSegments = ['.', '..', 'child-b'];
       });
     });
 
@@ -913,25 +914,25 @@ main() {
       test('Should activate the given relative path', () {
         init();
         root.navigateTo('child-a0/child-b/child-c');
-        expect(root.activeChildPath, 'child-a0/child-b/child-c');
+        expect(root.visibleChildPath, 'child-a0/child-b/child-c');
       });
 
       test('Should activate the given absolute path', () {
         init();
         childC.navigateTo('/child-a1');
-        expect(root.activeChildPath, 'child-a1');
+        expect(root.visibleChildPath, 'child-a1');
       });
 
       test('Should interpret ".." as parent element', () {
         init();
         childC.navigateTo('../../');
-        expect(root.activeChildPath, 'child-a0');
+        expect(root.visibleChildPath, 'child-a0');
       });
 
       test('Should interpret "." as the element itself', () {
         init();
         childB.navigateTo('./child-c');
-        expect(root.activeChildPath, 'child-a0/child-b/child-c');
+        expect(root.visibleChildPath, 'child-a0/child-b/child-c');
       });
     });
 
@@ -1132,12 +1133,12 @@ main() {
         expect(root.param('unknownParam')?.value, 123);
       });
 
-      test('should restore active and previously active child', () {
+      test('should restore visible and previously visible child', () {
         root.json =
-            '{"${GgRouteTreeNode.activeChildJsonKey}": "int", "${GgRouteTreeNode.previouslyActiveChildJsonKey}": "bool"}';
+            '{"${GgRouteTreeNode.visibleChildJsonKey}": "int", "${GgRouteTreeNode.previouslyVisibleChildJsonKey}": "bool"}';
 
-        expect(root.activeChild, root.child('int'));
-        expect(root.previouslyActiveChild, root.child('bool'));
+        expect(root.visibleChild, root.child('int'));
+        expect(root.previouslyVisibleChild, root.child('bool'));
       });
     });
 
@@ -1175,17 +1176,17 @@ main() {
         expect(parsedGrand.param('foo')?.value, parsedFoo);
       });
 
-      test('should also save active and previously active child', () {
+      test('should also save visible and previously visible child', () {
         final root = GgRouteTreeNode(name: '_ROOT_');
-        root.child('previouslyActiveChild').isActive = true;
-        root.child('activeChild').isActive = true;
+        root.child('previouslyVisibleChild').isVisible = true;
+        root.child('visibleChild').isVisible = true;
         final json = root.json;
 
         final rootCopy = GgRouteTreeNode(name: '_ROOT_');
         rootCopy.json = json;
-        expect(rootCopy.activeChild, rootCopy.child('activeChild'));
-        expect(rootCopy.previouslyActiveChild,
-            rootCopy.child('previouslyActiveChild'));
+        expect(rootCopy.visibleChild, rootCopy.child('visibleChild'));
+        expect(rootCopy.previouslyVisibleChild,
+            rootCopy.child('previouslyVisibleChild'));
       });
     });
   });

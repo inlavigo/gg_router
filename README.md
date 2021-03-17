@@ -123,12 +123,12 @@ Navigation buttons and `GgRouter` widgets can be used side by side. Navigation
 elements can use `GgRouter.of(context)` to perform various routing operations:
 
 - Use `GgRouter.of(context).navigateTo('...')` to navigate to a route.
-- Use `GgRouter.of(context).routeNameOfActiveChild` to find out which child
-  route is currently active.
-- Use `GgRouter.of(context).indexOfActiveChild` to find out which of the items
-  in a `BottomNavigationBar` need to be styled as active elements.
-- Use `GgRouter.of(context).onActiveChildChange` to rebuild the navigation bar,
-  when the active child changes.
+- Use `GgRouter.of(context).routeNameOfVisibleChild` to find out which child
+  route is currently visible.
+- Use `GgRouter.of(context).indexOfVisibleChild` to find out which of the items
+  in a `BottomNavigationBar` need to be styled as visible elements.
+- Use `GgRouter.of(context).onVisibleChildChange` to rebuild the navigation bar,
+  when the visible child changes.
 
 ## URI query params
 

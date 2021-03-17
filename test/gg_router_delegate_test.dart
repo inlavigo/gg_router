@@ -20,7 +20,7 @@ main() {
     late GgRouterCore router;
 
     const exampleData =
-        '{"routeB":{"b": 1234}, "${GgRouteTreeNode.activeChildJsonKey}":"routeB"}';
+        '{"routeB":{"b": 1234}, "${GgRouteTreeNode.visibleChildJsonKey}":"routeB"}';
 
     // .........................................................................
     setUp(
@@ -69,7 +69,7 @@ main() {
       await setUp(tester);
 
       // ...........................................
-      // should inform when the active route changes
+      // should inform when the visible route changes
       bool routeDidChange = false;
       routerDelegate.addListener(() => routeDidChange = true);
       await tester.pumpAndSettle();
@@ -102,12 +102,12 @@ main() {
           .setInitialRoutePath(RouteInformation(location: '/routeC'));
       await tester.pumpAndSettle();
       expect(routerDelegate.currentConfiguration.location!, 'routeC?c=7&d=8');
-      expect(router.node.root.activeChildPath, 'routeC');
+      expect(router.node.root.visibleChildPath, 'routeC');
 
       // ....................................................
       // Should apply RouteInformation to the route node tree
       routerDelegate.setNewRoutePath(RouteInformation(location: '/routeA'));
-      expect(router.node.root.activeChildPath, 'routeA');
+      expect(router.node.root.visibleChildPath, 'routeA');
       expect(routerDelegate.currentConfiguration.location!, 'routeA?a=5');
       await tester.pumpAndSettle();
 
@@ -147,7 +147,7 @@ main() {
         tester,
         restoreState: () => SynchronousFuture(exampleData),
       );
-      expect(routerDelegate.root.activeChildPath, 'routeB');
+      expect(routerDelegate.root.visibleChildPath, 'routeB');
       expect(routerDelegate.root.child('routeB').param('b')?.value, 1234);
     });
 
@@ -166,7 +166,7 @@ main() {
       routerDelegate.root.navigateTo('routeB');
       await tester.pumpAndSettle();
       expect(savedData,
-          contains('"${GgRouteTreeNode.activeChildJsonKey}":"routeB"'));
+          contains('"${GgRouteTreeNode.visibleChildJsonKey}":"routeB"'));
     });
 
     // .........................................................................

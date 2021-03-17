@@ -55,18 +55,18 @@ class GgRouterCore extends StatelessWidget {
   }
 
   // ...........................................................................
-  /// Returns the name of the active child route.
-  /// Returns null if no child is active.
-  String? get routeNameOfActiveChild {
-    return node.activeChild?.name;
+  /// Returns the name of the visible child route.
+  /// Returns null if no child is visible.
+  String? get routeNameOfVisibleChild {
+    return node.visibleChild?.name;
   }
 
   // ...........................................................................
-  /// Returns the index of the active child.
-  /// Returns null, if no child is active.
+  /// Returns the index of the visible child.
+  /// Returns null, if no child is visible.
   /// You can use that index to highlight the right entry in a menu for example.
-  int? get indexOfActiveChild {
-    return node.activeChild?.widgetIndex;
+  int? get indexOfVisibleChild {
+    return node.visibleChild?.widgetIndex;
   }
 
   // ...........................................................................
@@ -76,9 +76,9 @@ class GgRouterCore extends StatelessWidget {
   }
 
   // ...........................................................................
-  /// Use this stream to be informed when the active child changes.
-  Stream<void> get onActiveChildChange {
-    return node.activeChildDidChange;
+  /// Use this stream to be informed when the visible child changes.
+  Stream<void> get onVisibleChildChange {
+    return node.visibleChildDidChange;
   }
 
   // ...........................................................................
@@ -219,7 +219,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   @override
   initState() {
     _initAnimation();
-    _observeActiveNode();
+    _observeVisibleNode();
     _initRootRouterCore();
     super.initState();
   }
@@ -239,16 +239,16 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   final List<Function()> _dispose = [];
 
   // ...........................................................................
-  GgRouteTreeNode? _previousActiveNode;
-  GgRouteTreeNode? _activeNode;
+  GgRouteTreeNode? _previousVisibleNode;
+  GgRouteTreeNode? _visibleNode;
 
   // ...........................................................................
-  _observeActiveNode() {
+  _observeVisibleNode() {
     // .........................................................................
-    // If widget is a root widget, the root node will always be the active node.
+    // If widget is a root widget, the root node will always be the visible node.
     if (widget._isRoot) {
-      _previousActiveNode = null;
-      _activeNode = widget._rootNode;
+      _previousVisibleNode = null;
+      _visibleNode = widget._rootNode;
       return;
     }
 
@@ -261,37 +261,37 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     _createChildNodes(parentNode);
 
     // ........................
-    // Observe the active child
-    final s = parentNode.activeChildDidChange.listen((_) {
-      _updateActiveChild();
+    // Observe the visible child
+    final s = parentNode.visibleChildDidChange.listen((_) {
+      _updateVisibleChild();
     });
 
-    _updateActiveChild();
+    _updateVisibleChild();
 
     _dispose.add(s.cancel);
   }
 
   // ...........................................................................
-  _updateActiveChild() {
+  _updateVisibleChild() {
     final parentNode = GgRouter.of(context).node;
 
-    // If parentNode is not active, we do not change anything.
-    if (!parentNode.isActive) {
+    // If parentNode is not visible, we do not change anything.
+    if (!parentNode.isVisible) {
       return;
     }
 
-    // Let's get the active child
-    GgRouteTreeNode? newActiveNode = parentNode.activeChild;
+    // Let's get the visible child
+    GgRouteTreeNode? newVisibleNode = parentNode.visibleChild;
 
     // ....................................................................
     // Delete the node from the tree if no widget for the node is existing
-    bool routeIsValid = newActiveNode == null ||
-        widget.children.keys.contains(newActiveNode.name);
+    bool routeIsValid = newVisibleNode == null ||
+        widget.children.keys.contains(newVisibleNode.name);
 
     if (!routeIsValid) {
-      final invalidNode = newActiveNode;
-      newActiveNode = parentNode.previouslyActiveChild;
-      newActiveNode?.isActive = true;
+      final invalidNode = newVisibleNode;
+      newVisibleNode = parentNode.previouslyVisibleChild;
+      newVisibleNode?.isVisible = true;
       parentNode.removeChild(invalidNode);
       parentNode.setError(
         GgRouteTreeNodeError(
@@ -312,25 +312,25 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     });
 
     // ...................................................
-    // If no active child is defined, take the index route
-    if (newActiveNode == null) {
-      newActiveNode = widget.children.containsKey('_INDEX_')
+    // If no visible child is defined, take the index route
+    if (newVisibleNode == null) {
+      newVisibleNode = widget.children.containsKey('_INDEX_')
           ? parentNode.child('_INDEX_')
           : null;
     }
 
     // ............................................................
-    // If no active child is defined and no index route is defined,
+    // If no visible child is defined and no index route is defined,
     // take the first possible child.
-    if (newActiveNode == null) {
-      newActiveNode = parentNode.child(widget.children.keys.first);
+    if (newVisibleNode == null) {
+      newVisibleNode = parentNode.child(widget.children.keys.first);
     }
 
     // .............................
     // Activate the node to be shown
     setState(() {
-      _previousActiveNode = _activeNode;
-      _activeNode = newActiveNode;
+      _previousVisibleNode = _visibleNode;
+      _visibleNode = newVisibleNode;
     });
   }
 
@@ -347,22 +347,22 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
   // ...........................................................................
   Widget _buildRoot(BuildContext context) {
-    widget._rootNode!.isActive = true;
+    widget._rootNode!.isVisible = true;
     return rootRouterCore!;
   }
 
   // ...........................................................................
   Widget _buildNonRoot(BuildContext context) {
-    // Make sure, the shown active node is marked as beeing active
-    _activeNode?.isActive = true;
+    // Make sure, the shown visible node is marked as beeing visible
+    _visibleNode?.isVisible = true;
 
     // .....................................
     // Show the widget belonging to the node
     final appearingWidget =
-        _activeNode != null ? widget.children[_activeNode!.name] : null;
+        _visibleNode != null ? widget.children[_visibleNode!.name] : null;
 
-    final disappearingWidget = _previousActiveNode != null
-        ? widget.children[_previousActiveNode!.name]
+    final disappearingWidget = _previousVisibleNode != null
+        ? widget.children[_previousVisibleNode!.name]
         : null;
 
     // ...............................
@@ -381,26 +381,26 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
       return _animate(
         appearingWidget,
         disappearingWidget,
-        _activeNode!,
-        _previousActiveNode!,
+        _visibleNode!,
+        _previousVisibleNode!,
       );
     }
 
     // ....................................................
-    // If no animation is needed, only show the active node
+    // If no animation is needed, only show the visible node
     else {
       if (_animation.isCompleted) {
         _animation.reset();
       }
 
-      return _activeNode != null
+      return _visibleNode != null
           ? GgRouterCore(
               child: Builder(
                 builder: (context) {
                   return appearingWidget?.call(context) ?? Container();
                 },
               ),
-              node: _activeNode!)
+              node: _visibleNode!)
           : Container();
     }
   }

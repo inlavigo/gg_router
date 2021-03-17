@@ -92,7 +92,7 @@ class GgRouterExample extends StatelessWidget {
   }
 
   // ...........................................................................
-  Widget _text(String text, BuildContext context, bool isActive) {
+  Widget _text(String text, BuildContext context, bool isVisible) {
     final theme = Theme.of(context);
     final onPrimary = theme.colorScheme.onPrimary;
     final onPrimaryInactive = onPrimary.withAlpha(120);
@@ -100,7 +100,7 @@ class GgRouterExample extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Text(
         text,
-        style: TextStyle(color: isActive ? onPrimary : onPrimaryInactive),
+        style: TextStyle(color: isVisible ? onPrimary : onPrimaryInactive),
       ),
     );
   }
@@ -122,13 +122,13 @@ class GgRouterExample extends StatelessWidget {
       final router = GgRouter.of(context);
 
       return StreamBuilder(
-        stream: router.onActiveChildChange,
+        stream: router.onVisibleChildChange,
         builder: (context, snapshot) {
-          final isActive = router.routeNameOfActiveChild == route;
+          final isVisible = router.routeNameOfVisibleChild == route;
           return TextButton(
             key: ValueKey(route),
             onPressed: () => router.navigateTo('$route/_LAST_'),
-            child: _text(title, context, isActive),
+            child: _text(title, context, isVisible),
           );
         },
       );
@@ -209,9 +209,9 @@ class GgRouterExample extends StatelessWidget {
     return Scaffold(
       key: ValueKey('sportsPage'),
       bottomNavigationBar: StreamBuilder(
-          stream: router.onActiveChildChange,
+          stream: router.onVisibleChildChange,
           builder: (context, snapshot) {
-            final index = router.indexOfActiveChild ?? 0;
+            final index = router.indexOfVisibleChild ?? 0;
 
             return BottomNavigationBar(
               currentIndex: index,
@@ -280,9 +280,9 @@ class GgRouterExample extends StatelessWidget {
     return Scaffold(
       key: ValueKey('transportationPage'),
       bottomNavigationBar: StreamBuilder(
-          stream: router.onActiveChildChange,
+          stream: router.onVisibleChildChange,
           builder: (context, snapshot) {
-            final index = router.indexOfActiveChild ?? 0;
+            final index = router.indexOfVisibleChild ?? 0;
 
             return BottomNavigationBar(
               currentIndex: index,
@@ -336,16 +336,16 @@ class GgRouterExample extends StatelessWidget {
     return Scaffold(
       bottomNavigationBar: StreamBuilder(
           key: ValueKey('placesPage'),
-          stream: router.onActiveChildChange,
+          stream: router.onVisibleChildChange,
           builder: (context, snapshot) {
-            final index = router.indexOfActiveChild ?? 0;
+            final index = router.indexOfVisibleChild ?? 0;
 
             return BottomNavigationBar(
               currentIndex: index,
               items: [
                 BottomNavigationBarItem(
                   label: 'Airpot',
-                  icon: Icon(Icons.airplanemode_active),
+                  icon: Icon(Icons.airplanemode_visible),
                 ),
                 BottomNavigationBarItem(
                   label: 'Park',

@@ -53,7 +53,7 @@ main() {
     final router = GgRouter.of(context);
     lastBuiltNode = router.node;
     routeSegment = GgRouter.of(context).routeName;
-    childRouteSegment = GgRouter.of(context).routeNameOfActiveChild;
+    childRouteSegment = GgRouter.of(context).routeNameOfVisibleChild;
     routePath = GgRouter.of(context).routePath;
     return Container();
   };
@@ -215,7 +215,7 @@ main() {
       expect(b0.widgetIndex, 2);
 
       // Now activate /a0 and check if node the hierarchy was rebuilt
-      a0.isActive = true;
+      a0.isVisible = true;
       await tester.pumpAndSettle();
       update();
       expect(lastBuiltNode.path, '/a0/_INDEX_');
@@ -224,26 +224,26 @@ main() {
       expect(childRouteSegment, null);
 
       // Now activate /a0/a11 and check if node the hierarchy was rebuilt
-      a11.isActive = true;
+      a11.isVisible = true;
       await tester.pumpAndSettle();
       update();
       expect(lastBuiltNode.path, '/a0/a11');
       expect(routeSegment, 'a11');
       expect(routePath, '/a0/a11');
 
-      // Now activate /b0 -> /b0/b10 should become active
-      lastBuiltNode.parent!.parent!.child('b0').isActive = true;
+      // Now activate /b0 -> /b0/b10 should become visible
+      lastBuiltNode.parent!.parent!.child('b0').isVisible = true;
       await tester.pumpAndSettle();
       expect(lastBuiltNode.path, '/b0/b10');
 
-      // Now activate /b11 -> /b0/b11 should become active
-      lastBuiltNode.parent!.child('b11').isActive = true;
+      // Now activate /b11 -> /b0/b11 should become visible
+      lastBuiltNode.parent!.child('b11').isVisible = true;
       await tester.pumpAndSettle();
       expect(lastBuiltNode.path, '/b0/b11');
 
       // Now let's activate an invalid route. ->
-      // The previous defined route should stay active
-      lastBuiltNode.parent!.child('unknown').isActive = true;
+      // The previous defined route should stay visible
+      lastBuiltNode.parent!.child('unknown').isVisible = true;
       await tester.pumpAndSettle();
       await tester.pumpAndSettle();
       expect(lastBuiltNode.path, '/b0/b11');
@@ -254,11 +254,11 @@ main() {
       routerDelegate.addListener(() {
         lastUpdateUrl = routerDelegate.currentConfiguration.location;
       });
-      lastBuiltNode.parent!.parent!.activeChildPathSegments = ['a0', 'a11'];
+      lastBuiltNode.parent!.parent!.visibleChildPathSegments = ['a0', 'a11'];
       await tester.pumpAndSettle();
       expect(lastUpdateUrl, 'a0/a11');
 
-      lastBuiltNode.parent!.parent!.activeChildPathSegments = ['b0', 'b10'];
+      lastBuiltNode.parent!.parent!.visibleChildPathSegments = ['b0', 'b10'];
       await tester.pumpAndSettle();
       expect(lastUpdateUrl, 'b0/b10');
 
@@ -393,10 +393,10 @@ main() {
         expect(childRouter.routeName, 'childRouteA');
 
         // .......................................................
-        // GgRouter.of(context).routeNameOfActiveChild should give the name
-        // of the active child route, or null if no child route is active.
-        expect(router.routeNameOfActiveChild, 'childRouteA');
-        expect(childRouter.routeNameOfActiveChild, null);
+        // GgRouter.of(context).routeNameOfVisibleChild should give the name
+        // of the visible child route, or null if no child route is visible.
+        expect(router.routeNameOfVisibleChild, 'childRouteA');
+        expect(childRouter.routeNameOfVisibleChild, null);
 
         // .......................................................
         // GgRouter.of(context).routePath should give the complete path
@@ -414,30 +414,30 @@ main() {
         expect(rootRouter2, rootRouter);
 
         // .......................................................
-        // GgRouter.of(context).indexOfActiveChild should give the index
-        // of the active child route, or null if no child route is active.
-        expect(rootRouter.indexOfActiveChild, 0);
-        expect(childRouter.indexOfActiveChild, null);
+        // GgRouter.of(context).indexOfVisibleChild should give the index
+        // of the visible child route, or null if no child route is visible.
+        expect(rootRouter.indexOfVisibleChild, 0);
+        expect(childRouter.indexOfVisibleChild, null);
         router.navigateTo('/routeC');
-        expect(rootRouter.routeNameOfActiveChild, 'routeC');
+        expect(rootRouter.routeNameOfVisibleChild, 'routeC');
         await tester.pumpAndSettle();
-        expect(rootRouter.routeNameOfActiveChild, 'routeC');
-        expect(rootRouter.indexOfActiveChild, 2);
+        expect(rootRouter.routeNameOfVisibleChild, 'routeC');
+        expect(rootRouter.indexOfVisibleChild, 2);
 
         // .......................................................
-        // GgRouter.of(context).onActiveChildChange should inform, when the
-        // active child changes
-        bool? onActiveChildChangeDidFire;
-        final s = router.onActiveChildChange
-            .listen((event) => onActiveChildChangeDidFire = true);
+        // GgRouter.of(context).onVisibleChildChange should inform, when the
+        // visible child changes
+        bool? onVisibleChildChangeDidFire;
+        final s = router.onVisibleChildChange
+            .listen((event) => onVisibleChildChangeDidFire = true);
 
         await tester.pumpAndSettle();
-        expect(onActiveChildChangeDidFire, isNull);
+        expect(onVisibleChildChangeDidFire, isNull);
 
         // GgRouter.of(context).navigateTo() should allow to navigate relatively
         router.navigateTo('../routeB');
         await tester.pumpAndSettle();
-        expect(onActiveChildChangeDidFire, true);
+        expect(onVisibleChildChangeDidFire, true);
 
         expect(router.routePath, '/routeB');
         expect(childRouter.routePath, '/routeB/childRouteB');
@@ -471,7 +471,7 @@ main() {
 
     // .........................................................................
     testWidgets(
-        'should update indexOfActiveChild when order of widgets changes',
+        'should update indexOfVisibleChild when order of widgets changes',
         (WidgetTester tester) async {
       routeInformationProvider = TestRouteInformationProvider();
 
@@ -489,20 +489,20 @@ main() {
                 // and on second place in variant 2.
                 final routeA = (_) {
                   final router = GgRouter.of(context);
-                  final indexOfActiveChild = router.indexOfActiveChild;
+                  final indexOfVisibleChild = router.indexOfVisibleChild;
                   if (showAAtFirstPlace.value) {
-                    expect(indexOfActiveChild, 0);
-                    expect(router.routeNameOfActiveChild, 'a');
+                    expect(indexOfVisibleChild, 0);
+                    expect(router.routeNameOfVisibleChild, 'a');
                   } else {
-                    expect(indexOfActiveChild, 1);
-                    expect(router.routeNameOfActiveChild, 'a');
+                    expect(indexOfVisibleChild, 1);
+                    expect(router.routeNameOfVisibleChild, 'a');
                   }
 
                   return Container();
                 };
 
                 return StreamBuilder(
-                    stream: GgRouter.of(context).onActiveChildChange,
+                    stream: GgRouter.of(context).onVisibleChildChange,
                     builder: (context, snapshot) {
                       // Exchange the places of route 'a'
                       return showAAtFirstPlace.value
@@ -578,7 +578,7 @@ main() {
         // Create a router delegate
         final routerDelegate = GgRouterDelegate(child: router);
         final root = routerDelegate.root;
-        root.child('routeA').isActive = true;
+        root.child('routeA').isVisible = true;
 
         // .............
         // Create an app
@@ -597,7 +597,7 @@ main() {
 
         // ..........................
         // Now let's switch to routeB
-        root.child('routeB').isActive = true;
+        root.child('routeB').isVisible = true;
 
         // ..........................
         // At the beginning both, routeA and routeB should be visbible

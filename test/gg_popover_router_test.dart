@@ -68,7 +68,7 @@ main() {
       expect(ggOverlayRouter.height, 600);
 
       // Initially only the base widget is shown
-      expect(baseRouter.node.root.activeChildPath, '');
+      expect(baseRouter.node.root.visibleChildPath, '');
       expect(routeOnTopRouter, isNull);
       expect(find.byKey(baseKey), findsOneWidget);
       expect(find.byKey(routeOnTop0Key), findsNothing);

@@ -7,6 +7,7 @@
   * Create different animations for different route transitions
 * `GgPopoverRouter` was renamed in `GgPopoverRouter`
 * Index routes must not be named with empty name. The must get the name `_INDEX_.
+* Renamed several identifiers.
 
 
 ## 1.0.0-beta.4 - March 13th, 2021

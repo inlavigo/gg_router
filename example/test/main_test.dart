@@ -139,7 +139,7 @@ main() {
     }
 
     // .........................................................................
-    testWidgets('should only show the active route page',
+    testWidgets('should only show the visible route page',
         (WidgetTester tester) async {
       // ................................
       // Check the inital size of the app
@@ -310,7 +310,7 @@ main() {
 
       // .............................
       // Switch back to sports page
-      // => last opened page should be active again
+      // => last opened page should be visible again
       await sportsButton.press();
       update(tester);
       expect(currentUri, startsWith('sports/football'));
@@ -414,15 +414,15 @@ main() {
     testWidgets('The last state should be loaded from shared preferences.',
         (WidgetTester tester) async {
       // ................................................................
-      // Define an application state which makes transportion/bus active
+      // Define an application state which makes transportion/bus visible
       // by default.
 
-      final activeChildKey = GgRouteTreeNode.activeChildJsonKey;
+      final visibleChildKey = GgRouteTreeNode.visibleChildJsonKey;
       final lastState = '''
       {
-        "$activeChildKey":"transportation",
+        "$visibleChildKey":"transportation",
         "transportation":{
-        "$activeChildKey":"bus"
+        "$visibleChildKey":"bus"
         }
       }
       ''';
@@ -432,7 +432,7 @@ main() {
       await setUp(tester, lastState: lastState);
       await tester.pumpAndSettle();
       update(tester);
-      expect(routerDelegate.root.activeChildPath, 'transportation/bus');
+      expect(routerDelegate.root.visibleChildPath, 'transportation/bus');
       expect(indexPage, isNull);
       expect(sportsPage, isNull);
       expect(transportationPage, isNotNull);
@@ -444,7 +444,7 @@ main() {
         (WidgetTester tester) async {
       initSharedPreferences();
 
-      final activeChildKey = GgRouteTreeNode.activeChildJsonKey;
+      final visibleChildKey = GgRouteTreeNode.visibleChildJsonKey;
       // .......................................
       // Start the application, and expect that it is on transportation/bus
       await setUp(tester);
@@ -457,7 +457,7 @@ main() {
       expect(placesPage, isNotNull);
       final preferences = await SharedPreferences.getInstance();
       expect(preferences.getString('lastApplicationState'),
-          contains('"$activeChildKey":"hospital"'));
+          contains('"$visibleChildKey":"hospital"'));
     });
   });
 }

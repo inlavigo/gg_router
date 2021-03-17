@@ -96,12 +96,12 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   @override
   RouteInformation get currentConfiguration {
     Map<String, dynamic> queryParameters = {};
-    _root.activeParams.values.forEach((param) {
+    _root.visibleParams.values.forEach((param) {
       queryParameters[param.name!] = param.value.toString();
     });
 
     final uri = Uri(
-      pathSegments: _root.activeChildPathSegments
+      pathSegments: _root.visibleChildPathSegments
           .where((element) => element != '_INDEX_'),
       queryParameters: queryParameters.length > 0 ? queryParameters : null,
     );
@@ -140,14 +140,14 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
         return SynchronousFuture(null);
       }
 
-      _root.activeChildPathSegments = uri.pathSegments;
+      _root.visibleChildPathSegments = uri.pathSegments;
       final Map<String, String> uriParams = {};
 
       if (uri.hasQuery) {
-        final activeParams = _root.activeParams;
+        final visibleParams = _root.visibleParams;
         uri.queryParameters.forEach((key, value) {
-          if (activeParams.containsKey(key)) {
-            activeParams[key]!.stringValue = value;
+          if (visibleParams.containsKey(key)) {
+            visibleParams[key]!.stringValue = value;
           } else {
             uriParams[key] = value;
           }
@@ -170,7 +170,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
   // ...........................................................................
   _listenToRouteChanges() {
-    final s = _root.activeDescendantsDidChange.listen((event) {
+    final s = _root.visibleDescendantsDidChange.listen((event) {
       notifyListeners();
       _saveStateTrigger.trigger();
     });

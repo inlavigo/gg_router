@@ -22,7 +22,7 @@ class GgRouteParam<T> {
 
 // #############################################################################
 /// Use this widget to insert a list of route parameters into the currently
-/// active route.
+/// visible route.
 class GgRouteParams extends StatelessWidget {
   // ...........................................................................
   /// Constructor.

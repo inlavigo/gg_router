@@ -17,7 +17,7 @@ class GgPopoverRouter extends StatelessWidget {
   /// - [backgroundWidget] The background widget.
   /// - [foregroundRoutes] A list of routes which are shown infront of
   ///   [backgroundWidget]. Only the route is shown which matches the currently
-  ///   active path segment.
+  ///   visible path segment.
   GgPopoverRouter({
     required Key key,
     required this.backgroundWidget,
@@ -30,17 +30,17 @@ class GgPopoverRouter extends StatelessWidget {
 
   // ...........................................................................
   /// The list of routes which are shown infront of the [backgroundWidget].
-  /// Only the route belonging to the active child route is shown.
+  /// Only the route belonging to the visible child route is shown.
   final Map<String, Widget Function(BuildContext)> foregroundRoutes;
 
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: GgRouter.of(context).onActiveChildChange,
+      stream: GgRouter.of(context).onVisibleChildChange,
       builder: (context, snapshot) {
         final node = GgRouter.of(context).node;
-        if (node.activeChild == null) {
+        if (node.visibleChild == null) {
           return backgroundWidget;
         } else {
           return Stack(
@@ -48,7 +48,7 @@ class GgPopoverRouter extends StatelessWidget {
               backgroundWidget,
               GgRouter(
                 foregroundRoutes,
-                key: ValueKey(node.activeChild!.pathHashCode),
+                key: ValueKey(node.visibleChild!.pathHashCode),
               ),
             ],
           );

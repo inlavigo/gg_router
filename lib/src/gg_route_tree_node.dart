@@ -178,9 +178,9 @@ class GgRouteTreeNode {
     _initParams();
     _initPath();
     _initChildren();
-    _initIsActive();
-    _initActiveChild();
-    _initActiveDescendants();
+    _initIsVisible();
+    _initVisibleChild();
+    _initVisibleDescendants();
     _initOwnOrChildParamChange();
     _initSubscriptions();
   }
@@ -234,42 +234,42 @@ class GgRouteTreeNode {
   int? widgetIndex;
 
   // ######################
-  // isActive
+  // isVisible
   // ######################
 
   // ...........................................................................
-  /// Marks this node as active or inactive.
+  /// Marks this node as visible or invisible.
   ///
-  /// - [isActive] = true: Also the parent nodes are set to active.
-  /// - [isActive] = false: Also all child nodes are set to inactive.
+  /// - [isVisible] = true: Also the parent nodes are set to visible.
+  /// - [isVisible] = false: Also all child nodes are set to invisible.
   /// - At a time only one path in the tree can be cative.
-  set isActive(bool isActive) {
-    if (_isActive.value == isActive) {
+  set isVisible(bool isVisible) {
+    if (_isVisible.value == isVisible) {
       return;
     }
 
-    _isActive.value = isActive;
+    _isVisible.value = isVisible;
 
-    // Mark also ancestors to be active
-    if (isActive) {
-      _previouslyActiveChild?.isActive = true;
-      parent?._childBecameActive(this);
+    // Mark also ancestors to be visible
+    if (isVisible) {
+      _previouslyVisibleChild?.isVisible = true;
+      parent?._childBecameVisible(this);
     }
-    // Mark also children to be inactive
+    // Mark also children to be invisible
     else {
-      _previouslyActiveChild = _activeChild.value;
-      _children.values.forEach((child) => child.isActive = false);
-      parent?._childBecameInactive(this);
+      _previouslyVisibleChild = _visibleChild.value;
+      _children.values.forEach((child) => child.isVisible = false);
+      parent?._childBecameInvisible(this);
     }
   }
 
   // ...........................................................................
-  /// Returns true if this node is active.
-  bool get isActive => _isActive.value;
+  /// Returns true if this node is visible.
+  bool get isVisible => _isVisible.value;
 
   // ...........................................................................
-  /// Returns a stream informing when isActive changes.
-  Stream<bool> get onIsActive => _isActive.stream;
+  /// Returns a stream informing when isVisible changes.
+  Stream<bool> get onIsVisible => _isVisible.stream;
 
   // ######################
   // Children
@@ -320,7 +320,7 @@ class GgRouteTreeNode {
   /// Returns descendant that matches the path. Creates the node when needed.
   /// - `.` addresses node itself
   /// - `..` addresses parent node
-  /// - '_LAST_' - addresses child that was last active
+  /// - '_LAST_' - addresses child that was last visible
   GgRouteTreeNode descendand({required List<String> path}) {
     var result = this;
     path.forEach((element) {
@@ -332,18 +332,18 @@ class GgRouteTreeNode {
         }
         result = result.parent!;
       } else if (element == '_LAST_') {
-        GgRouteTreeNode? previouslyActiveChild =
-            result._currentOrPreviouslyActiveChild;
+        GgRouteTreeNode? previouslyVisibleChild =
+            result._currentOrPreviouslyVisibleChild;
 
         if (path.last == element) {
-          while (
-              previouslyActiveChild?._currentOrPreviouslyActiveChild != null) {
-            previouslyActiveChild =
-                previouslyActiveChild!._currentOrPreviouslyActiveChild;
+          while (previouslyVisibleChild?._currentOrPreviouslyVisibleChild !=
+              null) {
+            previouslyVisibleChild =
+                previouslyVisibleChild!._currentOrPreviouslyVisibleChild;
           }
         }
 
-        result = previouslyActiveChild ?? result;
+        result = previouslyVisibleChild ?? result;
       } else {
         result = result.child(element);
       }
@@ -353,43 +353,43 @@ class GgRouteTreeNode {
   }
 
   // ######################
-  // Active child
+  // Visible child
   // ######################
 
   // ...........................................................................
-  /// Returns the active child or null if no child is active.
-  GgRouteTreeNode? get activeChild => _activeChild.value;
+  /// Returns the visible child or null if no child is visible.
+  GgRouteTreeNode? get visibleChild => _visibleChild.value;
 
   // ...........................................................................
-  /// Informs if the active child did change.
-  Stream<GgRouteTreeNode?> get activeChildDidChange => _activeChild.stream;
+  /// Informs if the visible child did change.
+  Stream<GgRouteTreeNode?> get visibleChildDidChange => _visibleChild.stream;
 
   // ...........................................................................
-  /// Returns the child that was previously active.
-  GgRouteTreeNode? get previouslyActiveChild => _previouslyActiveChild;
+  /// Returns the child that was previously visible.
+  GgRouteTreeNode? get previouslyVisibleChild => _previouslyVisibleChild;
 
   // ######################
-  // Active Descendants
+  // Visible Descendants
   // ######################
 
   // ...........................................................................
-  /// Returns a list containing all active descendants.
-  List<GgRouteTreeNode> get activeDescendants {
-    GgRouteTreeNode? activeChild = _activeChild.value;
+  /// Returns a list containing all visible descendants.
+  List<GgRouteTreeNode> get visibleDescendants {
+    GgRouteTreeNode? visibleChild = _visibleChild.value;
 
     final List<GgRouteTreeNode> result = [];
-    while (activeChild != null) {
-      result.add(activeChild);
-      activeChild = activeChild.activeChild;
+    while (visibleChild != null) {
+      result.add(visibleChild);
+      visibleChild = visibleChild.visibleChild;
     }
 
     return result;
   }
 
   // ...........................................................................
-  /// A stream that informs when the active descendants change.
-  Stream<List<GgRouteTreeNode>> get activeDescendantsDidChange =>
-      _activeDescendants.stream;
+  /// A stream that informs when the visible descendants change.
+  Stream<List<GgRouteTreeNode>> get visibleDescendantsDidChange =>
+      _visibleDescendants.stream;
 
   // ######################
   // Params
@@ -449,13 +449,13 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  /// Returns all parameters of the active path.
-  Map<String, GgValue> get activeParams {
+  /// Returns all parameters of the visible path.
+  Map<String, GgValue> get visibleParams {
     Map<String, GgValue> result = {};
     GgRouteTreeNode? node = this;
     while (node != null) {
       result.addAll(node._params._params);
-      node = node.activeChild;
+      node = node.visibleChild;
     }
 
     return result;
@@ -494,27 +494,27 @@ class GgRouteTreeNode {
   // ######################
 
   // ...........................................................................
-  /// Returns the path of active children as a list of path segments.
-  List<String> get activeChildPathSegments =>
-      activeDescendants.map((e) => e.name).toList();
+  /// Returns the path of visible children as a list of path segments.
+  List<String> get visibleChildPathSegments =>
+      visibleDescendants.map((e) => e.name).toList();
 
   // ...........................................................................
   /// Creates and activates children according to the segments in [path]
   /// - `..` addresses parent node
   /// - `.` addresses node itself
-  set activeChildPathSegments(List<String> path) {
+  set visibleChildPathSegments(List<String> path) {
     final node = descendand(path: path);
-    node.isActive = true;
+    node.isVisible = true;
 
-    node.activeChild?.isActive = false;
+    node.visibleChild?.isVisible = false;
 
     if (path.isEmpty) {
-      activeChild?.isActive = false;
+      visibleChild?.isVisible = false;
     }
   }
 
   // ...........................................................................
-  String get activeChildPath => activeChildPathSegments.join('/');
+  String get visibleChildPath => visibleChildPathSegments.join('/');
 
   // ...........................................................................
   /// Activates the path in the node hierarchy.
@@ -528,7 +528,7 @@ class GgRouteTreeNode {
   // Uri parameters
   // ######################
 
-  /// Use [uriParams] to apply parameters taken from a URI to the active tree.
+  /// Use [uriParams] to apply parameters taken from a URI to the visible tree.
   /// These parameters are used to initialize node parameters.
   Map<String, dynamic> uriParams = {};
 
@@ -589,11 +589,11 @@ class GgRouteTreeNode {
   // ######################
 
   // ...........................................................................
-  /// This key is used to store the active child name to JSON
-  static const activeChildJsonKey = '__activeChild';
+  /// This key is used to store the visible child name to JSON
+  static const visibleChildJsonKey = '__visibleChild';
 
-  /// This key is used to store the previously active child name to JSON
-  static const previouslyActiveChildJsonKey = '__previouslyActiveChild';
+  /// This key is used to store the previously visible child name to JSON
+  static const previouslyVisibleChildJsonKey = '__previouslyVisibleChild';
 
   // ...........................................................................
   /// Reads the JSON string and creates routes and  parameters. Parameters that
@@ -757,73 +757,73 @@ class GgRouteTreeNode {
   }
 
   // ########
-  // isActive
+  // isVisible
 
   // ...........................................................................
-  final _isActive = GgValue(seed: false);
+  final _isVisible = GgValue(seed: false);
 
   // ...........................................................................
-  _initIsActive() {
+  _initIsVisible() {
     _dispose.add(() {
-      if (isActive) {
-        isActive = false;
+      if (isVisible) {
+        isVisible = false;
       }
     });
-    _dispose.add(() => _isActive.dispose());
+    _dispose.add(() => _isVisible.dispose());
   }
 
   // ###########
-  // activeChild
+  // visibleChild
   // ...........................................................................
-  final _activeChild = GgValue<GgRouteTreeNode?>(seed: null);
-  GgRouteTreeNode? _previouslyActiveChild;
+  final _visibleChild = GgValue<GgRouteTreeNode?>(seed: null);
+  GgRouteTreeNode? _previouslyVisibleChild;
 
-  GgRouteTreeNode? get _currentOrPreviouslyActiveChild =>
-      _activeChild.value ?? _previouslyActiveChild;
+  GgRouteTreeNode? get _currentOrPreviouslyVisibleChild =>
+      _visibleChild.value ?? _previouslyVisibleChild;
 
-  _initActiveChild() {
-    _dispose.add(() => _activeChild.dispose());
+  _initVisibleChild() {
+    _dispose.add(() => _visibleChild.dispose());
   }
 
   // ...........................................................................
-  _childBecameActive(GgRouteTreeNode child) {
-    if (_activeChild.value == child) {
+  _childBecameVisible(GgRouteTreeNode child) {
+    if (_visibleChild.value == child) {
       return;
     }
 
-    _previouslyActiveChild = _activeChild.value ?? _previouslyActiveChild;
+    _previouslyVisibleChild = _visibleChild.value ?? _previouslyVisibleChild;
 
-    isActive = true;
-    _activeChild.value?.isActive = false;
-    _activeChild.value = child;
+    isVisible = true;
+    _visibleChild.value?.isVisible = false;
+    _visibleChild.value = child;
 
-    _updateActiveDescendants();
+    _updateVisibleDescendants();
   }
 
   // ...........................................................................
-  _childBecameInactive(GgRouteTreeNode child) {
-    if (_activeChild.value != child) {
+  _childBecameInvisible(GgRouteTreeNode child) {
+    if (_visibleChild.value != child) {
       return;
     }
-    _previouslyActiveChild = _activeChild.value ?? _previouslyActiveChild;
-    _activeChild.value = null;
-    _updateActiveDescendants();
+    _previouslyVisibleChild = _visibleChild.value ?? _previouslyVisibleChild;
+    _visibleChild.value = null;
+    _updateVisibleDescendants();
   }
 
   // #################
-  // activeDescendants
+  // visibleDescendants
 
   // ...........................................................................
-  final _activeDescendants =
+  final _visibleDescendants =
       GgValue<List<GgRouteTreeNode>>(seed: [], compare: listEquals);
 
-  _initActiveDescendants() {
-    _dispose.add(() => _activeDescendants.dispose());
+  _initVisibleDescendants() {
+    _dispose.add(() => _visibleDescendants.dispose());
   }
 
-  _updateActiveDescendants() {
-    _activeDescendants.value = activeDescendants;
-    parent?._updateActiveDescendants();
+  _updateVisibleDescendants() {
+    _visibleDescendants.value = visibleDescendants;
+    parent?._updateVisibleDescendants();
   }
 
   // ################
@@ -831,7 +831,7 @@ class GgRouteTreeNode {
   _navigateTo(String path) {
     final startElement = path.startsWith('/') ? root : this;
     final pathComponents = path.split('/');
-    startElement.activeChildPathSegments = pathComponents;
+    startElement.visibleChildPathSegments = pathComponents;
   }
 
   // ##############
@@ -854,15 +854,15 @@ class GgRouteTreeNode {
           child(key)._parseJson(value);
         } else {
           // .................
-          // Read active child
-          if (key == activeChildJsonKey) {
-            child(value).isActive = true;
+          // Read visible child
+          if (key == visibleChildJsonKey) {
+            child(value).isVisible = true;
           }
 
           // ............................
-          // Read previously active child
-          if (key == previouslyActiveChildJsonKey) {
-            _previouslyActiveChild = child(value);
+          // Read previously visible child
+          if (key == previouslyVisibleChildJsonKey) {
+            _previouslyVisibleChild = child(value);
           }
 
           // ...........
@@ -900,14 +900,14 @@ class GgRouteTreeNode {
   Object _generateJson() {
     final result = Map();
 
-    // Write active child
-    if (_activeChild.value != null) {
-      result[activeChildJsonKey] = _activeChild.value!.name;
+    // Write visible child
+    if (_visibleChild.value != null) {
+      result[visibleChildJsonKey] = _visibleChild.value!.name;
     }
 
-    // Write previously active child
-    if (_previouslyActiveChild != null) {
-      result[previouslyActiveChildJsonKey] = _previouslyActiveChild!.name;
+    // Write previously visible child
+    if (_previouslyVisibleChild != null) {
+      result[previouslyVisibleChildJsonKey] = _previouslyVisibleChild!.name;
     }
 
     // Write parameters
