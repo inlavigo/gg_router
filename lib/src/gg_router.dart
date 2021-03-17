@@ -227,7 +227,6 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   // ...........................................................................
   GgRouteTreeNode? _previousActiveNode;
   GgRouteTreeNode? _activeNode;
-  bool _isIndexRoute = false;
 
   // ...........................................................................
   _observeActiveNode() {
@@ -294,35 +293,19 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     int i = 0;
     widget.children.keys.forEach((key) {
       final child = parentNode.child(key);
-      bool isIndexRoute = child.name.length == 0;
-      if (!isIndexRoute) {
-        child.widgetIndex = i;
-        i++;
-      }
+      child.widgetIndex = i;
+      i++;
     });
-
-    // ..............................................
-    // If parentNode has no activeChild, look, if a child widget with
-    // key "" is defined. If such a child widget is available,
-    // return that child widget directly. This widget will be assigned
-    // to the parent route, therefor no other node needs to be
-    // activated.
-    _isIndexRoute = newActiveNode == null && widget.children.keys.contains("");
-
-    if (_isIndexRoute) {
-      newActiveNode = null;
-    }
 
     // ..............................................
     // If no active child is defined and no index route is defined,
     // take the first possible child.
-    else if (newActiveNode == null) {
+    if (newActiveNode == null) {
       newActiveNode = parentNode.child(widget.children.keys.first);
     }
 
     // .............................
     // Activate the node to be shown
-
     setState(() {
       newActiveNode?.isActive = true;
       _previousActiveNode = _activeNode;
@@ -349,13 +332,6 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
   // ...........................................................................
   Widget _buildNonRoot(BuildContext context) {
-    // If we have an index route, the index route is returned directly.
-    // It will belong to the parent context.
-    if (_isIndexRoute) {
-      final defaultWidget = widget.children[""]!;
-      return defaultWidget(context);
-    }
-
     // .....................................
     // Show the widget belonging to the node
     final appearingWidget =
