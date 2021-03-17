@@ -4,6 +4,8 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -511,49 +513,106 @@ main() {
     });
 
     // #########################################################################
-    // group('Route animations', () {
-    //   testWidgets('switch between two siblings', (WidgetTester tester) async {
-    //     final routeAKey = Key('routeA');
-    //     final routeBKey = Key('routeB');
+    group('Route animations', () {
+      late Text inAnimationWidget;
+      late Text outAnimationWidget;
 
-    //     // ................................
-    //     // Create a route with two siblings
-    //     final router = GgRouter({
-    //       'routeA': (context) => Container(key: routeAKey),
-    //       'routeB': (context) => Container(key: routeBKey),
-    //     });
+      update(WidgetTester tester) {
+        inAnimationWidget =
+            tester.widget(find.byKey(Key('inAnimation'))) as Text;
+        outAnimationWidget =
+            tester.widget(find.byKey(Key('outAnimation'))) as Text;
+      }
 
-    //     // ........................
-    //     // Create a router delegate
-    //     final routerDelegate = GgRouterDelegate(child: router);
-    //     final root = routerDelegate.root;
-    //     root.child('routeA').isActive = true;
+      testWidgets('should animate route transitions',
+          (WidgetTester tester) async {
+        final routeAKey = Key('routeA');
+        final routeBKey = Key('routeB');
 
-    //     // .............
-    //     // Create an app
-    //     await tester.pumpWidget(
-    //       MaterialApp.router(
-    //         routeInformationParser: GgRouteInformationParser(),
-    //         routerDelegate: routerDelegate,
-    //       ),
-    //     );
-    //     await tester.pumpAndSettle();
+        // ................................
+        // Create a route with two siblings
+        final router = GgRouter(
+          {
+            'routeA': (context) => Container(key: routeAKey),
+            'routeB': (context) => Container(key: routeBKey),
+          },
 
-    //     // ......................................
-    //     // At the beginning routeA should be shown
-    //     expect(find.byKey(routeAKey), findsOneWidget);
-    //     expect(find.byKey(routeBKey), findsNothing);
+          // Wrap animated widgets into a stack showing a text with the
+          // animation value
+          inAnimation: (context, animation, child, nodeIn, nodeOut) => Stack(
+            children: [
+              child,
+              Text(
+                '${animation.value}',
+                key: Key('inAnimation'),
+              )
+            ],
+          ),
+          outAnimation: (context, animation, child, nodeIn, nodeOut) => Stack(
+            children: [
+              child,
+              Text(
+                '${animation.value}',
+                key: Key('outAnimation'),
+              )
+            ],
+          ),
+          animationDuration: Duration(milliseconds: 1000),
+        );
 
-    //     // ..........................
-    //     // Now let's switch to routeB
-    //     root.child('childB').isActive = true;
+        // ........................
+        // Create a router delegate
+        final routerDelegate = GgRouterDelegate(child: router);
+        final root = routerDelegate.root;
+        root.child('routeA').isActive = true;
 
-    //     // At the beginning both, routeA and routeB should be visbible
-    //     // because both are animating
-    //     tester.pumpFrames(router, Duration(milliseconds: 1));
-    //     expect(find.byKey(routeAKey), findsOneWidget);
-    //     expect(find.byKey(routeBKey), findsOneWidget);
-    //   });
-    // });
+        // .............
+        // Create an app
+        await tester.pumpWidget(
+          MaterialApp.router(
+            routeInformationParser: GgRouteInformationParser(),
+            routerDelegate: routerDelegate,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // ......................................
+        // At the beginning routeA should be shown
+        expect(find.byKey(routeAKey), findsOneWidget);
+        expect(find.byKey(routeBKey), findsNothing);
+
+        // ..........................
+        // Now let's switch to routeB
+        root.child('routeB').isActive = true;
+
+        // ..........................
+        // At the beginning both, routeA and routeB should be visbible
+        // because both are animating
+        await tester.pump(Duration(microseconds: 0));
+        update(tester);
+        expect(find.byKey(routeAKey), findsOneWidget);
+        expect(find.byKey(routeBKey), findsOneWidget);
+
+        // The right animation values should be delivered
+        expect(inAnimationWidget.data, '0.0');
+        expect(outAnimationWidget.data, '0.0');
+
+        // Now jump to the middle of the animation and check if the
+        // right animation values were delivered.
+        await tester.pump(Duration(milliseconds: 500));
+        update(tester);
+        expect(inAnimationWidget.data, '0.5');
+        expect(outAnimationWidget.data, '0.5');
+
+        // Once the animation has finished, only the new route should be
+        // visible
+        await tester.pump(Duration(milliseconds: 1001));
+        expect(find.byKey(routeAKey), findsNothing);
+        expect(find.byKey(routeBKey), findsOneWidget);
+
+        // Finish everything
+        await tester.pumpAndSettle();
+      });
+    });
   });
 }
