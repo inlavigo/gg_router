@@ -263,6 +263,39 @@ main() {
     });
 
     // #########################################################################
+    group('isActive', () {
+      test('root nodes are always active', () {
+        init();
+        expect(root.isActive, true);
+      });
+      test('should be true, if a node is visible', () {
+        init();
+        expect(childC.isActive, false);
+        childC.isVisible = true;
+        expect(childC.isActive, true);
+      });
+
+      test('should be true, also if the visible tree branch changes', () {
+        init();
+
+        // Make the branch /child-a0/child-b/child-c visible
+        childC.isVisible = true;
+        expect(childB.isActive, true);
+        expect(childB.isVisible, true);
+
+        // Make the branch /child-a1 visible
+        root.navigateTo('/child-a1');
+
+        // Child b ist not visible anymore
+        expect(childB.isVisible, false);
+
+        // But child b is still active.
+        // When switching back to branch a, the child might become visible again.
+        expect(childB.isActive, true);
+      });
+    });
+
+    // #########################################################################
     group('children', () {
       test('should return a list of all children', () {
         init();

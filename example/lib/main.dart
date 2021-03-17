@@ -345,7 +345,7 @@ class GgRouterExample extends StatelessWidget {
               items: [
                 BottomNavigationBarItem(
                   label: 'Airpot',
-                  icon: Icon(Icons.airplanemode_visible),
+                  icon: Icon(Icons.airplanemode_active),
                 ),
                 BottomNavigationBarItem(
                   label: 'Park',

@@ -268,6 +268,11 @@ class GgRouteTreeNode {
   bool get isVisible => _isVisible.value;
 
   // ...........................................................................
+  /// A node is active if it is either visible or if it was visible before
+  /// we switched to another branch of the tree.
+  bool get isActive => isRoot || parent!._activeChild == this;
+
+  // ...........................................................................
   /// Returns a stream informing when isVisible changes.
   Stream<bool> get onIsVisible => _isVisible.stream;
 
@@ -359,6 +364,11 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns the visible child or null if no child is visible.
   GgRouteTreeNode? get visibleChild => _visibleChild.value;
+
+  // ...........................................................................
+  /// Returns the visible child that is in background because another
+  /// route tree is currently selected.
+  GgRouteTreeNode? get activeChild => _activeChild;
 
   // ...........................................................................
   /// Informs if the visible child did change.
@@ -504,8 +514,11 @@ class GgRouteTreeNode {
   /// - `.` addresses node itself
   set visibleChildPathSegments(List<String> path) {
     final node = descendand(path: path);
-    node.isVisible = true;
 
+    // The old active child of the node is not active anymore
+    // because the new visible child will become also the active child
+    node._activeChild = null;
+    node.isVisible = true;
     node.visibleChild?.isVisible = false;
 
     if (path.isEmpty) {
@@ -777,6 +790,7 @@ class GgRouteTreeNode {
   // ...........................................................................
   final _visibleChild = GgValue<GgRouteTreeNode?>(seed: null);
   GgRouteTreeNode? _previouslyVisibleChild;
+  GgRouteTreeNode? _activeChild;
 
   GgRouteTreeNode? get _currentOrPreviouslyVisibleChild =>
       _visibleChild.value ?? _previouslyVisibleChild;
@@ -791,7 +805,11 @@ class GgRouteTreeNode {
       return;
     }
 
+    // Remember previously visible child
     _previouslyVisibleChild = _visibleChild.value ?? _previouslyVisibleChild;
+
+    // A visible child is always an active child
+    _activeChild = child;
 
     isVisible = true;
     _visibleChild.value?.isVisible = false;
