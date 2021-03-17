@@ -11,10 +11,10 @@ import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
 
 main() {
-  group('GgStackRouter', () {
+  group('GgPopoverRouter', () {
     // .........................................................................
-    late GgEasyWidgetTest<GgStackRouter, dynamic> ggOverlayRouter;
-    final key = GlobalKey(debugLabel: 'GgStackRouter');
+    late GgEasyWidgetTest<GgPopoverRouter, dynamic> ggOverlayRouter;
+    final key = GlobalKey(debugLabel: 'GgPopoverRouter');
     final baseKey = ValueKey('base');
     final Widget base = Container(key: baseKey);
 
@@ -28,7 +28,7 @@ main() {
 
     // .........................................................................
     setUp(WidgetTester tester) async {
-      final widget = GgStackRouter(
+      final widget = GgPopoverRouter(
         key: key,
         backgroundWidget: Builder(builder: (context) {
           baseRouter = GgRouter.of(context);

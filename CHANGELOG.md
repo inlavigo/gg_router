@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.0-beta.5 - March 13th, 2021
+
+* `GgPopoverRouter` was renamed in `GgPopoverRouter`
+
 ## 1.0.0-beta.4 - March 13th, 2021
 
 * Save and restore route tree

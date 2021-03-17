@@ -251,7 +251,7 @@ class GgRouterExample extends StatelessWidget {
               params: {
                 'visit': GgRouteParam<bool>(seed: false),
               },
-              child: GgStackRouter(
+              child: GgPopoverRouter(
                 backgroundWidget: Listener(
                   child: _bigIcon(context, Icons.sports_basketball),
                   onPointerUp: (_) => GgRouter.of(context).navigateTo('dialog'),

@@ -8,8 +8,8 @@ import 'package:flutter/material.dart';
 
 import 'gg_router.dart';
 
-/// Use [GgStackRouter] to show a selected route infront of an backgroundWidget.
-class GgStackRouter extends StatelessWidget {
+/// Use [GgPopoverRouter] to show a selected route infront of an backgroundWidget.
+class GgPopoverRouter extends StatelessWidget {
   // ...........................................................................
 
   /// Constructor.
@@ -18,7 +18,7 @@ class GgStackRouter extends StatelessWidget {
   /// - [foregroundRoutes] A list of routes which are shown infront of
   ///   [backgroundWidget]. Only the route is shown which matches the currently
   ///   active path segment.
-  const GgStackRouter({
+  const GgPopoverRouter({
     Key? key,
     required this.backgroundWidget,
     required this.foregroundRoutes,
