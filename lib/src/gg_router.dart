@@ -275,8 +275,11 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   _updateVisibleChild() {
     final parentNode = GgRouter.of(context).node;
 
-    // If parentNode is not visible, we do not change anything.
+    // If parentNode is not visible, we still show the previously visible child
     if (!parentNode.isVisible) {
+      setState(() {
+        _visibleNode = parentNode.previouslyVisibleChild;
+      });
       return;
     }
 
@@ -353,9 +356,6 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
   // ...........................................................................
   Widget _buildNonRoot(BuildContext context) {
-    // Make sure, the shown visible node is marked as beeing visible
-    _visibleNode?.isVisible = true;
-
     // .....................................
     // Show the widget belonging to the node
     final appearingWidget =

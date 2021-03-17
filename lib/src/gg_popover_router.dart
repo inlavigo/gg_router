@@ -5,11 +5,13 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
+import 'package:gg_router/gg_router.dart';
 
 import 'gg_router.dart';
 
+// #############################################################################
 /// Use [GgPopoverRouter] to show a selected route infront of an backgroundWidget.
-class GgPopoverRouter extends StatelessWidget {
+class GgPopoverRouter extends StatefulWidget {
   // ...........................................................................
 
   /// Constructor.
@@ -33,27 +35,68 @@ class GgPopoverRouter extends StatelessWidget {
   /// Only the route belonging to the visible child route is shown.
   final Map<String, Widget Function(BuildContext)> foregroundRoutes;
 
+  @override
+  _GgPopoverRouterState createState() => _GgPopoverRouterState();
+}
+
+// #############################################################################
+class _GgPopoverRouterState extends State<GgPopoverRouter> {
+  // ...........................................................................
+  @override
+  dispose() {
+    _dispose.reversed.forEach((d) => d());
+    super.dispose();
+  }
+
+  // ...........................................................................
+  @override
+  void initState() {
+    _observeActiveChildChange();
+    super.initState();
+  }
+
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: GgRouter.of(context).onVisibleChildChange,
-      builder: (context, snapshot) {
-        final node = GgRouter.of(context).node;
-        if (node.visibleChild == null) {
-          return backgroundWidget;
-        } else {
-          return Stack(
-            children: [
-              backgroundWidget,
-              GgRouter(
-                foregroundRoutes,
-                key: ValueKey(node.visibleChild!.pathHashCode),
-              ),
-            ],
-          );
-        }
-      },
-    );
+    if (_nodeToBeShown == null) {
+      return widget.backgroundWidget;
+    } else {
+      return Stack(
+        children: [
+          widget.backgroundWidget,
+          GgRouter(
+            widget.foregroundRoutes,
+            key: ValueKey(_nodeToBeShown!.pathHashCode),
+          ),
+        ],
+      );
+    }
+  }
+
+  // ######################
+  // Private
+  // ######################
+
+  final List<Function()> _dispose = [];
+
+  // ...........................................................................
+  GgRouteTreeNode? _nodeToBeShown;
+
+  // ...........................................................................
+  _observeActiveChildChange() {
+    final s = GgRouter.of(context).onVisibleChildChange.listen((event) {
+      _update();
+    });
+
+    _dispose.add(s.cancel);
+    _update();
+  }
+
+  // ...........................................................................
+  _update() {
+    final node = GgRouter.of(context).node;
+    setState(() {
+      _nodeToBeShown = node.activeChild;
+    });
   }
 }

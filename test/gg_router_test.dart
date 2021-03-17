@@ -339,13 +339,18 @@ main() {
 
         await setUp(tester, child: Builder(builder: (c0) {
           rootRouter = GgRouter.of(c0);
+          rootRouter.node.navigateTo('routeA/childRouteA');
 
           final builder = (BuildContext c1, String x) {
             context = c1;
             router = GgRouter.of(c1);
+
+            final childName = 'childRoute$x';
+            router.node.child(childName).isVisible = true;
+
             return GgRouter(
               {
-                'childRoute$x': (c2) {
+                childName: (c2) {
                   childRouter = GgRouter.of(c2);
                   rootRouter2 = GgRouter.of(c2, rootRouter: true);
                   return GgRouteParams(
@@ -372,6 +377,8 @@ main() {
             key: ValueKey('mainRouter'),
           );
         }));
+
+        await tester.pumpAndSettle();
 
         expect(context!, isNotNull);
 
