@@ -275,6 +275,10 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns a child node with [name]. If none exists, one is created.
   GgRouteTreeNode child(String name) {
+    if (isIndexChild) {
+      throw ArgumentError('Index routes named "" must not have children.');
+    }
+
     var child = _children[name];
     if (child == null) {
       child = GgRouteTreeNode(name: name, parent: this);
@@ -302,11 +306,18 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
+  bool get isIndexChild => name == '' && !isRoot;
+
+  // ...........................................................................
   /// Returns descendant that matches the path. Creates the node when needed.
   /// - `.` addresses node itself
   /// - `..` addresses parent node
   /// - '_LAST_' - addresses child that was last active
   GgRouteTreeNode descendand({required List<String> path}) {
+    if (this.isIndexChild) {
+      return _indexChildDescendand(path);
+    }
+
     var result = this;
     path.forEach((element) {
       if (element == '.' || element == '') {
@@ -788,6 +799,19 @@ class GgRouteTreeNode {
   _updateActiveDescendants() {
     _activeDescendants.value = activeDescendants;
     parent?._updateActiveDescendants();
+  }
+
+  // ##################
+  GgRouteTreeNode _indexChildDescendand(List<String> path) {
+    // Return the index item itself if path is '' or '.'
+    final first = path.isNotEmpty ? path.first : null;
+    if (path.length == 1 && (first == '' || first == '.')) {
+      return this;
+    }
+
+    // In all other cases forward the request to the index child's
+    // parent
+    return parent!.descendand(path: path);
   }
 
   // ################

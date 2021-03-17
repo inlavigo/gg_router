@@ -115,10 +115,13 @@ main() {
     });
 
     // #########################################################################
-    group('index', () {
+    group('widgetIndex', () {
       test('returns null by default and needs to be initialized by GgRouter',
           () {
         init();
+        expect(root.widgetIndex, null);
+        childA0.widgetIndex = 1;
+        expect(root.widgetIndex, 1);
       });
     });
 
@@ -256,6 +259,16 @@ main() {
         expect(childA1.parent, root);
         expect(root.children.length, 2);
       });
+
+      test('Should throw an exception, if node is an index route', () {
+        init();
+        final indexNode = childA0.child('');
+        expect(() => indexNode.child('xyz'),
+            throwsA(predicate((ArgumentError f) {
+          expect(f.message, 'Index routes named "" must not have children.');
+          return true;
+        })));
+      });
     });
 
     // #########################################################################
@@ -279,6 +292,20 @@ main() {
       test('throws an exception, if the child is not a child of node', () {
         init();
         expect(() => root.removeChild(childC), throwsArgumentError);
+      });
+    });
+
+    // #########################################################################
+    group('isIndexChild', () {
+      test('returns false for root node', () {
+        init();
+        expect(root.isIndexChild, false);
+      });
+
+      test('returns true if node has no name, otherwise false', () {
+        init();
+        expect(childA0.child('').isIndexChild, true);
+        expect(childA0.isIndexChild, false);
       });
     });
 
@@ -328,6 +355,28 @@ main() {
       test('should ignore empty path segments', () {
         init();
         expect(root.descendand(path: ['', '', 'child-a1']), childA1);
+      });
+
+      // #########################################################################
+      group('indexChild nodes', () {
+        test('should return the grand parent if path segment is ".."', () {
+          init();
+          final indexChild = childA0.child('');
+          expect(indexChild.descendand(path: ['..']), childA0.parent);
+        });
+
+        test('should return the index child itself if path segment is "."', () {
+          init();
+          final indexChild = childA0.child('');
+          expect(indexChild.descendand(path: ['.']), indexChild);
+        });
+
+        test('should return the sibling if path segment is "./sibling"', () {
+          init();
+          final indexChild = childA0.child('');
+          final sibling = indexChild.descendand(path: ['sibling']);
+          expect(sibling.parent, childA0);
+        });
       });
 
       test(
