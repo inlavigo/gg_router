@@ -38,12 +38,15 @@ main() {
       final paramsA = GgRouteParam(seed: 5);
       final paramsB = GgRouteParam(seed: 6);
 
-      final widget = GgRouter({
-        'routeA': builder({'a': paramsA}),
-        'routeB': builder({'b': paramsB}),
-        'routeC':
-            builder({'c': GgRouteParam(seed: 7), 'd': GgRouteParam(seed: 8)}),
-      });
+      final widget = GgRouter(
+        {
+          'routeA': builder({'a': paramsA}),
+          'routeB': builder({'b': paramsB}),
+          'routeC':
+              builder({'c': GgRouteParam(seed: 7), 'd': GgRouteParam(seed: 8)}),
+        },
+        key: ValueKey('router'),
+      );
       routeInformationParser = GgRouteInformationParser();
       routerDelegate = GgRouterDelegate(
         child: widget,

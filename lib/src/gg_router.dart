@@ -106,13 +106,13 @@ class GgRouter extends StatefulWidget {
   /// ```
   GgRouter(
     this.children, {
-    Key? key,
+    required Key key,
     this.inAnimation,
     this.outAnimation,
     this.animationDuration = const Duration(milliseconds: 500),
   })  : _rootChild = null,
         _rootNode = null,
-        super(key: key ?? ValueKey(children.hashCode)) {
+        super(key: key) {
     _checkChildren();
     _checkAnimations();
   }

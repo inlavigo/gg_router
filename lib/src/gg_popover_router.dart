@@ -18,8 +18,8 @@ class GgPopoverRouter extends StatelessWidget {
   /// - [foregroundRoutes] A list of routes which are shown infront of
   ///   [backgroundWidget]. Only the route is shown which matches the currently
   ///   active path segment.
-  const GgPopoverRouter({
-    Key? key,
+  GgPopoverRouter({
+    required Key key,
     required this.backgroundWidget,
     required this.foregroundRoutes,
   }) : super(key: key);
@@ -46,7 +46,10 @@ class GgPopoverRouter extends StatelessWidget {
           return Stack(
             children: [
               backgroundWidget,
-              GgRouter(foregroundRoutes),
+              GgRouter(
+                foregroundRoutes,
+                key: ValueKey(node.activeChild!.pathHashCode),
+              ),
             ],
           );
         }

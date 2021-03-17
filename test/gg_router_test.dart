@@ -4,8 +4,6 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -109,21 +107,28 @@ main() {
                       child: Container(),
                     );
                   }),
-                  GgRouter({
-                    '_INDEX_': subBuilder,
-                    'a10': subBuilder,
-                    'a11': subBuilder,
-                  }),
+                  GgRouter(
+                    {
+                      '_INDEX_': subBuilder,
+                      'a10': subBuilder,
+                      'a11': subBuilder,
+                    },
+                    key: ValueKey('a0SubRouter'),
+                  ),
                 ],
               );
             },
             'b0': (context) {
-              return GgRouter({
-                'b10': subBuilder,
-                'b11': subBuilder,
-              });
+              return GgRouter(
+                {
+                  'b10': subBuilder,
+                  'b11': subBuilder,
+                },
+                key: ValueKey('b0SubRouter'),
+              );
             },
           },
+          key: ValueKey('mainRouter'),
         ),
       ]);
     },
@@ -338,28 +343,34 @@ main() {
           final builder = (BuildContext c1, String x) {
             context = c1;
             router = GgRouter.of(c1);
-            return GgRouter({
-              'childRoute$x': (c2) {
-                childRouter = GgRouter.of(c2);
-                rootRouter2 = GgRouter.of(c2, rootRouter: true);
-                return GgRouteParams(
-                  params: {'param': GgRouteParam(seed: x)},
-                  child: Builder(
-                    builder: (c3) {
-                      lastBuiltParam = GgRouter.of(c3).param('param')?.value;
-                      return Container();
-                    },
-                  ),
-                );
-              }
-            });
+            return GgRouter(
+              {
+                'childRoute$x': (c2) {
+                  childRouter = GgRouter.of(c2);
+                  rootRouter2 = GgRouter.of(c2, rootRouter: true);
+                  return GgRouteParams(
+                    params: {'param': GgRouteParam(seed: x)},
+                    child: Builder(
+                      builder: (c3) {
+                        lastBuiltParam = GgRouter.of(c3).param('param')?.value;
+                        return Container();
+                      },
+                    ),
+                  );
+                }
+              },
+              key: ValueKey('childRouter_$x'),
+            );
           };
 
-          return GgRouter({
-            'routeA': (c) => builder(c, 'A'),
-            'routeB': (c) => builder(c, 'B'),
-            'routeC': (c) => builder(c, 'C'),
-          });
+          return GgRouter(
+            {
+              'routeA': (c) => builder(c, 'A'),
+              'routeB': (c) => builder(c, 'B'),
+              'routeC': (c) => builder(c, 'C'),
+            },
+            key: ValueKey('mainRouter'),
+          );
         }));
 
         expect(context!, isNotNull);
@@ -408,7 +419,9 @@ main() {
         expect(rootRouter.indexOfActiveChild, 0);
         expect(childRouter.indexOfActiveChild, null);
         router.navigateTo('/routeC');
+        expect(rootRouter.routeNameOfActiveChild, 'routeC');
         await tester.pumpAndSettle();
+        expect(rootRouter.routeNameOfActiveChild, 'routeC');
         expect(rootRouter.indexOfActiveChild, 2);
 
         // .......................................................
@@ -496,11 +509,11 @@ main() {
                           ? GgRouter({
                               'a': routeA,
                               'b': (_) => Container(),
-                            })
+                            }, key: ValueKey('Router1'))
                           : GgRouter({
                               'b': (_) => Container(),
                               'a': routeA,
-                            });
+                            }, key: ValueKey('Router2'));
                     });
               }));
 
@@ -536,6 +549,7 @@ main() {
             'routeA': (context) => Container(key: routeAKey),
             'routeB': (context) => Container(key: routeBKey),
           },
+          key: ValueKey('mainRouter'),
 
           // Wrap animated widgets into a stack showing a text with the
           // animation value

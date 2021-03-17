@@ -66,7 +66,7 @@ class GgRouterExample extends StatelessWidget {
               'transportation': _transportationPage,
               'places': _placesPage,
             },
-            key: ValueKey('/'),
+            key: ValueKey('mainRouter'),
             inAnimation: _zoomIn,
             outAnimation: _zoomOut,
           );
@@ -252,6 +252,7 @@ class GgRouterExample extends StatelessWidget {
                 'visit': GgRouteParam<bool>(seed: false),
               },
               child: GgPopoverRouter(
+                key: ValueKey('dialog'),
                 backgroundWidget: Listener(
                   child: _bigIcon(context, Icons.sports_basketball),
                   onPointerUp: (_) => GgRouter.of(context).navigateTo('dialog'),
@@ -265,7 +266,7 @@ class GgRouterExample extends StatelessWidget {
           'football': (c) => _bigIcon(c, Icons.sports_football),
           'handball': (c) => _bigIcon(c, Icons.sports_handball),
         },
-        key: ValueKey('/sports'),
+        key: ValueKey('sportsRouter'),
         inAnimation: _fadeIn,
         outAnimation: _fadeOut,
       ),
