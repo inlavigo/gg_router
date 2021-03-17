@@ -109,6 +109,7 @@ class GgRouter extends StatefulWidget {
     Key? key,
     this.inAnimation,
     this.outAnimation,
+    this.animationDuration = const Duration(milliseconds: 500),
   })  : _rootChild = null,
         _rootNode = null,
         super(key: key ?? ValueKey(children.hashCode)) {
@@ -125,7 +126,12 @@ class GgRouter extends StatefulWidget {
         children = const {},
         inAnimation = null,
         outAnimation = null,
+        animationDuration = const Duration(milliseconds: 500),
         super(key: key);
+
+  // ...........................................................................
+  /// The duration for route transitions.
+  final Duration animationDuration;
 
   // ...........................................................................
   /// The child routes of this router.
@@ -444,7 +450,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   // ...........................................................................
   _initAnimation() {
     _animation =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+        AnimationController(vsync: this, duration: widget.animationDuration);
 
     final listner = (status) {
       setState(() {});
