@@ -10,17 +10,12 @@ import 'package:gg_value/gg_value.dart';
 import 'gg_route_tree_node.dart';
 
 /// A callback GgRouter uses to animate appearing and disappearing widgets.
-/// - [context] The current build context.
 /// - [animation] The ongoing animation.
 /// - [child] The child to appear or disappear.
-/// - [nodeIn] The node currently appearing.
-/// - [nodeOut] The node currently disappearing.
 typedef GgAnimationBuilder = Widget Function(
   BuildContext context,
   Animation animation,
   Widget child,
-  GgRouteTreeNode? nodeIn,
-  GgRouteTreeNode? nodeOut,
 );
 
 // #############################################################################
@@ -57,7 +52,7 @@ class GgRouterCore extends StatelessWidget {
   // ...........................................................................
   /// Returns the name of the visible child route.
   /// Returns null if no child is visible.
-  String? get routeNameOfStagedChild {
+  String? get routeNameOfActiveChild {
     return node.stagedChild?.name;
   }
 
@@ -65,9 +60,45 @@ class GgRouterCore extends StatelessWidget {
   /// Returns the index of the visible child.
   /// Returns null, if no child is visible.
   /// You can use that index to highlight the right entry in a menu for example.
-  int? get indexOfStagedChild {
+  int? get indexOfActiveChild {
     return node.stagedChild?.widgetIndex;
   }
+
+  // ######################
+  // Animating children
+  // ######################
+
+  // ...........................................................................
+  /// Returns the child's index currently fading out, or null, if no child is
+  /// now fading.
+  int? get indexOfChildAnimatingOut {
+    return node.childToBeFadedOut?.widgetIndex;
+  }
+
+  // ...........................................................................
+  /// Returns the child's name currently fading out, or null, if no child is
+  /// now fading.
+  String? get nameOfChildAnimatingOut {
+    return node.childToBeFadedOut?.name;
+  }
+
+  // ...........................................................................
+  /// Returns the child's index currently fading in, or null, if no child is
+  /// now fading.
+  int? get indexOfChildAnimatingIn {
+    return node.childToBeFadedIn?.widgetIndex;
+  }
+
+  // ...........................................................................
+  /// Returns the child's name currently fading in, or null, if no child is
+  /// now fading.
+  String? get nameOfChildAnimatingIn {
+    return node.childToBeFadedIn?.name;
+  }
+
+  // ######################
+  // Route path
+  // ######################
 
   // ...........................................................................
   /// Returns the path of this [GgRouter] instance.
@@ -77,7 +108,7 @@ class GgRouterCore extends StatelessWidget {
 
   // ...........................................................................
   /// Use this stream to be informed when the visible child changes.
-  Stream<void> get onStagedChildChange {
+  Stream<void> get onActiveChildChange {
     return node.stagedChildDidChange;
   }
 
@@ -460,8 +491,6 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
                 child: Builder(builder: (context) => childToFadeIn(context)),
                 node: _nodeToBeFadedIn!,
               ),
-              _nodeToBeFadedOut,
-              _nodeToBeFadedIn,
             );
 
     final outWidget = childToFadeOut == null
@@ -473,8 +502,6 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
                 child: Builder(builder: (context) => childToFadeOut(context)),
                 node: _nodeToBeFadedOut!,
               ),
-              _nodeToBeFadedOut,
-              _nodeToBeFadedIn,
             );
 
     return AnimatedBuilder(

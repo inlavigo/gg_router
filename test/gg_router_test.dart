@@ -53,7 +53,7 @@ main() {
     final router = GgRouter.of(context);
     lastBuiltNode = router.node;
     routeSegment = GgRouter.of(context).routeName;
-    childRouteSegment = GgRouter.of(context).routeNameOfStagedChild;
+    childRouteSegment = GgRouter.of(context).routeNameOfActiveChild;
     routePath = GgRouter.of(context).routePath;
     return Container();
   };
@@ -422,8 +422,8 @@ main() {
         // .......................................................
         // GgRouter.of(context).routeNameOfStagedChild should give the name
         // of the visible child route, or null if no child route is visible.
-        expect(router.routeNameOfStagedChild, 'childRouteA');
-        expect(childRouter.routeNameOfStagedChild, null);
+        expect(router.routeNameOfActiveChild, 'childRouteA');
+        expect(childRouter.routeNameOfActiveChild, null);
 
         // .......................................................
         // GgRouter.of(context).routePath should give the complete path
@@ -443,20 +443,20 @@ main() {
         // .......................................................
         // GgRouter.of(context).indexOfStagedChild should give the index
         // of the visible child route, or null if no child route is visible.
-        expect(rootRouter.indexOfStagedChild, 0);
-        expect(childRouter.indexOfStagedChild, null);
+        expect(rootRouter.indexOfActiveChild, 0);
+        expect(childRouter.indexOfActiveChild, null);
         router.navigateTo('/routeC');
-        expect(rootRouter.routeNameOfStagedChild, 'routeC');
+        expect(rootRouter.routeNameOfActiveChild, 'routeC');
         await tester.pumpAndSettle();
-        expect(rootRouter.routeNameOfStagedChild, 'routeC');
-        expect(rootRouter.indexOfStagedChild, 2);
+        expect(rootRouter.routeNameOfActiveChild, 'routeC');
+        expect(rootRouter.indexOfActiveChild, 2);
 
         // .......................................................
         // GgRouter.of(context).onStagedChildChange should inform, when the
         // visible child changes
         expect(router.routeName, 'routeC');
         bool? onStagedChildChangeDidFire;
-        final s = rootRouter.onStagedChildChange
+        final s = rootRouter.onActiveChildChange
             .listen((event) => onStagedChildChangeDidFire = true);
 
         await tester.pumpAndSettle();
@@ -517,20 +517,20 @@ main() {
                 // and on second place in variant 2.
                 final routeA = (_) {
                   final router = GgRouter.of(context);
-                  final indexOfStagedChild = router.indexOfStagedChild;
+                  final indexOfStagedChild = router.indexOfActiveChild;
                   if (showAAtFirstPlace.value) {
                     expect(indexOfStagedChild, 0);
-                    expect(router.routeNameOfStagedChild, 'a');
+                    expect(router.routeNameOfActiveChild, 'a');
                   } else {
                     expect(indexOfStagedChild, 1);
-                    expect(router.routeNameOfStagedChild, 'a');
+                    expect(router.routeNameOfActiveChild, 'a');
                   }
 
                   return Container();
                 };
 
                 return StreamBuilder(
-                    stream: GgRouter.of(context).onStagedChildChange,
+                    stream: GgRouter.of(context).onActiveChildChange,
                     builder: (context, snapshot) {
                       // Exchange the places of route 'a'
                       return showAAtFirstPlace.value
@@ -603,12 +603,32 @@ main() {
     group('Route animations', () {
       late Text inAnimationWidget;
       late Text outAnimationWidget;
+      int? indexOfChildAnimatingIn;
+      int? indexOfChildAnimatingOut;
+      String? nameOfChildAnimatingIn;
+      String? nameOfChildAnimatingOut;
 
       update(WidgetTester tester) {
         inAnimationWidget =
             tester.widget(find.byKey(Key('inAnimation'))) as Text;
         outAnimationWidget =
             tester.widget(find.byKey(Key('outAnimation'))) as Text;
+      }
+
+      updateAnimationDetails(BuildContext context) {
+        indexOfChildAnimatingIn = GgRouter.of(context).indexOfChildAnimatingIn;
+        indexOfChildAnimatingOut =
+            GgRouter.of(context).indexOfChildAnimatingOut;
+        nameOfChildAnimatingIn = GgRouter.of(context).nameOfChildAnimatingIn;
+        nameOfChildAnimatingOut = GgRouter.of(context).nameOfChildAnimatingOut;
+      }
+
+      checkAnimationDetails(
+          int? indexIn, int? indexOut, String? nameIn, String? nameOut) {
+        expect(indexOfChildAnimatingIn, indexIn);
+        expect(indexOfChildAnimatingOut, indexOut);
+        expect(nameOfChildAnimatingIn, nameIn);
+        expect(nameOfChildAnimatingOut, nameOut);
       }
 
       testWidgets('should animate route transitions',
@@ -627,24 +647,30 @@ main() {
 
           // Wrap animated widgets into a stack showing a text with the
           // animation value
-          inAnimation: (context, animation, child, nodeIn, nodeOut) => Stack(
-            children: [
-              child,
-              Text(
-                '${animation.value}',
-                key: Key('inAnimation'),
-              )
-            ],
-          ),
-          outAnimation: (context, animation, child, nodeIn, nodeOut) => Stack(
-            children: [
-              child,
-              Text(
-                '${animation.value}',
-                key: Key('outAnimation'),
-              )
-            ],
-          ),
+          inAnimation: (context, animation, child) {
+            updateAnimationDetails(context);
+            return Stack(
+              children: [
+                child,
+                Text(
+                  '${animation.value}',
+                  key: Key('inAnimation'),
+                )
+              ],
+            );
+          },
+          outAnimation: (context, animation, child) {
+            updateAnimationDetails(context);
+            return Stack(
+              children: [
+                child,
+                Text(
+                  '${animation.value}',
+                  key: Key('outAnimation'),
+                )
+              ],
+            );
+          },
           animationDuration: Duration(milliseconds: 1000),
         );
 
@@ -669,6 +695,10 @@ main() {
         expect(find.byKey(routeAKey), findsOneWidget);
         expect(find.byKey(routeBKey), findsNothing);
 
+        // ........................................
+        // No animation details should be available
+        checkAnimationDetails(null, null, null, null);
+
         // ..........................
         // Now let's switch to routeB
         root.child('routeB').navigateTo('.');
@@ -684,6 +714,7 @@ main() {
         // The right animation values should be delivered
         expect(inAnimationWidget.data, '0.0');
         expect(outAnimationWidget.data, '0.0');
+        checkAnimationDetails(1, 0, 'routeB', 'routeA');
 
         // Now jump to the middle of the animation and check if the
         // right animation values were delivered.

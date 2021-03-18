@@ -1,15 +1,15 @@
 # GgRouter - Easy Routing for Flutter
 
-GgRouter gives you a simple and powerful routing library for flutter built on
-the top of Navigator 2.0. Deeply link to any place in your app. Navigate with
-ease from one widget to another. Restore the exact state of your app.
+»Everything is a widget is now true for routing too!« GgRouter gives you a simple
+and powerful routing library for flutter.
+
+- Define nested routes and route query params as ordinary widgets.
+- Navigate with ease from one widget to another.
+- Easily define route animations.
+- Save and Restore the complete router state of your app.
+- Automatic get back to the last state when returning to a previous route.
 
 ![Features](./img/gg_router_short.gif)
-
-With `GgRouter` routes and query params can be nested in the same way widgets
-are nested. Out of your widget and route hierarchy, `GgRouter` creates and
-maintains a route tree. When you navigate through the route tree, `GgRouter`
-will build the right widgets for you.
 
 ## Content
 
@@ -17,7 +17,9 @@ will build the right widgets for you.
 - [Define routes](#define-routes)
   - [Basic routes](#basic-routes)
   - [Index route](#index-route)
+  - [Default route](#default-route)
   - [Nested routes](#nested-routes)
+  - [Popover routes](#popover-routes)
 - [Navigation](#navigation)
   - [Navigate absolutely](#navigate-absolutely)
   - [Navigate relatively](#navigate-relatively)
@@ -26,9 +28,13 @@ will build the right widgets for you.
 - [URI query params](#uri-query-params)
   - [Define query params](#define-query-params)
   - [Access query params](#access-query-params)
-- [Save and restore](#save-and-restore)
-- [Error handling](#error-handling)
-- [Example](#example)
+- [Animations](#animations)
+  - [Animate route transitions](#animate-route-transitions)
+  - [Route specific animations](#route-specific-animations)
+- [Other](#other)
+  - [Save and restore route state](#save-and-restore-route-state)
+  - [Error handling](#error-handling)
+  - [Example](#example)
 - [Features and bugs](#features-and-bugs)
 
 ## Initialize GgRouter
@@ -88,10 +94,42 @@ Widget build(BuildContext context){
 }
 ~~~
 
+### Default route
+
+Chose a default route when no `_INDEX` route is defined by using the
+`defaultRoute` parameter.
+
+~~~dart
+@override
+Widget build(BuildContext context){
+  GgRouter({
+    'sports': _sports,
+    // ...
+  },
+  defaultRoute: 'sports')
+}
+~~~
+
 ### Nested routes
 
 You can arbitrarily nest routes. Just place another `GgRouter` widget within
 one of the routes. Child `GgRouter` widgets do not need to be direct children.
+
+### Popover routes
+
+By default all routes replace the previous route's content. To open a popover,
+e. g. a dialog, using routes, make use of `GgPopoverRoute`.
+
+~~~dart
+GgPopoverRoute(
+  // ...
+  name: 'popover',          // The route which will open the popover
+  base: _myWidget,          // The regular content
+  popover: _myDialog,       // The popover
+  inAnimation: _rotateIn,   // The appearing animation
+  outAnimation: _rotateOut, // The disappearing animation
+),
+~~~
 
 ## Navigation
 
@@ -123,11 +161,11 @@ Navigation buttons and `GgRouter` widgets can be used side by side. Navigation
 elements can use `GgRouter.of(context)` to perform various routing operations:
 
 - Use `GgRouter.of(context).navigateTo('...')` to navigate to a route.
-- Use `GgRouter.of(context).routeNameOfStagedChild` to find out which child
+- Use `GgRouter.of(context).routeNameOfActiveChild` to find out which child
   route is currently visible.
-- Use `GgRouter.of(context).indexOfStagedChild` to find out which of the items
+- Use `GgRouter.of(context).indexOfActiveChild` to find out which of the items
   in a `BottomNavigationBar` need to be styled as visible elements.
-- Use `GgRouter.of(context).onStagedChildChange` to rebuild the navigation bar,
+- Use `GgRouter.of(context).onActiveChildChange` to rebuild the navigation bar,
   when the visible child changes.
 
 ## URI query params
@@ -160,7 +198,71 @@ To use the value of a query param in a widget, use these method:
 - Use `GgRouter.of(context).param('a')?.stream` to observe value changes of
   query param `a`.
 
-## Save and restore
+## Animations
+
+### Animate route transitions
+
+`GgRouter` offers a very simple way to animate route transitions. `GgRouter`
+offers an effortless way to animate route transitions. Use `inAnimation` and
+`outAnimation` to define animations that are applied to the appearing and the
+disappearing route:
+
+~~~dart
+builder: (context) {
+  return GgRouter(
+    // ...
+    inAnimation: (context, animation, child)
+      => Transform.scale(scale: animation.value, child: child),
+    outAnimation: (context, animation, child)
+      => Transform.scale(scale: 1.0 - animation.value, child: child),
+  );
+},
+~~~
+
+With the possibility to define separate in and out animations, you can create
+advanced transitions. E.g., move an appearing widget in from the left side and
+out from the right side.
+
+### Route specific animations
+
+To find out which route is currently fading in or fading out, use the following
+methods within your animation callback:
+
+- `GgRouter.of(context).indexOfChildAnimatingOut`
+- `GgRouter.of(context).nameOfChildAnimatingOut`
+- `GgRouter.of(context).indexOfChildAnimatingIn`
+- `GgRouter.of(context).nameOfChildAnimatingIn`
+
+~~~dart
+Widget _moveOut(
+  BuildContext context,
+  Animation animation,
+  Widget child,
+) {
+  final w = MediaQuery.of(context).size.width;
+  final h = MediaQuery.of(context).size.height;
+  final index = GgRouter.of(context).indexOfChildAnimatingOut;
+
+  final toRight = Offset(w * (animation.value), 0);
+  final toBottom = Offset(0, h * (animation.value));
+  final toLeft = Offset(w * (-animation.value), 0);
+
+  Offset offset = index == 0
+      ? toLeft
+      : index == 1
+          ? toBottom
+          : toRight;
+
+  return Transform.translate(
+    offset: offset,
+    child: child,
+  );
+}
+~~~
+
+## Other
+
+### Save and restore route state
 
 `GgRouter` constructor offers a `saveState` and `restorState` callback:
 
@@ -168,13 +270,13 @@ To use the value of a query param in a widget, use these method:
 - `restoreState` will be called at the very first beginning and allows you
   to restore a previously defined state.
 
-## Error handling
+### Error handling
 
 If you open a URI in the browser that is not defined using `GgRouter(...)`, an
 error is thrown. To handle that error, assign an error handler to
 `GgRouter.of(context).errorHandler`.
 
-## Example
+### Example
 
 An example demonstrating all of the features above can be found in `example/main.dart`.
 

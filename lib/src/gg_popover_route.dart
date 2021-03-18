@@ -9,19 +9,6 @@ import 'package:gg_router/gg_router.dart';
 
 import 'gg_router.dart';
 
-/// A callback GgRouter uses to animate appearing and disappearing widgets.
-/// - [context] The current build context.
-/// - [animation] The ongoing animation.
-/// - [child] The child to appear or disappear.
-/// - [nodeIn] The node currently appearing.
-/// - [nodeOut] The node currently disappearing.
-typedef GgPopoverAnimationBuilder = Widget Function(
-  BuildContext context,
-  Animation animation,
-  Widget child,
-  GgRouteTreeNode? node,
-);
-
 // #############################################################################
 /// Use [GgPopoverRoute] to show a selected route infront of an backgroundWidget.
 class GgPopoverRoute extends StatefulWidget {
@@ -48,10 +35,10 @@ class GgPopoverRoute extends StatefulWidget {
   final String name;
 
   /// This animation is applied to the appearing popover
-  final GgPopoverAnimationBuilder? inAnimation;
+  final GgAnimationBuilder? inAnimation;
 
   /// this animation is applied to the disappearing popover
-  final GgPopoverAnimationBuilder? outAnimation;
+  final GgAnimationBuilder? outAnimation;
 
   /// The duration for route transitions.
   final Duration animationDuration;
@@ -103,7 +90,7 @@ class _GgPopoverRouteState extends State<GgPopoverRoute>
 
   // ...........................................................................
   _observeActiveChildChange() {
-    final s = GgRouter.of(context).onStagedChildChange.listen((event) {
+    final s = GgRouter.of(context).onActiveChildChange.listen((event) {
       _update();
     });
 
@@ -166,8 +153,7 @@ class _GgPopoverRouteState extends State<GgPopoverRoute>
       _popOver = (BuildContext context) => AnimatedBuilder(
             animation: _animation,
             builder: (context, child) {
-              return animationCallback(
-                  context, _animation, content(context), node);
+              return animationCallback(context, _animation, content(context));
             },
           );
 

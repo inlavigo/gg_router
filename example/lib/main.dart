@@ -124,9 +124,9 @@ class GgRouterExample extends StatelessWidget {
       final router = GgRouter.of(context);
 
       return StreamBuilder(
-        stream: router.onStagedChildChange,
+        stream: router.onActiveChildChange,
         builder: (context, snapshot) {
-          final isStaged = router.routeNameOfStagedChild == route;
+          final isStaged = router.routeNameOfActiveChild == route;
           return TextButton(
             key: ValueKey(route),
             onPressed: () => router.navigateTo('$route/_LAST_'),
@@ -211,9 +211,9 @@ class GgRouterExample extends StatelessWidget {
     return Scaffold(
       key: ValueKey('sportsPage'),
       bottomNavigationBar: StreamBuilder(
-          stream: router.onStagedChildChange,
+          stream: router.onActiveChildChange,
           builder: (context, snapshot) {
-            final index = router.indexOfStagedChild ?? 0;
+            final index = router.indexOfActiveChild ?? 0;
 
             return BottomNavigationBar(
               currentIndex: index,
@@ -272,8 +272,8 @@ class GgRouterExample extends StatelessWidget {
         },
         key: ValueKey('sportsRouter'),
         defaultRoute: 'basketball',
-        inAnimation: _fadeIn,
-        outAnimation: _fadeOut,
+        inAnimation: _moveIn,
+        outAnimation: _moveOut,
       ),
     );
   }
@@ -285,9 +285,9 @@ class GgRouterExample extends StatelessWidget {
     return Scaffold(
       key: ValueKey('transportationPage'),
       bottomNavigationBar: StreamBuilder(
-          stream: router.onStagedChildChange,
+          stream: router.onActiveChildChange,
           builder: (context, snapshot) {
-            final index = router.indexOfStagedChild ?? 0;
+            final index = router.indexOfActiveChild ?? 0;
 
             return BottomNavigationBar(
               currentIndex: index,
@@ -328,8 +328,8 @@ class GgRouterExample extends StatelessWidget {
         },
         key: ValueKey('/transportation'),
         defaultRoute: 'bus',
-        inAnimation: _fadeIn,
-        outAnimation: _fadeOut,
+        inAnimation: _moveIn,
+        outAnimation: _moveOut,
       ),
     );
   }
@@ -342,9 +342,9 @@ class GgRouterExample extends StatelessWidget {
     return Scaffold(
       bottomNavigationBar: StreamBuilder(
           key: ValueKey('placesPage'),
-          stream: router.onStagedChildChange,
+          stream: router.onActiveChildChange,
           builder: (context, snapshot) {
-            final index = router.indexOfStagedChild ?? 0;
+            final index = router.indexOfActiveChild ?? 0;
 
             return BottomNavigationBar(
               currentIndex: index,
@@ -385,8 +385,8 @@ class GgRouterExample extends StatelessWidget {
         },
         key: ValueKey('/places'),
         defaultRoute: 'airport',
-        inAnimation: _fadeIn,
-        outAnimation: _fadeOut,
+        inAnimation: _moveIn,
+        outAnimation: _moveOut,
       ),
     );
   }
@@ -409,8 +409,6 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
-    GgRouteTreeNode? disappearingRoute,
-    GgRouteTreeNode? appearingRoute,
   ) {
     // In the first part of the animation the old widget is faded out
     final scale = animation.value < 0.5
@@ -428,8 +426,6 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
-    GgRouteTreeNode? disappearingRoute,
-    GgRouteTreeNode? appearingRoute,
   ) {
     // In the second part of the animation the new widget is faded in
     final scale = animation.value >= 0.5
@@ -443,35 +439,55 @@ class GgRouterExample extends StatelessWidget {
   }
 
   // ...........................................................................
-  Widget _fadeIn(
+  Widget _moveIn(
     BuildContext context,
     Animation animation,
     Widget child,
-    GgRouteTreeNode? disappearingRoute,
-    GgRouteTreeNode? appearingRoute,
   ) {
-    // In the second part of the animation the new widget is faded in
-    final opacity = animation.value >= 0.5
-        ? Curves.easeInOut.transform(((animation.value - 0.5) * 2.0))
-        : 0.0;
+    final w = MediaQuery.of(context).size.width;
+    final h = MediaQuery.of(context).size.height;
+    final index = GgRouter.of(context).indexOfChildAnimatingIn;
 
-    return Opacity(opacity: opacity, child: child);
+    final fromLeft = Offset(-w * (1.0 - animation.value), 0);
+    final fromBottom = Offset(0, h * (1.0 - animation.value));
+    final fromRight = Offset(w * (1.0 - animation.value), 0);
+
+    Offset offset = index == 0
+        ? fromLeft
+        : index == 1
+            ? fromBottom
+            : fromRight;
+
+    return Transform.translate(
+      offset: offset,
+      child: child,
+    );
   }
 
   // ...........................................................................
-  Widget _fadeOut(
+  Widget _moveOut(
     BuildContext context,
     Animation animation,
     Widget child,
-    GgRouteTreeNode? disappearingRoute,
-    GgRouteTreeNode? appearingRoute,
   ) {
-    // In the first part of the animation the old widget is faded out
-    final opacity = animation.value < 0.5
-        ? Curves.easeInOut.transform(1.0 - (animation.value * 2.0))
-        : 0.0;
+    final w = MediaQuery.of(context).size.width;
+    final h = MediaQuery.of(context).size.height;
+    final index = GgRouter.of(context).indexOfChildAnimatingOut;
 
-    return Opacity(opacity: opacity, child: child);
+    final toRight = Offset(w * (animation.value), 0);
+    final toBottom = Offset(0, h * (animation.value));
+    final toLeft = Offset(w * (-animation.value), 0);
+
+    Offset offset = index == 0
+        ? toLeft
+        : index == 1
+            ? toBottom
+            : toRight;
+
+    return Transform.translate(
+      offset: offset,
+      child: child,
+    );
   }
 
   // ...........................................................................
@@ -479,7 +495,6 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
-    GgRouteTreeNode? node,
   ) {
     final scale = animation.value;
     final angle = 2 * pi * animation.value;
@@ -502,7 +517,6 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
-    GgRouteTreeNode? node,
   ) {
     final scale = 1.0 - animation.value;
     final angle = -2 * pi * animation.value;

@@ -1,6 +1,6 @@
 name: gg_router
-description: GgRouter - Create nested routes with ease. Intuitive relative and absolute navigation.
-version: 1.0.0-beta.4
+description: »Everything is a widget is now true for routing too!« - Power AND! simple routing and navigation for Flutter.
+version: 1.0.0-beta.5
 homepage: "https://github.com/inlavigo/gg_router"
 
 environment:

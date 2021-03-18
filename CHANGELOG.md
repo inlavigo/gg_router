@@ -2,11 +2,19 @@
 
 ## 1.0.0-beta.5 - March 13th, 2021
 
-* Route transitions can be animated now.
+* Animations
+  * Route transitions can be animated now.
   * Create a separate in and out animation
-  * Create different animations for different route transitions
-* `GgPopoverRoute` was renamed in `GgPopoverRoute`
-* Index routes must not be named with empty name. The must get the name `_INDEX_.
+  * Create different animations for different routes
+
+* `GgPopoverRoute`
+  * was renamed in `GgPopoverRoute`
+  * Interface was changed slightly
+
+* Index routes
+  * Index routes must not be named with empty name.
+  * They must get the name `_INDEX_.
+
 * Renamed several identifiers.
 
 
