@@ -5,7 +5,7 @@
 * Route transitions can be animated now.
   * Create a separate in and out animation
   * Create different animations for different route transitions
-* `GgPopoverRouter` was renamed in `GgPopoverRouter`
+* `GgPopoverRoute` was renamed in `GgPopoverRoute`
 * Index routes must not be named with empty name. The must get the name `_INDEX_.
 * Renamed several identifiers.
 

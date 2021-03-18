@@ -34,6 +34,7 @@ class GgRouterExample extends StatelessWidget {
         child: _appContent,
         saveState: _saveState,
         restoreState: _restoreState,
+        defaultRoute: '/sports/basketball',
       ),
       routeInformationParser: GgRouteInformationParser(),
       themeMode: ThemeMode.dark,
@@ -252,15 +253,15 @@ class GgRouterExample extends StatelessWidget {
               params: {
                 'visit': GgRouteParam<bool>(seed: false),
               },
-              child: GgPopoverRouter(
+              child: GgPopoverRoute(
                 key: ValueKey('dialog'),
-                backgroundWidget: Listener(
+                name: 'popover',
+                base: Listener(
                   child: _bigIcon(context, Icons.sports_basketball),
-                  onPointerUp: (_) => GgRouter.of(context).navigateTo('dialog'),
+                  onPointerUp: (_) =>
+                      GgRouter.of(context).navigateTo('./popover'),
                 ),
-                foregroundRoutes: {
-                  'dialog': _dialog,
-                },
+                popover: _dialog,
                 inAnimation: _rotateIn,
                 outAnimation: _rotateOut,
               ),

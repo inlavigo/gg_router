@@ -4,8 +4,6 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart';
@@ -13,39 +11,28 @@ import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
 
 main() {
-  group('GgPopoverRouter', () {
+  group('GgPopoverRoute', () {
     // .........................................................................
-    late GgEasyWidgetTest<GgPopoverRouter, dynamic> ggOverlayRouter;
-    final key = GlobalKey(debugLabel: 'GgPopoverRouter');
+    late GgEasyWidgetTest<GgPopoverRoute, dynamic> ggOverlayRouter;
+    final key = GlobalKey(debugLabel: 'GgPopoverRoute');
+
     final baseKey = ValueKey('base');
-    final Widget base = Container(key: baseKey);
+    final Widget base = Text('Base', key: baseKey);
 
-    final routeOnTop0Key = ValueKey('routeOnTop0');
-    final Widget routeOnTop0 = Container(key: routeOnTop0Key);
+    final popoverKey = ValueKey('popover');
+    final Widget popover = Text('Popover', key: popoverKey);
 
-    final routeOnTop1Key = ValueKey('routeOnTop1');
-    final Widget routeOnTop1 = Container(key: routeOnTop1Key);
-    late GgRouterCore baseRouter;
+    late GgRouteTreeNode root;
+
     GgRouterCore? routeOnTopRouter;
 
     // .........................................................................
     setUp(WidgetTester tester) async {
-      final widget = GgPopoverRouter(
+      final widget = GgPopoverRoute(
         key: key,
-        backgroundWidget: Builder(builder: (context) {
-          baseRouter = GgRouter.of(context);
-          return base;
-        }),
-        foregroundRoutes: {
-          'routeOnTop0': (context) {
-            routeOnTopRouter = GgRouter.of(context);
-            return routeOnTop0;
-          },
-          'routeOnTop1': (context) {
-            routeOnTopRouter = GgRouter.of(context);
-            return routeOnTop1;
-          }
-        },
+        name: 'popover',
+        base: base,
+        popover: (_) => popover,
         inAnimation: (context, animation, child, node) => Stack(
           children: [
             Text(
@@ -66,12 +53,15 @@ main() {
         ),
         animationDuration: Duration(milliseconds: 1000),
       );
+      final routerDelegate = GgRouterDelegate(child: widget, defaultRoute: '/');
+      root = routerDelegate.root;
       await tester.pumpWidget(
         MaterialApp.router(
           routeInformationParser: GgRouteInformationParser(),
-          routerDelegate: GgRouterDelegate(child: widget, defaultRoute: '/'),
+          routerDelegate: routerDelegate,
         ),
       );
+
       final ggOverlayRouterFinder = find.byWidget(widget);
       ggOverlayRouter = GgEasyWidgetTest(ggOverlayRouterFinder, tester);
     }
@@ -98,21 +88,20 @@ main() {
       expect(ggOverlayRouter.height, 600);
 
       // Initially only the base widget is shown
-      baseRouter.node.root.navigateTo('.');
-      expect(baseRouter.node.root.stagedChildPath, '');
+      root.navigateTo('.');
+      expect(root.stagedChildPath, '');
       expect(routeOnTopRouter, isNull);
       expect(find.byKey(baseKey), findsOneWidget);
-      expect(find.byKey(routeOnTop0Key), findsNothing);
-      expect(find.byKey(routeOnTop1Key), findsNothing);
+      expect(find.byKey(popoverKey), findsNothing);
 
       // ....................
       // No animation is done
       expectAnimationValue('in', null);
       expectAnimationValue('out', null);
 
-      // ..............................
-      // Now lets route to the routeOnTop0
-      baseRouter.navigateTo('./routeOnTop0');
+      // .........................
+      // Now lets open the popover
+      root.navigateTo('./popover');
       await tester.pump(Duration(microseconds: 1));
 
       // .............................
@@ -132,24 +121,11 @@ main() {
 
       // The routeOnTop0 should be shown infront of the base.
       expect(find.byKey(baseKey), findsOneWidget);
-      expect(find.byKey(routeOnTop0Key), findsOneWidget);
-      expect(find.byKey(routeOnTop1Key), findsNothing);
-
-      // ..............................
-      // Now lets route to the routeOnTop1
-      baseRouter.navigateTo('./routeOnTop1');
-      await tester.pumpAndSettle();
-
-      // The routeOnTop1 should be shown infront of the base.
-      expect(find.byKey(baseKey), findsOneWidget);
-      expect(find.byKey(routeOnTop0Key), findsNothing);
-      expect(find.byKey(routeOnTop1Key), findsOneWidget);
+      expect(find.byKey(popoverKey), findsOneWidget);
 
       // ...............................
       // Now lets route back to the base
-      debugger();
-      baseRouter.navigateTo('.');
-      debugger();
+      root.navigateTo('.');
       await tester.pump(Duration(microseconds: 1));
 
       // .............................
@@ -169,8 +145,7 @@ main() {
 
       // No routeOnTop should be shown anymore
       expect(find.byKey(baseKey), findsOneWidget);
-      expect(find.byKey(routeOnTop0Key), findsNothing);
-      expect(find.byKey(routeOnTop1Key), findsNothing);
+      expect(find.byKey(popoverKey), findsNothing);
 
       await tearDown(tester);
     });

@@ -23,33 +23,29 @@ typedef GgPopoverAnimationBuilder = Widget Function(
 );
 
 // #############################################################################
-/// Use [GgPopoverRouter] to show a selected route infront of an backgroundWidget.
-class GgPopoverRouter extends StatefulWidget {
+/// Use [GgPopoverRoute] to show a selected route infront of an backgroundWidget.
+class GgPopoverRoute extends StatefulWidget {
   // ...........................................................................
 
   /// Constructor.
-  /// - [key] The widget's key.
-  /// - [backgroundWidget] The background widget.
-  /// - [foregroundRoutes] A list of routes which are shown infront of
-  ///   [backgroundWidget]. Only the route is shown which matches the currently
-  ///   visible path segment.
-  GgPopoverRouter({
+  GgPopoverRoute({
     required Key key,
-    required this.backgroundWidget,
-    required this.foregroundRoutes,
+    required this.name,
+    required this.base,
+    required this.popover,
     this.inAnimation,
     this.outAnimation,
     this.animationDuration = const Duration(milliseconds: 500),
   }) : super(key: key);
 
-  // ...........................................................................
-  /// The background widget.
-  final Widget backgroundWidget;
+  /// The base widget. It is shown when the popover is not opened.
+  final Widget base;
 
-  // ...........................................................................
-  /// The list of routes which are shown infront of the [backgroundWidget].
-  /// Only the route belonging to the visible child route is shown.
-  final Map<String, Widget Function(BuildContext)> foregroundRoutes;
+  /// The popover. It is shown when a route with [name] is opened.
+  final WidgetBuilder popover;
+
+  /// The name of the route opening this popover.
+  final String name;
 
   /// This animation is applied to the appearing popover
   final GgPopoverAnimationBuilder? inAnimation;
@@ -61,11 +57,11 @@ class GgPopoverRouter extends StatefulWidget {
   final Duration animationDuration;
 
   @override
-  _GgPopoverRouterState createState() => _GgPopoverRouterState();
+  _GgPopoverRouteState createState() => _GgPopoverRouteState();
 }
 
 // #############################################################################
-class _GgPopoverRouterState extends State<GgPopoverRouter>
+class _GgPopoverRouteState extends State<GgPopoverRoute>
     with TickerProviderStateMixin {
   // ...........................................................................
   @override
@@ -86,12 +82,12 @@ class _GgPopoverRouterState extends State<GgPopoverRouter>
   @override
   Widget build(BuildContext context) {
     if (_popOver == null) {
-      return widget.backgroundWidget;
+      return widget.base;
     } else {
       final child = Stack(
         children: [
-          widget.backgroundWidget,
-          _popOver!,
+          widget.base,
+          _popOver!(context),
         ],
       );
 
@@ -116,48 +112,41 @@ class _GgPopoverRouterState extends State<GgPopoverRouter>
   }
 
   // ...........................................................................
-  Widget? _popOver;
-  Widget? _popOverContent;
+  WidgetBuilder? _popOver;
 
   // ...........................................................................
   _update() {
     final node = GgRouter.of(context).node;
+    final popoverChild = node.child(widget.name);
+    final popoverIsShown = popoverChild.isStaged;
+
+    final fadeIn =
+        popoverIsShown && popoverChild.needsFade && widget.inAnimation != null;
+
+    final fadeOut =
+        !popoverIsShown && _popOver != null && widget.outAnimation != null;
 
     // ....................................
     // If no content is shown, hide popover
-    if (node.stagedChild == null &&
-        node.childToBeFadedIn == null &&
-        node.childToBeFadedOut == null &&
-        _popOver == null) {
+    if (!popoverIsShown && !fadeIn && !fadeOut) {
       setState(() {
         _popOver = null;
       });
       return;
     }
 
+    // ..............................
+    // Wrap content into GgRouterCore
+    final WidgetBuilder content = (BuildContext context) => GgRouterCore(
+        child: Builder(builder: (context) => widget.popover(context)),
+        node: popoverChild);
+
     // ...........................................................
     // If no animation is needed show the popover content directly
-    bool fadeIn = node.childToBeFadedIn != null && widget.inAnimation != null;
-    final fadeOut = node.stagedChild == null &&
-        _popOverContent != null &&
-        widget.outAnimation != null;
-
-    // ..........................
-    // Calculate popover content
-    _popOverContent = node.stagedChild != null
-        ? GgRouter(
-            widget.foregroundRoutes,
-            key: ValueKey(node.stagedChild?.pathHashCode ?? 'GgPopoverRouter'),
-          )
-        : fadeOut
-            ? _popOverContent
-            : null;
-
     bool noAnimationNeeded = !fadeIn && !fadeOut;
-
     if (noAnimationNeeded) {
       setState(() {
-        _popOver = _popOverContent;
+        _popOver = content;
       });
       return;
     }
@@ -174,12 +163,13 @@ class _GgPopoverRouterState extends State<GgPopoverRouter>
       final animationCallback =
           (fadeIn ? widget.inAnimation : widget.outAnimation)!;
 
-      _popOver = AnimatedBuilder(
-        animation: _animation,
-        builder: (context, child) {
-          return animationCallback(context, _animation, _popOverContent!, node);
-        },
-      );
+      _popOver = (BuildContext context) => AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              return animationCallback(
+                  context, _animation, content(context), node);
+            },
+          );
 
       // ................................
       // Reset needs fade after animation
@@ -187,16 +177,11 @@ class _GgPopoverRouterState extends State<GgPopoverRouter>
         if (status == AnimationStatus.completed) {
           node.childToBeFadedIn?.needsFade = false;
           node.childToBeFadedOut?.needsFade = false;
-          if (fadeOut) {
-            _popOver = null;
-            _popOverContent = null;
-          }
+          _popOver = fadeOut ? null : content;
           _animation.removeStatusListener(_animationStatusListener);
+          _animation.reset();
 
-          setState(() {
-            _animation.reset();
-            _popOver = _popOverContent;
-          });
+          setState(() {});
         }
       };
       _animation.addStatusListener(_animationStatusListener);
