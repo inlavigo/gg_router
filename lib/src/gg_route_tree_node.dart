@@ -282,6 +282,18 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
+  /// The default child is chosen, when you want to navigate to _LAST_ and
+  /// no child is already staged.
+  String? defaultChildName;
+
+  // ...........................................................................
+  /// Returns the default child if some exists
+  GgRouteTreeNode? get defaultChild =>
+      (defaultChildName != null && hasChild(name: defaultChildName!))
+          ? child(defaultChildName!)
+          : null;
+
+  // ...........................................................................
   /// Returns true if the node has a child with [name].
   bool hasChild({required String name}) {
     return _children.containsKey(name);
@@ -307,7 +319,7 @@ class GgRouteTreeNode {
   /// Returns descendant that matches the path. Creates the node when needed.
   /// - `.` addresses node itself
   /// - `..` addresses parent node
-  /// - '_LAST_' - addresses child that was last staged
+  /// - '_LAST_' - addresses child that was last staged or the defaultChild
   GgRouteTreeNode descendants({required List<String> path}) {
     var result = this;
     path.forEach((element) {
@@ -319,11 +331,12 @@ class GgRouteTreeNode {
         }
         result = result.parent!;
       } else if (element == '_LAST_') {
-        GgRouteTreeNode? stagedChild = result.stagedChild;
+        GgRouteTreeNode? stagedChild =
+            result.stagedChild ?? result.defaultChild;
 
         while (stagedChild != null) {
           result = stagedChild;
-          stagedChild = stagedChild.stagedChild;
+          stagedChild = stagedChild.stagedChild ?? result.defaultChild;
         }
       } else {
         result = result.child(element);

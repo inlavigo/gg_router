@@ -437,6 +437,28 @@ main() {
     });
 
     // #########################################################################
+    group('defaultChild', () {
+      test('should return null if defaultChildName is null', () {
+        init();
+        expect(root.defaultChild, isNull);
+      });
+      test(
+          'should return null if defaultChildName is set, but no child with defaultChildName was created',
+          () {
+        init();
+        root.defaultChildName = 'defaultChild';
+        expect(root.defaultChild, isNull);
+      });
+
+      test('should return the defaultChild if one was created before', () {
+        init();
+        root.defaultChildName = 'defaultChild';
+        final defaultChild = root.child('defaultChild');
+        expect(root.defaultChild, defaultChild);
+      });
+    });
+
+    // #########################################################################
     group('descendants(path)', () {
       test('should the descendants maching the path', () {
         init();
@@ -500,6 +522,31 @@ main() {
         childA0.navigateTo('./_LAST_');
         expect(childA0.isStaged, true);
         expect(root.descendants(path: ['_LAST_']), childC);
+      });
+
+      test('path == "_LAST_" returns the default child, when available', () {
+        init();
+
+        // Navigate to root/_LAST_ -> childA0 is not staged, because no
+        // defaultChildren are set.
+        root.navigateTo('/_LAST_');
+        expect(root.isStaged, true);
+        expect(childA0.isStaged, false);
+
+        // Init default children
+        root.defaultChildName = childA0.name;
+        childA0.defaultChildName = childB.name;
+        childB.defaultChildName = childC.name;
+
+        // Navigate to root/_LAST_
+        root.navigateTo('_LAST_');
+
+        // root, childA0, childB and childC should be staged because
+        // default children have been set
+        expect(root.isStaged, true);
+        expect(childA0.isStaged, true);
+        expect(childB.isStaged, true);
+        expect(childC.isStaged, true);
       });
     });
 

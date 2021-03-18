@@ -146,6 +146,9 @@ main() {
       await setUp(tester);
       expect(ggRouterExample.width, 800);
       expect(ggRouterExample.height, 600);
+      routerDelegate.root.navigateTo('_INDEX_');
+      await tester.pumpAndSettle();
+      update(tester);
 
       // ........................................
       // Initially the index page should be shown
@@ -343,7 +346,7 @@ main() {
 
       // ................................
       // A dialog should have been opened
-      expect(currentUri, startsWith('sports/basketball/dialog'));
+      expect(currentUri, startsWith('sports/basketball/popover'));
       await tester.pumpAndSettle();
 
       // ..........................
@@ -353,7 +356,7 @@ main() {
       var checkBoxWidget = checkBox.widget as CheckboxListTile;
       expect(checkBoxWidget.value, false);
       update(tester);
-      expect(currentUri, 'sports/basketball/dialog?visit=false');
+      expect(currentUri, 'sports/basketball/popover?visit=false');
 
       // ........................
       // Let's click the checkbox
@@ -363,13 +366,13 @@ main() {
       checkBox = GgEasyWidgetTest(find.byType(CheckboxListTile), tester);
       checkBoxWidget = checkBox.widget as CheckboxListTile;
       expect(checkBoxWidget.value, true);
-      expect(currentUri, 'sports/basketball/dialog?visit=true');
+      expect(currentUri, 'sports/basketball/popover?visit=true');
 
       // ..............
       // Change the URI
       // => checkbox should change also
       routerDelegate.setNewRoutePath(
-        RouteInformation(location: 'sports/basketball/dialog?visit=false'),
+        RouteInformation(location: 'sports/basketball/popover?visit=false'),
       );
       await tester.pumpAndSettle();
       update(tester);

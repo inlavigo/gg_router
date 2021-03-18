@@ -45,6 +45,7 @@ main() {
           'routeC':
               builder({'c': GgRouteParam(seed: 7), 'd': GgRouteParam(seed: 8)}),
         },
+        defaultRoute: 'routeA',
         key: ValueKey('router'),
       );
       routeInformationParser = GgRouteInformationParser();

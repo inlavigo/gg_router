@@ -107,6 +107,7 @@ class GgRouter extends StatefulWidget {
   GgRouter(
     this.children, {
     required Key key,
+    this.defaultRoute,
     this.inAnimation,
     this.outAnimation,
     this.animationDuration = const Duration(milliseconds: 500),
@@ -124,6 +125,7 @@ class GgRouter extends StatefulWidget {
       : _rootChild = child,
         _rootNode = node,
         children = const {},
+        defaultRoute = null,
         inAnimation = null,
         outAnimation = null,
         animationDuration = const Duration(milliseconds: 500),
@@ -133,7 +135,6 @@ class GgRouter extends StatefulWidget {
   /// The duration for route transitions.
   final Duration animationDuration;
 
-  // ...........................................................................
   /// The child routes of this router.
   final Map<String, Widget Function(BuildContext)> children;
 
@@ -142,6 +143,10 @@ class GgRouter extends StatefulWidget {
 
   /// this animation is applied to the widget disappearing on route transitions.
   final GgAnimationBuilder? outAnimation;
+
+  /// The default route that is activated, if one navigates to _LAST_ and
+  /// no child route was staged before.
+  final String? defaultRoute;
 
   // ...........................................................................
   @override
@@ -261,6 +266,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // ...............................
     // For each child route, create a node
     _createChildNodes(parentNode);
+    _setupDefaultChild(parentNode);
 
     // ........................
     // Observe the visible child
@@ -323,6 +329,15 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
           : null;
     }
 
+    // ...................................................
+    // If no index child is defined, take the default route
+    if (newVisibleNode == null && widget.defaultRoute != null) {
+      newVisibleNode = widget.children.containsKey(widget.defaultRoute)
+          ? parentNode.child(widget.defaultRoute!)
+          : null;
+      newVisibleNode?.navigateTo('.');
+    }
+
     // ............................................................
     // If no visible child is defined and no index route is defined,
     // create an error and show the previous visible node.
@@ -331,7 +346,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
         GgRouteTreeNodeError(
           id: 'GRC008505',
           message:
-              'Route "${parentNode.path}" has no "_INDEX_" route and cannot be displayed.',
+              'Route "${parentNode.path}" has no "_INDEX_" route and also no defaultRoute set. It cannot be displayed.',
         ),
       );
 
@@ -492,6 +507,18 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     widget.children.keys.forEach((routeName) {
       parentNode.child(routeName);
     });
+  }
+
+  // ...........................................................................
+  _setupDefaultChild(GgRouteTreeNode parentNode) {
+    if (widget.defaultRoute != null) {
+      if (!widget.children.containsKey(widget.defaultRoute)) {
+        throw ArgumentError(
+            'Error GRC008506: The defaultChild "${widget.defaultRoute}" does not exist.');
+      }
+    }
+
+    parentNode.defaultChildName = widget.defaultRoute;
   }
 
   late AnimationController _animation;

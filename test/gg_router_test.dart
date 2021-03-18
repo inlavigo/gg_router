@@ -144,7 +144,8 @@ main() {
   }
 
   // .........................................................................
-  setUp(WidgetTester tester, {Widget? child}) async {
+  setUp(WidgetTester tester,
+      {Widget? child, String initialRoute = '/_INDEX_'}) async {
     // Create routeInformationProvider
     routeInformationProvider = TestRouteInformationProvider();
 
@@ -153,7 +154,8 @@ main() {
     // ........................
     // Create a router delegate
     routeInformationParser = GgRouteInformationParser();
-    routerDelegate = GgRouterDelegate(child: widget, defaultRoute: '/_INDEX_');
+    routerDelegate =
+        GgRouterDelegate(child: widget, defaultRoute: initialRoute);
 
     // .....................
     // Initialize the widget
@@ -308,7 +310,7 @@ main() {
       expect(lastBuiltNode.path, '/a0/a10');
       expect(receivedError!.id, 'GRC008505');
       expect(receivedError!.message,
-          'Route "/b0" has no "_INDEX_" route and cannot be displayed.');
+          'Route "/b0" has no "_INDEX_" route and also no defaultRoute set. It cannot be displayed.');
 
       await tearDown(tester);
     });
@@ -549,6 +551,52 @@ main() {
       await tester.pumpAndSettle();
       showAAtFirstPlace.value = false;
       await tester.pumpAndSettle();
+    });
+
+    // #########################################################################
+    group('Default children', () {
+      // .......................................................................
+      testWidgets(
+          'An error should be thrown if defaultChild is not one of the child routes',
+          (WidgetTester tester) async {
+        await setUp(
+          tester,
+          child: Builder(builder: (context) {
+            return GgRouter(
+              {'a': (_) => Container()},
+              key: GlobalKey(),
+              defaultRoute: 'b',
+            );
+          }),
+        );
+
+        expect(tester.takeException(), predicate((ArgumentError f) {
+          expect(f.message,
+              'Error GRC008506: The defaultChild "b" does not exist.');
+          return true;
+        }));
+      });
+
+      // .......................................................................
+      testWidgets('Should write the default child into the node',
+          (WidgetTester tester) async {
+        late GgRouteTreeNode root;
+
+        await setUp(
+          tester,
+          initialRoute: '/a',
+          child: Builder(builder: (context) {
+            root = GgRouter.of(context).node.root;
+            return GgRouter(
+              {'a': (_) => Container()},
+              key: GlobalKey(),
+              defaultRoute: 'a',
+            );
+          }),
+        );
+
+        expect(root.defaultChildName, 'a');
+      });
     });
 
     // #########################################################################
