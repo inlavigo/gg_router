@@ -32,11 +32,12 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
     required this.child,
     this.saveState,
     this.restoreState,
+    this.defaultRoute,
   }) : navigatorKey = GlobalKey<NavigatorState>() {
+    _initRoot();
     _restoreState();
     _initSaveStateTrigger();
-    _listenToRouteChanges();
-    _listenToParameterChanges();
+    _listenToChanges();
   }
 
   // ...........................................................................
@@ -68,6 +69,10 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   Future<String?> Function()? restoreState;
 
   // ...........................................................................
+  /// The default route loaded on beginning
+  final String? defaultRoute;
+
+  // ...........................................................................
   /// Builds the widget tree.
   @override
   Widget build(BuildContext context) {
@@ -96,12 +101,12 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   @override
   RouteInformation get currentConfiguration {
     Map<String, dynamic> queryParameters = {};
-    _root.visibleParams.values.forEach((param) {
+    _root.stagedParams.values.forEach((param) {
       queryParameters[param.name!] = param.value.toString();
     });
 
     final uri = Uri(
-      pathSegments: _root.visibleChildPathSegments
+      pathSegments: _root.stagedChildPathSegments
           .where((element) => element != '_INDEX_'),
       queryParameters: queryParameters.length > 0 ? queryParameters : null,
     );
@@ -140,14 +145,14 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
         return SynchronousFuture(null);
       }
 
-      _root.visibleChildPathSegments = uri.pathSegments;
+      _root.stagedChildPathSegments = uri.pathSegments;
       final Map<String, String> uriParams = {};
 
       if (uri.hasQuery) {
-        final visibleParams = _root.visibleParams;
+        final stagedParams = _root.stagedParams;
         uri.queryParameters.forEach((key, value) {
-          if (visibleParams.containsKey(key)) {
-            visibleParams[key]!.stringValue = value;
+          if (stagedParams.containsKey(key)) {
+            stagedParams[key]!.stringValue = value;
           } else {
             uriParams[key] = value;
           }
@@ -167,23 +172,19 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   // ...........................................................................
   final List<Function()> _dispose = [];
   final _root = GgRouteTreeNode(name: '_ROOT_');
-
-  // ...........................................................................
-  _listenToRouteChanges() {
-    final s = _root.visibleDescendantsDidChange.listen((event) {
-      notifyListeners();
-      _saveStateTrigger.trigger();
-    });
-
-    _dispose.add(s.cancel);
+  _initRoot() {
+    if (this.defaultRoute != null) {
+      _root.navigateTo(this.defaultRoute!);
+    }
   }
 
   // ...........................................................................
-  _listenToParameterChanges() {
-    final s = _root.onOwnOrChildParamChange.listen((event) {
+  _listenToChanges() {
+    final s = _root.onChange.listen((event) {
       notifyListeners();
       _saveStateTrigger.trigger();
     });
+
     _dispose.add(s.cancel);
   }
 

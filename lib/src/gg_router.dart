@@ -19,8 +19,8 @@ typedef GgAnimationBuilder = Widget Function(
   BuildContext context,
   Animation animation,
   Widget child,
-  GgRouteTreeNode nodeIn,
-  GgRouteTreeNode nodeOut,
+  GgRouteTreeNode? nodeIn,
+  GgRouteTreeNode? nodeOut,
 );
 
 // #############################################################################
@@ -57,16 +57,16 @@ class GgRouterCore extends StatelessWidget {
   // ...........................................................................
   /// Returns the name of the visible child route.
   /// Returns null if no child is visible.
-  String? get routeNameOfVisibleChild {
-    return node.visibleChild?.name;
+  String? get routeNameOfStagedChild {
+    return node.stagedChild?.name;
   }
 
   // ...........................................................................
   /// Returns the index of the visible child.
   /// Returns null, if no child is visible.
   /// You can use that index to highlight the right entry in a menu for example.
-  int? get indexOfVisibleChild {
-    return node.visibleChild?.widgetIndex;
+  int? get indexOfStagedChild {
+    return node.stagedChild?.widgetIndex;
   }
 
   // ...........................................................................
@@ -77,8 +77,8 @@ class GgRouterCore extends StatelessWidget {
 
   // ...........................................................................
   /// Use this stream to be informed when the visible child changes.
-  Stream<void> get onVisibleChildChange {
-    return node.visibleChildDidChange;
+  Stream<void> get onStagedChildChange {
+    return node.stagedChildDidChange;
   }
 
   // ...........................................................................
@@ -240,7 +240,9 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
   // ...........................................................................
   GgRouteTreeNode? _previousVisibleNode;
-  GgRouteTreeNode? _visibleNode;
+  GgRouteTreeNode? _stagedNode;
+  GgRouteTreeNode? _nodeToBeFadedIn;
+  GgRouteTreeNode? _nodeToBeFadedOut;
 
   // ...........................................................................
   _observeVisibleNode() {
@@ -248,7 +250,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // If widget is a root widget, the root node will always be the visible node.
     if (widget._isRoot) {
       _previousVisibleNode = null;
-      _visibleNode = widget._rootNode;
+      _stagedNode = widget._rootNode;
       return;
     }
 
@@ -262,48 +264,21 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
     // ........................
     // Observe the visible child
-    final s = parentNode.visibleChildDidChange.listen((_) {
-      _updateVisibleChild();
+    final s = parentNode.stagedChildDidChange.listen((_) {
+      _updateStagedChild();
     });
 
-    _updateVisibleChild(isFirstTime: true);
+    _updateStagedChild(isFirstTime: true);
 
     _dispose.add(s.cancel);
   }
 
   // ...........................................................................
-  _updateVisibleChild({bool isFirstTime = false}) {
+  _updateStagedChild({bool isFirstTime = false}) {
     final parentNode = GgRouter.of(context).node;
 
-    // If parentNode is not visible, we still show the previously visible child
-    if (!parentNode.isVisible) {
-      setState(() {
-        _visibleNode = parentNode.previouslyVisibleChild;
-      });
-      return;
-    }
-
     // Let's get the visible child
-    GgRouteTreeNode? newVisibleNode = parentNode.visibleChild;
-
-    // ....................................................................
-    // Delete the node from the tree if no widget for the node is existing
-    bool routeIsValid = newVisibleNode == null ||
-        widget.children.keys.contains(newVisibleNode.name);
-
-    if (!routeIsValid) {
-      final invalidNode = newVisibleNode;
-      newVisibleNode = parentNode.previouslyVisibleChild;
-      newVisibleNode?.isVisible = true;
-      parentNode.removeChild(invalidNode);
-      parentNode.setError(
-        GgRouteTreeNodeError(
-          id: 'GRC008448',
-          message:
-              'Route "${parentNode.path}" has no child named "${invalidNode.name}".',
-        ),
-      );
-    }
+    GgRouteTreeNode? newVisibleNode = parentNode.stagedChild;
 
     // ........................
     // Update the child indexes
@@ -313,6 +288,32 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
       child.widgetIndex = i;
       i++;
     });
+
+    // .......................................................
+    // Check if a widget is available for the new visible node
+    bool routeIsValid = newVisibleNode == null ||
+        widget.children.keys.contains(newVisibleNode.name);
+
+    // If no widget is available
+    if (!routeIsValid) {
+      // Show an error message
+      final invalidNode = newVisibleNode;
+      parentNode.setError(
+        GgRouteTreeNodeError(
+          id: 'GRC008448',
+          message:
+              'Route "${parentNode.path}" has no child named "${invalidNode.name}".',
+        ),
+      );
+
+      // Remove the node from the node tree
+      parentNode.removeChild(invalidNode);
+
+      // Show the previous visible node
+      newVisibleNode = _previousVisibleNode;
+      newVisibleNode?.navigateTo('.');
+      // _previousVisibleNode?.navigateTo('.');
+    }
 
     // ...................................................
     // If no visible child is defined, take the index route
@@ -324,24 +325,45 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
     // ............................................................
     // If no visible child is defined and no index route is defined,
-    // take the first possible child.
+    // create an error and show the previous visible node.
     if (newVisibleNode == null) {
-      newVisibleNode = parentNode.child(widget.children.keys.first);
+      parentNode.setError(
+        GgRouteTreeNodeError(
+          id: 'GRC008505',
+          message:
+              'Route "${parentNode.path}" has no "_INDEX_" route and cannot be displayed.',
+        ),
+      );
+
+      newVisibleNode = _previousVisibleNode;
     }
 
-    // ......................................................
-    // Activate the new visible node, but only the first time
-    // At later times the right nodes need to be addressed by
-    // navigate operations
-    if (isFirstTime) {
-      newVisibleNode.isVisible = true;
+    // ...................
+    // Configure animation
+    if (_animation.isCompleted || _animation.isDismissed) {
+      _animation.forward();
+
+      _animationStatusListener = (AnimationStatus status) {
+        if (status == AnimationStatus.completed) {
+          _nodeToBeFadedIn?.needsFade = false;
+          _nodeToBeFadedOut?.needsFade = false;
+          _nodeToBeFadedIn = null;
+          _nodeToBeFadedOut = null;
+          _animation.removeStatusListener(_animationStatusListener);
+          _animation.reset();
+        }
+      };
+
+      _animation.addStatusListener(_animationStatusListener);
     }
 
     // .............................
     // Activate the node to be shown
     setState(() {
-      _previousVisibleNode = _visibleNode;
-      _visibleNode = newVisibleNode;
+      _previousVisibleNode = newVisibleNode;
+      _stagedNode = newVisibleNode;
+      _nodeToBeFadedIn = parentNode.childToBeFadedIn;
+      _nodeToBeFadedOut = parentNode.childToBeFadedOut;
     });
   }
 
@@ -358,101 +380,98 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
   // ...........................................................................
   Widget _buildRoot(BuildContext context) {
-    widget._rootNode!.isVisible = true;
     return rootRouterCore!;
   }
 
   // ...........................................................................
   Widget _buildNonRoot(BuildContext context) {
-    // .....................................
-    // Show the widget belonging to the node
-    final appearingWidget =
-        _visibleNode != null ? widget.children[_visibleNode!.name] : null;
-
-    final disappearingWidget = _previousVisibleNode != null
-        ? widget.children[_previousVisibleNode!.name]
-        : null;
-
     // ...............................
     // Estimate if animation is needed
-    bool animationIsNeeded = disappearingWidget != null &&
-        appearingWidget != null &&
-        disappearingWidget != appearingWidget &&
-        widget.inAnimation != null &&
-        widget.outAnimation != null &&
-        !_animation.isAnimating &&
-        !_animation.isCompleted;
+    bool animateIn = widget.inAnimation != null && _nodeToBeFadedIn != null;
+    bool animateOut = widget.outAnimation != null && _nodeToBeFadedOut != null;
 
-    // .........................................
-    // If animation is needed, perform animation
-    if (animationIsNeeded) {
-      return _animate(
-        appearingWidget,
-        disappearingWidget,
-        _visibleNode!,
-        _previousVisibleNode!,
-      );
+    // ...................................
+    // If animation is needed show a stack
+    if (animateIn || animateOut) {
+      return _animate();
     }
 
-    // ....................................................
-    // If no animation is needed, only show the visible node
+    // .......................................................
+    // If no animation is needed, just show the staying widget
     else {
-      if (_animation.isCompleted) {
-        _animation.reset();
-      }
+      final child =
+          _stagedNode != null ? widget.children[_stagedNode!.name] : null;
 
-      return _visibleNode != null
+      return _stagedNode != null
           ? GgRouterCore(
               child: Builder(
-                builder: (context) {
-                  return appearingWidget?.call(context) ?? Container();
+                builder: (ctx) {
+                  return child?.call(ctx) ?? Container();
                 },
               ),
-              node: _visibleNode!)
+              node: _stagedNode!)
           : Container();
     }
   }
 
   // ...........................................................................
-  _animate(
-    Widget Function(BuildContext) appearingWidget,
-    Widget Function(BuildContext) disappearingWidget,
-    GgRouteTreeNode appearingNode,
-    GgRouteTreeNode disappearingNode,
-  ) {
-    _animation.reset();
-    _animation.forward();
+  Widget _animate() {
+    // .....................................
+    // Show the widget belonging to the node
+    final childToFadeIn = _nodeToBeFadedIn != null
+        ? widget.children[_nodeToBeFadedIn!.name]
+        : null;
 
-    final inWidget = () => widget.inAnimation!.call(
-          context,
-          _animation,
-          GgRouterCore(
-            child: Builder(builder: (context) => appearingWidget(context)),
-            node: appearingNode,
-          ),
-          disappearingNode,
-          appearingNode,
-        );
+    final childToFadeOut = _nodeToBeFadedOut != null
+        ? widget.children[_nodeToBeFadedOut!.name]
+        : null;
 
-    final outWidget = () => widget.outAnimation!.call(
-          context,
-          _animation,
-          GgRouterCore(
-            child: Builder(builder: (context) => disappearingWidget(context)),
-            node: disappearingNode,
-          ),
-          disappearingNode,
-          appearingNode,
-        );
+    final stayingWidget = childToFadeIn != null
+        ? null
+        : (BuildContext context) => GgRouterCore(
+              child: Builder(
+                  builder: (context) =>
+                      widget.children[_stagedNode!.name]?.call(context) ??
+                      Container()),
+              node: _stagedNode!,
+            );
+
+    final inWidget = childToFadeIn == null
+        ? null
+        : () => widget.inAnimation!.call(
+              context,
+              _animation,
+              GgRouterCore(
+                child: Builder(builder: (context) => childToFadeIn(context)),
+                node: _nodeToBeFadedIn!,
+              ),
+              _nodeToBeFadedOut,
+              _nodeToBeFadedIn,
+            );
+
+    final outWidget = childToFadeOut == null
+        ? null
+        : () => widget.outAnimation!.call(
+              context,
+              _animation,
+              GgRouterCore(
+                child: Builder(builder: (context) => childToFadeOut(context)),
+                node: _nodeToBeFadedOut!,
+              ),
+              _nodeToBeFadedOut,
+              _nodeToBeFadedIn,
+            );
 
     return AnimatedBuilder(
-        animation: _animation,
-        builder: (context, widget) {
-          return Stack(children: [
-            outWidget(),
-            inWidget(),
-          ]);
-        });
+      animation: _animation,
+      builder: (context, widget) {
+        return Stack(children: [
+          if (outWidget != null) outWidget(),
+          if (inWidget != null) inWidget(),
+          if (stayingWidget != null) stayingWidget(context),
+        ]);
+      },
+    );
   }
 
   // ...........................................................................
@@ -465,6 +484,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     };
     _animation.addStatusListener(listner);
     _dispose.add(() => _animation.removeStatusListener(listner));
+    _dispose.add(_animation.dispose);
   }
 
   // ...........................................................................
@@ -475,4 +495,5 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   }
 
   late AnimationController _animation;
+  late Function(AnimationStatus) _animationStatusListener;
 }

@@ -108,8 +108,8 @@ class _Params {
   bool hasParam(String name) => _params.keys.contains(name);
 
   // ...........................................................................
-  /// A stream that informs about chnages of any of the params.
-  Stream<void> get onChange => _onChange.stream;
+  /// A stream that informs if any of the parameter changes
+  Stream<void> get onOwnOrChildChange => _onOwnOrChildChange.stream;
 
   // ...........................................................................
   final List<Function()> _dispose = [];
@@ -138,9 +138,9 @@ class _Params {
   final _params = Map<String, GgValue>();
 
   // ...........................................................................
-  final _onChange = StreamController<void>.broadcast();
+  final _onOwnOrChildChange = StreamController<void>.broadcast();
   _initOnChange() {
-    _dispose.add(() => _onChange.close());
+    _dispose.add(() => _onOwnOrChildChange.close());
   }
 
   // ...........................................................................
@@ -154,8 +154,8 @@ class _Params {
   late GgOncePerCycle _onChangeTrigger;
   _initOnChangeTrigger() {
     _onChangeTrigger = GgOncePerCycle(task: () {
-      if (!_onChange.isClosed && _onChange.hasListener) {
-        _onChange.add(null);
+      if (!_onOwnOrChildChange.isClosed && _onOwnOrChildChange.hasListener) {
+        _onOwnOrChildChange.add(null);
       }
     });
   }
@@ -174,13 +174,14 @@ class GgRouteTreeNode {
     this.parent,
   }) {
     _checkConsistency();
+    _initOnChange();
     _initParent();
     _initParams();
     _initPath();
     _initChildren();
-    _initIsVisible();
-    _initVisibleChild();
-    _initVisibleDescendants();
+    _initIsStaged();
+    _initStagedChild();
+    _initStagedDescendants();
     _initOwnOrChildParamChange();
     _initSubscriptions();
   }
@@ -232,49 +233,28 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns the index in the parent's children array.
   int? widgetIndex;
+  // ############################
+  // onChange
+  // ############################
+
+  Stream<void> get onChange => _onChange.stream;
 
   // ######################
-  // isVisible
+  // isStaged
   // ######################
 
   // ...........................................................................
-  /// Marks this node as visible or invisible.
-  ///
-  /// - [isVisible] = true: Also the parent nodes are set to visible.
-  /// - [isVisible] = false: Also all child nodes are set to invisible.
-  /// - At a time only one path in the tree can be cative.
-  set isVisible(bool isVisible) {
-    if (_isVisible.value == isVisible) {
-      return;
-    }
+  /// Returns true if this node is staged.
+  bool get isStaged => _isStaged.value;
 
-    _isVisible.value = isVisible;
-
-    // Mark also ancestors to be visible
-    if (isVisible) {
-      _previouslyVisibleChild?.isVisible = true;
-      parent?._childBecameVisible(this);
-    }
-    // Mark also children to be invisible
-    else {
-      _previouslyVisibleChild = _visibleChild.value;
-      _children.values.forEach((child) => child.isVisible = false);
-      parent?._childBecameInvisible(this);
+  /// ...........................................................................
+  /// Sets back staging for the node and it's children
+  void resetStaging({bool recursive = false}) {
+    _setIsStaged(false);
+    if (recursive) {
+      children.forEach((child) => child.resetStaging(recursive: recursive));
     }
   }
-
-  // ...........................................................................
-  /// Returns true if this node is visible.
-  bool get isVisible => _isVisible.value;
-
-  // ...........................................................................
-  /// A node is active if it is either visible or if it was visible before
-  /// we switched to another branch of the tree.
-  bool get isActive => isRoot || parent!._activeChild == this;
-
-  // ...........................................................................
-  /// Returns a stream informing when isVisible changes.
-  Stream<bool> get onIsVisible => _isVisible.stream;
 
   // ######################
   // Children
@@ -296,6 +276,7 @@ class GgRouteTreeNode {
     if (child == null) {
       child = GgRouteTreeNode(name: name, parent: this);
       _children[name] = child;
+      _reportChange();
     }
     return child;
   }
@@ -312,6 +293,7 @@ class GgRouteTreeNode {
     if (identical(_children[child.name], child)) {
       _unlistenNode(child);
       child.dispose();
+      _reportChange();
     } else {
       throw ArgumentError(
           'The child to be remove is not a child of this node.');
@@ -325,8 +307,8 @@ class GgRouteTreeNode {
   /// Returns descendant that matches the path. Creates the node when needed.
   /// - `.` addresses node itself
   /// - `..` addresses parent node
-  /// - '_LAST_' - addresses child that was last visible
-  GgRouteTreeNode descendand({required List<String> path}) {
+  /// - '_LAST_' - addresses child that was last staged
+  GgRouteTreeNode descendants({required List<String> path}) {
     var result = this;
     path.forEach((element) {
       if (element == '.' || element == '') {
@@ -337,18 +319,12 @@ class GgRouteTreeNode {
         }
         result = result.parent!;
       } else if (element == '_LAST_') {
-        GgRouteTreeNode? previouslyVisibleChild =
-            result._currentOrPreviouslyVisibleChild;
+        GgRouteTreeNode? stagedChild = result.stagedChild;
 
-        if (path.last == element) {
-          while (previouslyVisibleChild?._currentOrPreviouslyVisibleChild !=
-              null) {
-            previouslyVisibleChild =
-                previouslyVisibleChild!._currentOrPreviouslyVisibleChild;
-          }
+        while (stagedChild != null) {
+          result = stagedChild;
+          stagedChild = stagedChild.stagedChild;
         }
-
-        result = previouslyVisibleChild ?? result;
       } else {
         result = result.child(element);
       }
@@ -357,49 +333,86 @@ class GgRouteTreeNode {
     return result;
   }
 
-  // ######################
-  // Visible child
-  // ######################
-
   // ...........................................................................
-  /// Returns the visible child or null if no child is visible.
-  GgRouteTreeNode? get visibleChild => _visibleChild.value;
-
-  // ...........................................................................
-  /// Returns the visible child that is in background because another
-  /// route tree is currently selected.
-  GgRouteTreeNode? get activeChild => _activeChild;
-
-  // ...........................................................................
-  /// Informs if the visible child did change.
-  Stream<GgRouteTreeNode?> get visibleChildDidChange => _visibleChild.stream;
-
-  // ...........................................................................
-  /// Returns the child that was previously visible.
-  GgRouteTreeNode? get previouslyVisibleChild => _previouslyVisibleChild;
+  List<GgRouteTreeNode> get ancestors {
+    List<GgRouteTreeNode> result = [];
+    GgRouteTreeNode? node = this;
+    while (node != null) {
+      result.add(node);
+      node = node.parent;
+    }
+    return result;
+  }
 
   // ######################
-  // Visible Descendants
+  // Staged child
   // ######################
 
   // ...........................................................................
-  /// Returns a list containing all visible descendants.
-  List<GgRouteTreeNode> get visibleDescendants {
-    GgRouteTreeNode? visibleChild = _visibleChild.value;
+  /// Returns the staged child or null if no child is staged.
+  GgRouteTreeNode? get stagedChild => _stagedChild.value;
+
+  // ...........................................................................
+  /// Informs if the staged child did change.
+  Stream<GgRouteTreeNode?> get stagedChildDidChange => _stagedChild.stream;
+
+  // ######################
+  // Visible Route
+  // ######################
+
+  // ...........................................................................
+  /// Returns a list containing all staged descendants.
+  List<GgRouteTreeNode> get visibleRoute {
+    GgRouteTreeNode? stagedChild = _stagedChild.value;
 
     final List<GgRouteTreeNode> result = [];
-    while (visibleChild != null) {
-      result.add(visibleChild);
-      visibleChild = visibleChild.visibleChild;
+    while (stagedChild != null) {
+      result.add(stagedChild);
+      stagedChild = stagedChild.stagedChild;
     }
 
     return result;
   }
 
+  // ######################
+  // Fade in and out
+  // ######################
+
   // ...........................................................................
-  /// A stream that informs when the visible descendants change.
-  Stream<List<GgRouteTreeNode>> get visibleDescendantsDidChange =>
-      _visibleDescendants.stream;
+  /// Returns true if this node needs to be faded in when staged
+  /// or faded out when not staged. The value is reset by GgRouterWidget
+  /// after the node has been faded in or out.
+  bool needsFade = false;
+
+  // ...........................................................................
+  /// Returns the child that needs to be faded in
+  GgRouteTreeNode? get childToBeFadedIn {
+    GgRouteTreeNode? result;
+    children.forEach((child) {
+      if (child.needsFade && child.isStaged) {
+        result = child;
+      }
+    });
+
+    return result;
+  }
+
+  // ...........................................................................
+  /// Returns the child that needs to be faded out
+  GgRouteTreeNode? get childToBeFadedOut {
+    GgRouteTreeNode? result;
+    children.forEach((child) {
+      if (child.needsFade && !child.isStaged) {
+        result = child;
+      }
+    });
+
+    return result;
+  }
+
+  // ...........................................................................
+  /// Returns a stream informing when isStaged changes.
+  Stream<bool> get onIsStaged => _isStaged.stream;
 
   // ######################
   // Params
@@ -459,13 +472,13 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  /// Returns all parameters of the visible path.
-  Map<String, GgValue> get visibleParams {
+  /// Returns all parameters of the staged path.
+  Map<String, GgValue> get stagedParams {
     Map<String, GgValue> result = {};
     GgRouteTreeNode? node = this;
     while (node != null) {
       result.addAll(node._params._params);
-      node = node.visibleChild;
+      node = node.stagedChild;
     }
 
     return result;
@@ -477,7 +490,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// A stream that informs when the node's parameters change.
-  Stream<void> get onOwnParamChange => _params.onChange;
+  Stream<void> get onOwnParamChange => _params.onOwnOrChildChange;
 
   // ...........................................................................
   /// A stream that informs when the node's own or its child parameters change.
@@ -504,30 +517,54 @@ class GgRouteTreeNode {
   // ######################
 
   // ...........................................................................
-  /// Returns the path of visible children as a list of path segments.
-  List<String> get visibleChildPathSegments =>
-      visibleDescendants.map((e) => e.name).toList();
+  /// Returns the path of staged children as a list of path segments.
+  List<String> get stagedChildPathSegments =>
+      visibleRoute.map((e) => e.name).toList();
 
   // ...........................................................................
   /// Creates and activates children according to the segments in [path]
   /// - `..` addresses parent node
   /// - `.` addresses node itself
-  set visibleChildPathSegments(List<String> path) {
-    final node = descendand(path: path);
+  set stagedChildPathSegments(List<String> path) {
+    final node = descendants(path: path);
 
-    // The old active child of the node is not active anymore
-    // because the new visible child will become also the active child
-    node._activeChild = null;
-    node.isVisible = true;
-    node.visibleChild?.isVisible = false;
+    final nodesFromRoot = node.ancestors.reversed;
 
-    if (path.isEmpty) {
-      visibleChild?.isVisible = false;
-    }
+    bool nodeIsFaded = false;
+
+    // For each element from root to node
+    nodesFromRoot.forEach((node) {
+      final needsFade = !nodeIsFaded && (node.isStaged == false);
+
+      // Get new and old faded node
+      final newNode = node;
+      final oldNode = node.parent?._stagedChild.value;
+
+      // If staging has not changed, contine
+      if (newNode == oldNode) {
+        return;
+      }
+
+      // Set needsFade flag if this node is the first changed node
+      if (needsFade) {
+        newNode.needsFade = true;
+        oldNode?.needsFade = true;
+        nodeIsFaded = true;
+      }
+
+      // Stage the node
+      newNode._setIsStaged(true);
+
+      // Unstage the previous node
+      oldNode?._setIsStaged(false);
+    });
+
+    // Reset staging for the node's children
+    node.stagedChild?.resetStaging(recursive: false);
   }
 
   // ...........................................................................
-  String get visibleChildPath => visibleChildPathSegments.join('/');
+  String get stagedChildPath => stagedChildPathSegments.join('/');
 
   // ...........................................................................
   /// Activates the path in the node hierarchy.
@@ -541,7 +578,7 @@ class GgRouteTreeNode {
   // Uri parameters
   // ######################
 
-  /// Use [uriParams] to apply parameters taken from a URI to the visible tree.
+  /// Use [uriParams] to apply parameters taken from a URI to the staged tree.
   /// These parameters are used to initialize node parameters.
   Map<String, dynamic> uriParams = {};
 
@@ -602,11 +639,8 @@ class GgRouteTreeNode {
   // ######################
 
   // ...........................................................................
-  /// This key is used to store the visible child name to JSON
-  static const visibleChildJsonKey = '__visibleChild';
-
-  /// This key is used to store the previously visible child name to JSON
-  static const previouslyVisibleChildJsonKey = '__previouslyVisibleChild';
+  /// This key is used to store the staged child name to JSON
+  static const stagedChildJsonKey = '__stagedChild';
 
   // ...........................................................................
   /// Reads the JSON string and creates routes and  parameters. Parameters that
@@ -712,6 +746,10 @@ class GgRouteTreeNode {
   final _params = _Params();
   _initParams() {
     _dispose.add(() => _params.dispose());
+
+    // Inform about parameter changes
+    final s = _params.onOwnOrChildChange.listen((event) => _reportChange());
+    _dispose.add(s.cancel);
   }
 
   // ...........................................................................
@@ -770,78 +808,88 @@ class GgRouteTreeNode {
   }
 
   // ########
-  // isVisible
+  // onChange
 
   // ...........................................................................
-  final _isVisible = GgValue(seed: false);
+  final _onChange = StreamController.broadcast();
+  late GgOncePerCycle _onChangeTrigger;
 
   // ...........................................................................
-  _initIsVisible() {
-    _dispose.add(() {
-      if (isVisible) {
-        isVisible = false;
+  _initOnChange() {
+    _dispose.add(_onChange.close);
+    _onChangeTrigger = GgOncePerCycle(task: () {
+      if (_onChange.hasListener) {
+        _onChange.add(null);
+        parent?._reportChange();
       }
     });
-    _dispose.add(() => _isVisible.dispose());
+  }
+
+  // ...........................................................................
+  _reportChange() {
+    _onChangeTrigger.trigger();
+    parent?._reportChange();
+  }
+
+  // ########
+  // isStaged
+
+  // ...........................................................................
+  final _isStaged = GgValue(seed: false);
+
+  // ...........................................................................
+  _initIsStaged() {
+    _dispose.add(() {
+      if (isStaged) {
+        _setIsStaged(false);
+      }
+    });
+    _dispose.add(() => _isStaged.dispose());
+  }
+
+  // ...........................................................................
+  _setIsStaged(bool b) {
+    _isStaged.value = b;
+
+    if (b && parent?._stagedChild.value != this) {
+      parent?._stagedChild.value = this;
+    } else if (!b && parent?._stagedChild.value == this) {
+      parent?._stagedChild.value = null;
+    }
+
+    _reportChange();
   }
 
   // ###########
-  // visibleChild
+  // stagedChild
   // ...........................................................................
-  final _visibleChild = GgValue<GgRouteTreeNode?>(seed: null);
-  GgRouteTreeNode? _previouslyVisibleChild;
-  GgRouteTreeNode? _activeChild;
+  final _stagedChild = GgValue<GgRouteTreeNode?>(seed: null);
 
-  GgRouteTreeNode? get _currentOrPreviouslyVisibleChild =>
-      _visibleChild.value ?? _previouslyVisibleChild;
+  _initStagedChild() {
+    _dispose.add(() {
+      _stagedChild.dispose();
 
-  _initVisibleChild() {
-    _dispose.add(() => _visibleChild.dispose());
-  }
+      if (parent?._stagedChild.value == this) {
+        parent?._stagedChild.value = null;
+      }
+    });
 
-  // ...........................................................................
-  _childBecameVisible(GgRouteTreeNode child) {
-    if (_visibleChild.value == child) {
-      return;
-    }
-
-    // Remember previously visible child
-    _previouslyVisibleChild = _visibleChild.value ?? _previouslyVisibleChild;
-
-    // A visible child is always an active child
-    _activeChild = child;
-
-    isVisible = true;
-    _visibleChild.value?.isVisible = false;
-    _visibleChild.value = child;
-
-    _updateVisibleDescendants();
-  }
-
-  // ...........................................................................
-  _childBecameInvisible(GgRouteTreeNode child) {
-    if (_visibleChild.value != child) {
-      return;
-    }
-    _previouslyVisibleChild = _visibleChild.value ?? _previouslyVisibleChild;
-    _visibleChild.value = null;
-    _updateVisibleDescendants();
+    final s = _stagedChild.stream.listen((_) => _reportChange());
+    _dispose.add(s.cancel);
   }
 
   // #################
-  // visibleDescendants
+  // stagedDescendants
 
   // ...........................................................................
-  final _visibleDescendants =
-      GgValue<List<GgRouteTreeNode>>(seed: [], compare: listEquals);
+  final _stagedDescendants = GgValue<List<GgRouteTreeNode>>(
+    seed: [],
+    compare: listEquals,
+    spam: false,
+  );
 
-  _initVisibleDescendants() {
-    _dispose.add(() => _visibleDescendants.dispose());
-  }
-
-  _updateVisibleDescendants() {
-    _visibleDescendants.value = visibleDescendants;
-    parent?._updateVisibleDescendants();
+  _initStagedDescendants() {
+    _dispose.add(() => _stagedDescendants.dispose());
   }
 
   // ################
@@ -849,7 +897,7 @@ class GgRouteTreeNode {
   _navigateTo(String path) {
     final startElement = path.startsWith('/') ? root : this;
     final pathComponents = path.split('/');
-    startElement.visibleChildPathSegments = pathComponents;
+    startElement.stagedChildPathSegments = pathComponents;
   }
 
   // ##############
@@ -872,15 +920,11 @@ class GgRouteTreeNode {
           child(key)._parseJson(value);
         } else {
           // .................
-          // Read visible child
-          if (key == visibleChildJsonKey) {
-            child(value).isVisible = true;
-          }
-
-          // ............................
-          // Read previously visible child
-          if (key == previouslyVisibleChildJsonKey) {
-            _previouslyVisibleChild = child(value);
+          // Read staged child
+          if (key == stagedChildJsonKey) {
+            final childNode = child(value);
+            childNode._setIsStaged(true);
+            _stagedChild.value = childNode;
           }
 
           // ...........
@@ -918,14 +962,9 @@ class GgRouteTreeNode {
   Object _generateJson() {
     final result = Map();
 
-    // Write visible child
-    if (_visibleChild.value != null) {
-      result[visibleChildJsonKey] = _visibleChild.value!.name;
-    }
-
-    // Write previously visible child
-    if (_previouslyVisibleChild != null) {
-      result[previouslyVisibleChildJsonKey] = _previouslyVisibleChild!.name;
+    // Write staged child
+    if (_stagedChild.value != null) {
+      result[stagedChildJsonKey] = _stagedChild.value!.name;
     }
 
     // Write parameters

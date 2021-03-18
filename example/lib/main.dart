@@ -5,6 +5,7 @@
 // found in the LICENSE file in the root of this package.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
@@ -92,7 +93,7 @@ class GgRouterExample extends StatelessWidget {
   }
 
   // ...........................................................................
-  Widget _text(String text, BuildContext context, bool isVisible) {
+  Widget _text(String text, BuildContext context, bool isStaged) {
     final theme = Theme.of(context);
     final onPrimary = theme.colorScheme.onPrimary;
     final onPrimaryInactive = onPrimary.withAlpha(120);
@@ -100,7 +101,7 @@ class GgRouterExample extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Text(
         text,
-        style: TextStyle(color: isVisible ? onPrimary : onPrimaryInactive),
+        style: TextStyle(color: isStaged ? onPrimary : onPrimaryInactive),
       ),
     );
   }
@@ -122,13 +123,13 @@ class GgRouterExample extends StatelessWidget {
       final router = GgRouter.of(context);
 
       return StreamBuilder(
-        stream: router.onVisibleChildChange,
+        stream: router.onStagedChildChange,
         builder: (context, snapshot) {
-          final isVisible = router.routeNameOfVisibleChild == route;
+          final isStaged = router.routeNameOfStagedChild == route;
           return TextButton(
             key: ValueKey(route),
             onPressed: () => router.navigateTo('$route/_LAST_'),
-            child: _text(title, context, isVisible),
+            child: _text(title, context, isStaged),
           );
         },
       );
@@ -209,9 +210,9 @@ class GgRouterExample extends StatelessWidget {
     return Scaffold(
       key: ValueKey('sportsPage'),
       bottomNavigationBar: StreamBuilder(
-          stream: router.onVisibleChildChange,
+          stream: router.onStagedChildChange,
           builder: (context, snapshot) {
-            final index = router.indexOfVisibleChild ?? 0;
+            final index = router.indexOfStagedChild ?? 0;
 
             return BottomNavigationBar(
               currentIndex: index,
@@ -260,6 +261,8 @@ class GgRouterExample extends StatelessWidget {
                 foregroundRoutes: {
                   'dialog': _dialog,
                 },
+                inAnimation: _rotateIn,
+                outAnimation: _rotateOut,
               ),
             );
           },
@@ -280,9 +283,9 @@ class GgRouterExample extends StatelessWidget {
     return Scaffold(
       key: ValueKey('transportationPage'),
       bottomNavigationBar: StreamBuilder(
-          stream: router.onVisibleChildChange,
+          stream: router.onStagedChildChange,
           builder: (context, snapshot) {
-            final index = router.indexOfVisibleChild ?? 0;
+            final index = router.indexOfStagedChild ?? 0;
 
             return BottomNavigationBar(
               currentIndex: index,
@@ -336,9 +339,9 @@ class GgRouterExample extends StatelessWidget {
     return Scaffold(
       bottomNavigationBar: StreamBuilder(
           key: ValueKey('placesPage'),
-          stream: router.onVisibleChildChange,
+          stream: router.onStagedChildChange,
           builder: (context, snapshot) {
-            final index = router.indexOfVisibleChild ?? 0;
+            final index = router.indexOfStagedChild ?? 0;
 
             return BottomNavigationBar(
               currentIndex: index,
@@ -402,8 +405,8 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
-    GgRouteTreeNode disappearingRoute,
-    GgRouteTreeNode appearingRoute,
+    GgRouteTreeNode? disappearingRoute,
+    GgRouteTreeNode? appearingRoute,
   ) {
     // In the first part of the animation the old widget is faded out
     final scale = animation.value < 0.5
@@ -421,8 +424,8 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
-    GgRouteTreeNode disappearingRoute,
-    GgRouteTreeNode appearingRoute,
+    GgRouteTreeNode? disappearingRoute,
+    GgRouteTreeNode? appearingRoute,
   ) {
     // In the second part of the animation the new widget is faded in
     final scale = animation.value >= 0.5
@@ -440,8 +443,8 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
-    GgRouteTreeNode disappearingRoute,
-    GgRouteTreeNode appearingRoute,
+    GgRouteTreeNode? disappearingRoute,
+    GgRouteTreeNode? appearingRoute,
   ) {
     // In the second part of the animation the new widget is faded in
     final opacity = animation.value >= 0.5
@@ -456,8 +459,8 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
-    GgRouteTreeNode disappearingRoute,
-    GgRouteTreeNode appearingRoute,
+    GgRouteTreeNode? disappearingRoute,
+    GgRouteTreeNode? appearingRoute,
   ) {
     // In the first part of the animation the old widget is faded out
     final opacity = animation.value < 0.5
@@ -465,5 +468,51 @@ class GgRouterExample extends StatelessWidget {
         : 0.0;
 
     return Opacity(opacity: opacity, child: child);
+  }
+
+  // ...........................................................................
+  Widget _rotateIn(
+    BuildContext context,
+    Animation animation,
+    Widget child,
+    GgRouteTreeNode? node,
+  ) {
+    final scale = animation.value;
+    final angle = 2 * pi * animation.value;
+    final fade = animation.value;
+
+    return Transform.scale(
+      scale: scale,
+      child: Transform.rotate(
+        angle: angle,
+        child: Opacity(
+          opacity: fade,
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  // ...........................................................................
+  Widget _rotateOut(
+    BuildContext context,
+    Animation animation,
+    Widget child,
+    GgRouteTreeNode? node,
+  ) {
+    final scale = 1.0 - animation.value;
+    final angle = -2 * pi * animation.value;
+    final fade = 1.0 - animation.value;
+
+    return Transform.scale(
+      scale: scale,
+      child: Transform.rotate(
+        angle: angle,
+        child: Opacity(
+          opacity: fade,
+          child: child,
+        ),
+      ),
+    );
   }
 }

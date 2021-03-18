@@ -6,7 +6,7 @@
 
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gg_router/gg_router.dart';
+import 'package:gg_router/src/gg_route_tree_node.dart';
 
 class OtherClass {}
 
@@ -44,17 +44,18 @@ main() {
       test(
           'should remove all children from the node. '
           'Should remove the node from its parents list of children. '
-          'Should reset the visible child property of its parent.', () {
+          'Should reset the staged child property of its parent.', () {
         init();
         final parent = childB.parent!;
-        childB.isVisible = true;
+        childB.navigateTo('.');
+        expect(childB.isStaged, true);
         expect(childB.children.length, 1);
         expect(parent.children.length, 1);
-        expect(parent.visibleChild, childB);
+        expect(parent.stagedChild, childB);
         childB.dispose();
         expect(parent.children.length, 0);
         expect(childB.children.length, 0);
-        expect(parent.visibleChild, null);
+        expect(parent.stagedChild, null);
       });
     });
 
@@ -108,6 +109,7 @@ main() {
     // #########################################################################
     group('toString', () {
       test('should return the path of the node', () {
+        init();
         expect(childC.toString(), childC.path);
       });
     });
@@ -155,143 +157,205 @@ main() {
     });
 
     // #########################################################################
-    group('isVisible', () {
-      test('should be false by default', () {
-        init();
-        expect(root.isVisible, false);
-        expect(childA0.isVisible, false);
-        expect(childB.isVisible, false);
-        expect(childC.isVisible, false);
-      });
-
+    group('onChange', () {
       test(
-          'If isVisible set to true, also all parent nodes should become visible',
+          'should inform if any parameter in the subtree changes or any node is added, removed or staged',
           () {
-        init();
-        childB.isVisible = true;
-        expect(root.isVisible, true);
-        expect(childB.isVisible, true);
-        expect(childC.isVisible, false);
-      });
-
-      test(
-          'If isVisible set to true, the existing visible child becomes invisible',
-          () {
-        init();
-
-        // Initally childA0 is visible
-        childA0.isVisible = true;
-        expect(root.isVisible, true);
-        expect(childA0.isVisible, true);
-
-        // Now we set childA1 to visible
-        childA1.isVisible = true;
-
-        // childA0 should not be visible anymore
-        expect(childA0.isVisible, false);
-        expect(childA1.isVisible, true);
-      });
-
-      test('If isVisible is set to false, als all child nodes become invisible',
-          () {
-        init();
-
-        // Currently the complete path is visible
-        childC.isVisible = true;
-        expect(root.isVisible, true);
-        expect(childA0.isVisible, true);
-        expect(childB.isVisible, true);
-        expect(childC.isVisible, true);
-
-        // Now we set childA to inVisible
-        childA0.isVisible = false;
-
-        // The parent is still visible
-        expect(root.isVisible, true);
-
-        // childA and its children are invisible
-        expect(childA0.isVisible, false);
-        expect(childB.isVisible, false);
-        expect(childC.isVisible, false);
-      });
-
-      test(
-          'If isVisible is set to false and then to true, thre previous visible child becomes visible also',
-          () {
-        init();
-
-        // Currently the complete path is visible
-        childC.isVisible = true;
-        expect(root.isVisible, true);
-        expect(childC.isVisible, true);
-
-        // Now we set childB to inVisible
-        childB.isVisible = false;
-
-        // Child c is invisible also
-        expect(childC.isVisible, false);
-
-        // Now we set childB visible again
-        childB.isVisible = true;
-
-        // Child c should become visible also
-        expect(childC.isVisible, true);
-      });
-    });
-
-    // #########################################################################
-    group('onIsVisible', () {
-      test('should inform when isVisible state changes', () {
-        init();
         fakeAsync((fake) {
-          bool? isVisible;
-          final s = childB.onIsVisible.listen((event) => isVisible = event);
-          fake.flushMicrotasks();
-          expect(isVisible, isNull);
+          init();
 
-          childC.isVisible = true;
-          fake.flushMicrotasks();
-          expect(isVisible, isTrue);
+          // ..................
+          // Listen to onChange
+          int counter = 0;
+          final s = root.onChange.listen((event) => counter++);
+          final checkCounter = ([int? expected]) {
+            fake.flushMicrotasks();
+            expect(counter, expected ?? 1);
+            counter = 0;
+          };
 
-          childA0.isVisible = false;
-          fake.flushMicrotasks();
-          expect(isVisible, isFalse);
+          // ...............
+          // Add a parameter
+          final param = childC.findOrCreateParam(name: 'a', seed: 10);
+          checkCounter();
 
+          // Change a parameter
+          param.value = 11;
+          checkCounter();
+
+          // ...........
+          // Add a child
+          final childD = childC.child('child-d');
+          checkCounter();
+
+          // Remove a child
+          childC.removeChild(childD);
+          checkCounter();
+
+          // ...........
+          // Stage a child
+          childC.navigateTo('.');
+          checkCounter(2);
+
+          childA1.navigateTo('.');
+          checkCounter(2);
+
+          // ........
+          // Finalize
           s.cancel();
         });
       });
     });
 
     // #########################################################################
-    group('isActive', () {
-      test('root nodes are always active', () {
+    group('isStaged', () {
+      test('should be false by default', () {
         init();
-        expect(root.isActive, true);
-      });
-      test('should be true, if a node is visible', () {
-        init();
-        expect(childC.isActive, false);
-        childC.isVisible = true;
-        expect(childC.isActive, true);
+        expect(root.isStaged, false);
+        expect(childA0.isStaged, false);
+        expect(childB.isStaged, false);
+        expect(childC.isStaged, false);
       });
 
-      test('should be true, also if the visible tree branch changes', () {
+      test(
+          'If isStaged set to true, also all parent nodes should become staged',
+          () {
+        init();
+        childB.navigateTo('.');
+        expect(childB.isStaged, true);
+        expect(root.isStaged, true);
+        expect(childB.isStaged, true);
+        expect(childC.isStaged, false);
+      });
+
+      test(
+          'If isStaged set to true, the existing staged child becomes unstaged',
+          () {
         init();
 
-        // Make the branch /child-a0/child-b/child-c visible
-        childC.isVisible = true;
-        expect(childB.isActive, true);
-        expect(childB.isVisible, true);
+        // Initally childA0 is staged
+        childA0.navigateTo('.');
+        expect(childA0.isStaged, true);
+        expect(root.isStaged, true);
+        expect(childA0.isStaged, true);
 
-        // Make the branch /child-a1 visible
-        root.navigateTo('/child-a1');
+        // Now we set childA1 to staged
+        childA1.navigateTo('.');
+        expect(childA1.isStaged, true);
 
-        // Child b ist not visible anymore
-        expect(childB.isVisible, false);
+        // childA0 should not be staged anymore
+        expect(childA0.isStaged, false);
+        expect(childA1.isStaged, true);
+      });
 
-        // But child b is still active.
-        // When switching back to branch a, the child might become visible again.
-        expect(childB.isActive, true);
+      test('If isStaged is set to false, als all child remain staged as before',
+          () {
+        init();
+
+        // Currently the complete path is staged
+        childC.navigateTo('.');
+        expect(root.isStaged, true);
+        expect(childA0.isStaged, true);
+        expect(childB.isStaged, true);
+        expect(childC.isStaged, true);
+
+        // Now we set childA to unstaged
+        childA1.navigateTo('.');
+        expect(childA1.isStaged, true);
+
+        // The parent is still staged
+        expect(root.isStaged, true);
+
+        // childA0 is unstaged
+        expect(childA0.isStaged, false);
+
+        // Children of A0 remain staged
+        expect(childB.isStaged, true);
+        expect(childC.isStaged, true);
+      });
+
+      test(
+          'If isStaged is set to false and then to true, thre previous staged child becomes staged also',
+          () {
+        init();
+
+        // Currently the complete path is staged
+        childC.navigateTo('.');
+        expect(root.isStaged, true);
+        expect(childA0.isStaged, true);
+        expect(childB.isStaged, true);
+        expect(childC.isStaged, true);
+
+        // Now we unstage childB
+        childA1.navigateTo('.');
+        expect(childA1.isStaged, true);
+        expect(childA0.isStaged, false);
+
+        // Now we stage childB again
+        childB.navigateTo('./_LAST_');
+
+        // The previous staged children remain staged
+        expect(root.isStaged, true);
+        expect(childA0.isStaged, true);
+        expect(childB.isStaged, true);
+        expect(childC.isStaged, true);
+      });
+    });
+
+    // #########################################################################
+    group('resetStaging(recursive)', () {
+      test('should set back staging for the node and all of its children', () {
+        init();
+
+        // Stage some nodes
+        childC.navigateTo('.');
+        childA1.navigateTo('.');
+        expect(root.isStaged, true);
+        expect(childA1.isStaged, true);
+        expect(childC.isStaged, true);
+
+        // Reset staging non recursively => Only root is unstaged
+        root.resetStaging(recursive: false);
+        expect(root.isStaged, false);
+        expect(childA1.isStaged, true);
+        expect(childC.isStaged, true);
+
+        // Reset staging recursively => All children are unstaged
+        root.resetStaging(recursive: true);
+        expect(root.isStaged, false);
+        expect(childA1.isStaged, false);
+        expect(childC.isStaged, false);
+
+        // Also parent's stagedChild should be reset
+        childC.navigateTo('.');
+        expect(childB.stagedChild, childC);
+        childC.resetStaging();
+        expect(childB.stagedChild, null);
+      });
+    });
+
+    // #########################################################################
+    group('onIsStaged', () {
+      test('should inform when isStaged state changes', () {
+        init();
+        fakeAsync((fake) {
+          bool? a0IsStaged;
+          final s = childA0.onIsStaged.listen((event) => a0IsStaged = event);
+          fake.flushMicrotasks();
+          expect(a0IsStaged, isNull);
+
+          childC.navigateTo('.');
+          expect(childC.isStaged, true);
+          fake.flushMicrotasks();
+          expect(a0IsStaged, isTrue);
+
+          childA1.navigateTo('.');
+          expect(childA1.isStaged, true);
+          fake.flushMicrotasks();
+          expect(a0IsStaged, isFalse);
+
+          s.cancel();
+        });
       });
     });
 
@@ -373,17 +437,17 @@ main() {
     });
 
     // #########################################################################
-    group('descendand(path)', () {
-      test('should the descendand maching the path', () {
+    group('descendants(path)', () {
+      test('should the descendants maching the path', () {
         init();
         final result =
-            root.descendand(path: ['child-a0', 'child-b', 'child-c']);
+            root.descendants(path: ['child-a0', 'child-b', 'child-c']);
         expect(result, childC);
       });
 
-      test('should create the descendand if not existing', () {
+      test('should create the descendants if not existing', () {
         init();
-        final result = root.descendand(path: ['x', 'y']);
+        final result = root.descendants(path: ['x', 'y']);
         expect(result.name, 'y');
         expect(result.parent!.name, 'x');
         expect(result.parent!.parent!.name, '_ROOT_');
@@ -391,134 +455,112 @@ main() {
 
       test('should return the element itself, if path is empty', () {
         init();
-        final result = root.descendand(path: []);
+        final result = root.descendants(path: []);
         expect(result, root);
       });
 
       test('should return the parent element, if path segment is ".."', () {
         init();
-        expect(childC.descendand(path: ['..', '..']), childA0);
+        expect(childC.descendants(path: ['..', '..']), childA0);
         expect(
-          childC.descendand(path: ['..', '..', '..', 'child-a1']),
+          childC.descendants(path: ['..', '..', '..', 'child-a1']),
           childA1,
         );
       });
 
       test('should return the element itself, if path segment is "."', () {
         init();
-        expect(childC.descendand(path: ['.']), childC);
-        expect(childC.descendand(path: ['.', '..']), childB);
+        expect(childC.descendants(path: ['.']), childC);
+        expect(childC.descendants(path: ['.', '..']), childB);
       });
 
       test('should throw an exception if parent is not existing', () {
         init();
-        expect(() => root.descendand(path: ['..']), throwsArgumentError);
+        expect(() => root.descendants(path: ['..']), throwsArgumentError);
       });
 
       test('should ignore empty path segments', () {
         init();
-        expect(root.descendand(path: ['', '', 'child-a1']), childA1);
+        expect(root.descendants(path: ['', '', 'child-a1']), childA1);
       });
 
+      test('path == "_LAST_" returns the staged child, when available', () {
+        init();
+        // Navigate childC staged -> last staged child is childC
+        childC.navigateTo('.');
+        expect(childC.isStaged, true);
+        expect(root.descendants(path: ['_LAST_']), childC);
+
+        // Navigate to childA1 -> last staged child childA1
+        childA1.navigateTo('.');
+        expect(childA0.isStaged, false);
+        expect(root.descendants(path: ['_LAST_']), childA1);
+
+        // Navigate to childA0 -> last staged child is childC again
+        childA0.navigateTo('./_LAST_');
+        expect(childA0.isStaged, true);
+        expect(root.descendants(path: ['_LAST_']), childC);
+      });
+    });
+
+    // #########################################################################
+    group('ancestors(path)', () {
       test(
-          'path == "_LAST_" returns the previously visible child, when available',
+          'should return all ancestors started with the node itself until root',
           () {
         init();
-        // Set childA0 visible -> last visible child is childA0
-        childA0.isVisible = true;
-        expect(root.descendand(path: ['_LAST_']), childA0);
-
-        // Set childA0 invisible -> last visible child is still childA0
-        childA0.isVisible = false;
-        expect(root.descendand(path: ['_LAST_']), childA0);
-
-        // Set childA1 visible
-        childA1.isVisible = true;
-        expect(root.descendand(path: ['_LAST_']), childA1);
-
-        // Set childA1 invisible -> last visible child is still childA1
-        childA1.isVisible = false;
-        expect(root.descendand(path: ['_LAST_']), childA1);
-
-        // ................................................................
-        // Set childC visible -> last visible child of root should be childAC
-        childC.isVisible = true;
-        expect(root.descendand(path: ['_LAST_']), childC);
-
-        // Now lets switch to childA1 branch -> childC should not be visible anymore
-        childA1.isVisible = true;
-        expect(childC.isVisible, false);
-
-        // Now lets navigate to childA0/_LAST_ -> childC should be visible again
-        root.navigateTo('child-a0/_LAST_');
-        expect(childC.isVisible, true);
+        final ancestors = childC.ancestors;
+        expect(ancestors.length, 4);
+        expect(ancestors[3], root);
+        expect(ancestors[2], childA0);
+        expect(ancestors[1], childB);
+        expect(ancestors[0], childC);
       });
     });
 
     // #########################################################################
-    group('visibleChild', () {
-      test('should return null, if no child is visible', () {
+    group('stagedChild', () {
+      test('should return null, if no child is staged', () {
         init();
-        expect(root.visibleChild, null);
+        expect(root.stagedChild, null);
       });
 
-      test('should return the visible child, if one is visible', () {
+      test('should return the staged child, if one is staged', () {
         init();
-        childA0.isVisible = true;
-        expect(root.visibleChild, childA0);
-      });
-    });
-
-    // #########################################################################
-    group('previouslyVisibleChild', () {
-      test('should return the child that was visible before', () {
-        init();
-        expect(root.visibleChild, null);
-        expect(root.previouslyVisibleChild, null);
-        childA0.isVisible = true;
-        expect(root.previouslyVisibleChild, null);
-        expect(root.visibleChild, childA0);
-        childA1.isVisible = true;
-        expect(root.previouslyVisibleChild, childA0);
-        expect(root.visibleChild, childA1);
-        childA1.isVisible = false;
-        expect(root.previouslyVisibleChild, childA1);
-        expect(root.visibleChild, null);
+        childA0.navigateTo('.');
+        expect(childA0.isStaged, true);
+        expect(root.stagedChild, childA0);
       });
     });
 
     // #########################################################################
-    group('visibleChildDidChange', () {
+    group('stagedChildDidChange', () {
       group('should return a steam', () {
         test(
-            'which delivers the child which became visible'
-            ' or null if child became invisible', () {
+            'which delivers the child which became staged'
+            ' or null if child became unstaged', () {
           fakeAsync((fake) {
             init();
 
-            // Listen to visibleChildDidChange
-            GgRouteTreeNode? visibleChild;
-            final s =
-                root.visibleChildDidChange.listen((c) => visibleChild = c);
+            // Listen to stagedChildDidChange
+            GgRouteTreeNode? stagedChild;
+            final s = root.stagedChildDidChange.listen((c) => stagedChild = c);
 
-            // Initially no child is visible
+            // Initially no child is staged
             fake.flushMicrotasks();
-            expect(visibleChild, null);
+            expect(stagedChild, null);
 
-            // Now let's make childA0 visible
-            childA0.isVisible = true;
+            // Now let's make childA0 staged
+            childA0.navigateTo('.');
+            expect(childA0.isStaged, true);
             fake.flushMicrotasks();
-            expect(visibleChild, childA0);
+            expect(stagedChild, childA0);
 
-            // Now let's make childA1 visible
-            childA1.isVisible = true;
+            // Now let's make childA1 staged
+            childA1.navigateTo('.');
+            expect(childA1.isStaged, true);
             fake.flushMicrotasks();
-            expect(visibleChild, childA1);
-
-            // Now let's make childA1 invisible.
-            childA1.isVisible = false;
-            fake.flushMicrotasks();
-            expect(visibleChild, null);
+            expect(stagedChild, childA1);
 
             s.cancel();
           });
@@ -527,21 +569,61 @@ main() {
     });
 
     // #########################################################################
-    group('visibleDescendants', () {
-      test('should return a list with all visible descendants', () {
+    group('stagedDescendants', () {
+      test('should return a list with all staged descendants', () {
         fakeAsync((fake) {
           init();
-          // Initially no child is visible
-          expect(root.visibleDescendants, []);
+          // Initially no child is staged
+          expect(root.visibleRoute, []);
 
-          // Now let's set childB to visible
-          childB.isVisible = true;
+          // Now let's set childB to staged
+          childB.navigateTo('.');
+          expect(childB.isStaged, true);
           fake.flushMicrotasks();
 
-          // The complete path from root to childB should be visible
-          expect(root.visibleDescendants.map((e) => e.name).toList(),
+          // The complete path from root to childB should be staged
+          expect(root.visibleRoute.map((e) => e.name).toList(),
               ['child-a0', 'child-b']);
         });
+      });
+    });
+
+// #########################################################################
+    group('needsFade, fadeInChild, fadeOutChild', () {
+      test(
+          'should return true for the first node that became staged or unstaged in a path',
+          () {
+        init();
+        // Navigate to childA1 -> root should be faded in, the others not
+        childA1.navigateTo('.');
+        expect(root.needsFade, true);
+        expect(childA1.needsFade, false);
+        expect(childC.needsFade, false);
+        root.needsFade = false;
+        childA1.needsFade = false;
+
+        // Navigate to childC
+        // -> childA1 needs to be faded out because it is not staged anymore
+        // -> childA0 needs to be faded in because it is staged now
+        // -> root needs no fade, because it is already active
+        // -> childB and childC need no fade, because they are not the first
+        // nodes that were staged
+        childC.navigateTo('.');
+        expect(childA1.needsFade, true);
+        expect(childA0.needsFade, true);
+        expect(root.childToBeFadedIn, childA0);
+        expect(root.childToBeFadedOut, childA1);
+
+        expect(root.needsFade, false);
+        expect(childB.needsFade, false);
+        expect(childC.needsFade, false);
+
+        // Navigate from child C down to child B
+        // -> child B should be faded out
+        childC.navigateTo('.');
+        childB.needsFade = false;
+        childC.navigateTo('..');
+        expect(childC.isStaged, false);
       });
     });
 
@@ -626,8 +708,8 @@ main() {
     });
 
     // #########################################################################
-    group('visibleParams', () {
-      test('should return a map with all params of the visible path', () {
+    group('stagedParams', () {
+      test('should return a map with all params of the staged path', () {
         init();
 
         // Lets define some vars
@@ -640,30 +722,32 @@ main() {
         final cName = 'c';
         final cValue = 3;
 
-        // Initally no params should be visible
-        expect(root.visibleParams, {});
+        // Initally no params should be staged
+        expect(root.stagedParams, {});
 
         // Let's create two params, one for childA0 and childA1 and childC
         childA0.findOrCreateParam(name: a0Name, seed: a0Value);
         childA1.findOrCreateParam(name: a1Name, seed: a1Value);
         childC.findOrCreateParam(name: cName, seed: cValue);
 
-        // root.visibleParams should sill be empty, because
-        // none of the children is visible
-        expect(root.visibleParams, {});
+        // root.stagedParams should sill be empty, because
+        // none of the children is staged
+        expect(root.stagedParams, {});
 
         // Let's activate childC
-        childC.isVisible = true;
+        childC.navigateTo('.');
+        expect(childC.isStaged, true);
 
-        // Now visible params should contain 3 and 1.
-        expect(root.visibleParams.length, 2);
-        expect(root.visibleParams[a0Name]?.value, a0Value);
-        expect(root.visibleParams[cName]?.value, cValue);
+        // Now staged params should contain 3 and 1.
+        expect(root.stagedParams.length, 2);
+        expect(root.stagedParams[a0Name]?.value, a0Value);
+        expect(root.stagedParams[cName]?.value, cValue);
 
         // Let's activate child a1
-        childA1.isVisible = true;
-        expect(root.visibleParams.length, 1);
-        expect(root.visibleParams[a1Name]?.value, a1Value);
+        childA1.navigateTo('.');
+        expect(childA1.isStaged, true);
+        expect(root.stagedParams.length, 1);
+        expect(root.stagedParams[a1Name]?.value, a1Value);
       });
     });
 
@@ -772,49 +856,6 @@ main() {
     });
 
     // #########################################################################
-    group('visibleDescendantsDidChange', () {
-      test('should return a stream which informs about the visible descendants',
-          () {
-        fakeAsync((fake) {
-          init();
-
-          // Listen to visible descendants
-          List<GgRouteTreeNode>? visibleDescendants;
-          var updateCounter = 0;
-          final s = root.visibleDescendantsDidChange.listen((event) {
-            visibleDescendants = event;
-            updateCounter++;
-          });
-
-          // Initially no updates should be delivered
-          fake.flushMicrotasks();
-          expect(updateCounter, 0);
-          expect(visibleDescendants, null);
-
-          // Now lets set childC visible
-          childC.isVisible = true;
-
-          // The complete path from root to childC should become visible
-          fake.flushMicrotasks();
-          expect(updateCounter, 1);
-          expect(visibleDescendants?.map((e) => e.name).toList(),
-              ['child-a0', 'child-b', 'child-c']);
-
-          // Now let's set root invisible
-          updateCounter = 0;
-          root.isVisible = false;
-
-          // All nodes are set to invisible
-          fake.flushMicrotasks();
-          expect(updateCounter, 1);
-          expect(visibleDescendants, []);
-
-          s.cancel();
-        });
-      });
-    });
-
-    // #########################################################################
     group('get path', () {
       test(
           'should return a list of path segments starting with the root and '
@@ -858,87 +899,93 @@ main() {
     });
 
     // #########################################################################
-    group('get visibleChildPath', () {
-      test('should return a list of path segments of visible child nodes', () {
+    group('get stagedChildPath', () {
+      test('should return a list of path segments of staged child nodes', () {
         init();
-        childC.isVisible = true;
+        childC.navigateTo('.');
+        expect(childC.isStaged, true);
         expect(
-            root.visibleChildPathSegments, ['child-a0', 'child-b', 'child-c']);
-        expect(childA0.visibleChildPathSegments, ['child-b', 'child-c']);
-        expect(childB.visibleChildPathSegments, ['child-c']);
-        expect(childC.visibleChildPathSegments, []);
+            root.stagedChildPathSegments, ['child-a0', 'child-b', 'child-c']);
+        expect(childA0.stagedChildPathSegments, ['child-b', 'child-c']);
+        expect(childB.stagedChildPathSegments, ['child-c']);
+        expect(childC.stagedChildPathSegments, []);
       });
     });
 
     // #########################################################################
-    group('set visibleChildPath', () {
+    group('set stagedChildPath', () {
       test('should activate the segments according to the assigned path', () {
         init();
 
-        // Initially no node is visible
-        expect(root.isVisible, false);
-        expect(childA0.isVisible, false);
-        expect(childA1.isVisible, false);
-        expect(childB.isVisible, false);
-        expect(childC.isVisible, false);
+        // Initially no node is staged
+        expect(root.isStaged, false);
+        expect(childA0.isStaged, false);
+        expect(childA1.isStaged, false);
+        expect(childB.isStaged, false);
+        expect(childC.isStaged, false);
 
-        // Activate all nodes in the path
-        root.visibleChildPathSegments = ['child-a0', 'child-b', 'child-c'];
+        // Stage all nodes in the path
+        root.stagedChildPathSegments = ['child-a0', 'child-b', 'child-c'];
 
-        expect(root.isVisible, true);
-        expect(root.visibleChild, childA0);
+        expect(root.isStaged, true);
+        expect(root.stagedChild, childA0);
 
-        expect(childA0.isVisible, true);
-        expect(childA0.visibleChild, childB);
+        expect(childA0.isStaged, true);
+        expect(childA0.stagedChild, childB);
 
-        expect(childA1.isVisible, false);
+        expect(childA1.isStaged, false);
 
-        expect(childB.isVisible, true);
-        expect(childB.visibleChild, childC);
+        expect(childB.isStaged, true);
+        expect(childB.stagedChild, childC);
 
-        expect(childC.isVisible, true);
-        expect(childC.visibleChild, null);
+        expect(childC.isStaged, true);
+        expect(childC.stagedChild, null);
 
         // Deactivate all children
-        root.visibleChildPathSegments = [];
-        expect(root.isVisible, true);
-        expect(childA0.isVisible, false);
-        expect(childA1.isVisible, false);
-        expect(childB.isVisible, false);
-        expect(childC.isVisible, false);
+        root.stagedChildPathSegments = [];
+        expect(root.isStaged, true);
+        expect(childA0.isStaged, false);
+        expect(childA1.isStaged, false);
+
+        // Child B and C remain staged becaue its parent has been
+        // unstaged. If we would navigate back to childB/_LAST_
+        // the staged items would become visible again.
+        expect(childB.isStaged, true);
+        expect(childC.isStaged, true);
       });
 
       test('should create new child nodes, if not existing', () {
         init();
-        root.visibleChildPathSegments = ['x', 'y', 'z'];
+        root.stagedChildPathSegments = ['x', 'y', 'z'];
         final x = root.child('x');
         final y = x.child('y');
         final z = y.child('z');
 
-        expect(root.isVisible, true);
-        expect(x.isVisible, true);
-        expect(y.isVisible, true);
-        expect(z.isVisible, true);
+        expect(root.isStaged, true);
+        expect(x.isStaged, true);
+        expect(y.isStaged, true);
+        expect(z.isStaged, true);
       });
 
       test('should disable children that are not selected', () {
         init();
-        childC.isVisible = true;
-        expect(root.visibleChildPathSegments.join('/'),
-            'child-a0/child-b/child-c');
-        root.visibleChildPathSegments = ['child-a0', 'child-b'];
-        expect(root.visibleChildPathSegments.join('/'), 'child-a0/child-b');
+        childC.navigateTo('.');
+        expect(childC.isStaged, true);
+        expect(
+            root.stagedChildPathSegments.join('/'), 'child-a0/child-b/child-c');
+        root.stagedChildPathSegments = ['child-a0', 'child-b'];
+        expect(root.stagedChildPathSegments.join('/'), 'child-a0/child-b');
       });
 
       test('should handle ".." as parent segment', () {
         init();
-        childC.visibleChildPathSegments = ['..', '..', '..', 'child-a1'];
-        expect(root.visibleChildPathSegments.join('/'), 'child-a1');
+        childC.stagedChildPathSegments = ['..', '..', '..', 'child-a1'];
+        expect(root.stagedChildPathSegments.join('/'), 'child-a1');
       });
 
       test('should handle "." the element itself', () {
         init();
-        childC.visibleChildPathSegments = ['.', '..', 'child-b'];
+        childC.stagedChildPathSegments = ['.', '..', 'child-b'];
       });
     });
 
@@ -947,25 +994,25 @@ main() {
       test('Should activate the given relative path', () {
         init();
         root.navigateTo('child-a0/child-b/child-c');
-        expect(root.visibleChildPath, 'child-a0/child-b/child-c');
+        expect(root.stagedChildPath, 'child-a0/child-b/child-c');
       });
 
       test('Should activate the given absolute path', () {
         init();
         childC.navigateTo('/child-a1');
-        expect(root.visibleChildPath, 'child-a1');
+        expect(root.stagedChildPath, 'child-a1');
       });
 
       test('Should interpret ".." as parent element', () {
         init();
         childC.navigateTo('../../');
-        expect(root.visibleChildPath, 'child-a0');
+        expect(root.stagedChildPath, 'child-a0');
       });
 
       test('Should interpret "." as the element itself', () {
         init();
         childB.navigateTo('./child-c');
-        expect(root.visibleChildPath, 'child-a0/child-b/child-c');
+        expect(root.stagedChildPath, 'child-a0/child-b/child-c');
       });
     });
 
@@ -1165,14 +1212,6 @@ main() {
         root.findOrCreateParam(name: 'unknownParam', seed: 5);
         expect(root.param('unknownParam')?.value, 123);
       });
-
-      test('should restore visible and previously visible child', () {
-        root.json =
-            '{"${GgRouteTreeNode.visibleChildJsonKey}": "int", "${GgRouteTreeNode.previouslyVisibleChildJsonKey}": "bool"}';
-
-        expect(root.visibleChild, root.child('int'));
-        expect(root.previouslyVisibleChild, root.child('bool'));
-      });
     });
 
     // #########################################################################
@@ -1209,17 +1248,16 @@ main() {
         expect(parsedGrand.param('foo')?.value, parsedFoo);
       });
 
-      test('should also save visible and previously visible child', () {
+      test('should also save staged', () {
         final root = GgRouteTreeNode(name: '_ROOT_');
-        root.child('previouslyVisibleChild').isVisible = true;
-        root.child('visibleChild').isVisible = true;
+        root.navigateTo('.');
+        root.navigateTo('/stagedChild');
+        expect(root.child('stagedChild').isStaged, true);
         final json = root.json;
 
         final rootCopy = GgRouteTreeNode(name: '_ROOT_');
         rootCopy.json = json;
-        expect(rootCopy.visibleChild, rootCopy.child('visibleChild'));
-        expect(rootCopy.previouslyVisibleChild,
-            rootCopy.child('previouslyVisibleChild'));
+        expect(rootCopy.stagedChild, rootCopy.child('stagedChild'));
       });
     });
   });

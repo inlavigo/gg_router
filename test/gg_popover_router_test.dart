@@ -4,6 +4,8 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart';
@@ -44,11 +46,30 @@ main() {
             return routeOnTop1;
           }
         },
+        inAnimation: (context, animation, child, node) => Stack(
+          children: [
+            Text(
+              '${animation.value}',
+              key: ValueKey('inAnimation'),
+            ),
+            child
+          ],
+        ),
+        outAnimation: (context, animation, child, node) => Stack(
+          children: [
+            Text(
+              '${animation.value}',
+              key: ValueKey('outAnimation'),
+            ),
+            child
+          ],
+        ),
+        animationDuration: Duration(milliseconds: 1000),
       );
       await tester.pumpWidget(
         MaterialApp.router(
           routeInformationParser: GgRouteInformationParser(),
-          routerDelegate: GgRouterDelegate(child: widget),
+          routerDelegate: GgRouterDelegate(child: widget, defaultRoute: '/'),
         ),
       );
       final ggOverlayRouterFinder = find.byWidget(widget);
@@ -64,20 +85,50 @@ main() {
     testWidgets('should be instantiated correctly',
         (WidgetTester tester) async {
       await setUp(tester);
+
+      expectAnimationValue(String prefix, String? value) {
+        final finder = find.byKey(ValueKey('${prefix}Animation'));
+        expect(finder, value == null ? findsNothing : findsOneWidget);
+        if (value != null) {
+          expect((tester.widget(finder) as Text).data, value);
+        }
+      }
+
       expect(ggOverlayRouter.width, 800);
       expect(ggOverlayRouter.height, 600);
 
       // Initially only the base widget is shown
-      expect(baseRouter.node.root.visibleChildPath, '');
+      baseRouter.node.root.navigateTo('.');
+      expect(baseRouter.node.root.stagedChildPath, '');
       expect(routeOnTopRouter, isNull);
       expect(find.byKey(baseKey), findsOneWidget);
       expect(find.byKey(routeOnTop0Key), findsNothing);
       expect(find.byKey(routeOnTop1Key), findsNothing);
 
+      // ....................
+      // No animation is done
+      expectAnimationValue('in', null);
+      expectAnimationValue('out', null);
+
       // ..............................
       // Now lets route to the routeOnTop0
       baseRouter.navigateTo('./routeOnTop0');
+      await tester.pump(Duration(microseconds: 1));
+
+      // .............................
+      // The in animation should start
+      expectAnimationValue('in', '0.0');
+      expectAnimationValue('out', null);
+
+      // Go to the middle of the animation
+      await tester.pump(Duration(milliseconds: 500));
+      expectAnimationValue('in', '0.5');
+      expectAnimationValue('out', null);
+
+      // At the end the animation should be completed
       await tester.pumpAndSettle();
+      expectAnimationValue('in', null);
+      expectAnimationValue('out', null);
 
       // The routeOnTop0 should be shown infront of the base.
       expect(find.byKey(baseKey), findsOneWidget);
@@ -94,10 +145,27 @@ main() {
       expect(find.byKey(routeOnTop0Key), findsNothing);
       expect(find.byKey(routeOnTop1Key), findsOneWidget);
 
-      // ..............................
+      // ...............................
       // Now lets route back to the base
+      debugger();
       baseRouter.navigateTo('.');
+      debugger();
+      await tester.pump(Duration(microseconds: 1));
+
+      // .............................
+      // The out animation should start
+      expectAnimationValue('in', null);
+      expectAnimationValue('out', '0.0');
+
+      // Go to the middle of the animation
+      await tester.pump(Duration(milliseconds: 500));
+      expectAnimationValue('in', null);
+      expectAnimationValue('out', '0.5');
+
+      // At the end the animation should be completed
       await tester.pumpAndSettle();
+      expectAnimationValue('in', null);
+      expectAnimationValue('out', null);
 
       // No routeOnTop should be shown anymore
       expect(find.byKey(baseKey), findsOneWidget);

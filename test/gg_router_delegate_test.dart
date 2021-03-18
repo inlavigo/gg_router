@@ -20,7 +20,7 @@ main() {
     late GgRouterCore router;
 
     const exampleData =
-        '{"routeB":{"b": 1234}, "${GgRouteTreeNode.visibleChildJsonKey}":"routeB"}';
+        '{"routeB":{"b": 1234}, "${GgRouteTreeNode.stagedChildJsonKey}":"routeB"}';
 
     // .........................................................................
     setUp(
@@ -102,12 +102,12 @@ main() {
           .setInitialRoutePath(RouteInformation(location: '/routeC'));
       await tester.pumpAndSettle();
       expect(routerDelegate.currentConfiguration.location!, 'routeC?c=7&d=8');
-      expect(router.node.root.visibleChildPath, 'routeC');
+      expect(router.node.root.stagedChildPath, 'routeC');
 
       // ....................................................
       // Should apply RouteInformation to the route node tree
       routerDelegate.setNewRoutePath(RouteInformation(location: '/routeA'));
-      expect(router.node.root.visibleChildPath, 'routeA');
+      expect(router.node.root.stagedChildPath, 'routeA');
       expect(routerDelegate.currentConfiguration.location!, 'routeA?a=5');
       await tester.pumpAndSettle();
 
@@ -147,7 +147,7 @@ main() {
         tester,
         restoreState: () => SynchronousFuture(exampleData),
       );
-      expect(routerDelegate.root.visibleChildPath, 'routeB');
+      expect(routerDelegate.root.stagedChildPath, 'routeB');
       expect(routerDelegate.root.child('routeB').param('b')?.value, 1234);
     });
 
@@ -166,7 +166,7 @@ main() {
       routerDelegate.root.navigateTo('routeB');
       await tester.pumpAndSettle();
       expect(savedData,
-          contains('"${GgRouteTreeNode.visibleChildJsonKey}":"routeB"'));
+          contains('"${GgRouteTreeNode.stagedChildJsonKey}":"routeB"'));
     });
 
     // .........................................................................
