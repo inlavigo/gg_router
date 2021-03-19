@@ -1,6 +1,6 @@
 name: gg_router
-description: »Everything is a widget is now true for routing too!« - Power AND! simple routing and navigation for Flutter.
-version: 1.0.0-beta.5
+description: »Everything is a widget is now true for routing too!« - Powerful AND! simple routing and navigation for Flutter.
+version: 1.0.0
 homepage: "https://github.com/inlavigo/gg_router"
 
 environment:
@@ -12,7 +12,7 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  gg_value: ^1.0.3-dev.3
+  gg_value: ^1.0.3
   gg_once_per_cycle: ^1.0.0
 
 dev_dependencies:

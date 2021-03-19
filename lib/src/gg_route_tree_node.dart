@@ -208,7 +208,7 @@ class GgRouteTreeNode {
   /// ..........................................................................
   /// Returns true if name only contains letters, numbers, minus and underscore
   static bool isValidName(String name) {
-    return _nameRegEx.allMatches(name).length > 0;
+    return name == '*' || _nameRegEx.allMatches(name).length > 0;
   }
 
   // ...........................................................................

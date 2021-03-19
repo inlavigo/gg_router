@@ -6,6 +6,7 @@
 
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gg_router/gg_router.dart';
 import 'package:gg_router/src/gg_route_tree_node.dart';
 
 class OtherClass {}
@@ -60,7 +61,7 @@ main() {
     });
 
     // #########################################################################
-    group('name', () {
+    group('name, isValidName', () {
       test('should return the name of the node', () {
         init();
         expect(root.name, '_ROOT_');
@@ -103,6 +104,10 @@ main() {
               'Nodes with name "_ROOT_" are root nodes and must not have a parent.');
           return true;
         })));
+      });
+
+      test('should allow wildcard "*"', () {
+        expect(GgRouteTreeNode.isValidName('*'), isTrue);
       });
     });
 

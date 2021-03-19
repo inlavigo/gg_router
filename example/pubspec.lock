@@ -106,14 +106,14 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.0.0-beta.5"
+    version: "1.0.0"
   gg_value:
     dependency: "direct main"
     description:
       name: gg_value
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3-dev.3"
+    version: "1.0.3"
   js:
     dependency: transitive
     description:

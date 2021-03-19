@@ -15,11 +15,13 @@ and powerful routing library for flutter.
 
 - [Initialize GgRouter](#initialize-ggrouter)
 - [Define routes](#define-routes)
-  - [Basic routes](#basic-routes)
+  - [Page routes](#page-routes)
+  - [Popover routes](#popover-routes)
+  - [Nested routes](#nested-routes)
+- [Handling fallbacks](#handling-fallbacks)
   - [Index route](#index-route)
   - [Default route](#default-route)
-  - [Nested routes](#nested-routes)
-  - [Popover routes](#popover-routes)
+  - [Wildcard routes](#wildcard-routes)
 - [Navigation](#navigation)
   - [Navigate absolutely](#navigate-absolutely)
   - [Navigate relatively](#navigate-relatively)
@@ -31,10 +33,9 @@ and powerful routing library for flutter.
 - [Animations](#animations)
   - [Animate route transitions](#animate-route-transitions)
   - [Route specific animations](#route-specific-animations)
-- [Other](#other)
-  - [Save and restore route state](#save-and-restore-route-state)
-  - [Error handling](#error-handling)
-  - [Example](#example)
+- [Save and restore route state](#save-and-restore-route-state)
+- [Error handling](#error-handling)
+- [Example](#example)
 - [Features and bugs](#features-and-bugs)
 
 ## Initialize GgRouter
@@ -63,62 +64,28 @@ class MyApp extends StatelessWidget {
 
 ## Define routes
 
-### Basic routes
+### Page routes
 
 Use the `GgRouter` widget to add routes to your application structure:
 
 ~~~dart
 @override
 Widget build(BuildContext context){
-  GgRouter({
-    'sports':         _sports,
-    'transportation': _transportation,
-    'places':         _places
-  })
+  return GgRouter(
+    {
+      'sports':         _sports,
+      'transportation': _transportation,
+      'places':         _places
+    }
+  );
 }
 ~~~
 
-### Index route
-
-To define a default route which is shown when none of the routes is selected,
-add a route with name `'_INDEX_'`:
-
-~~~dart
-@override
-Widget build(BuildContext context){
-  GgRouter({
-    '_INDEX_': _index,
-    'sports': _sports,
-    // ...
-  })
-}
-~~~
-
-### Default route
-
-Chose a default route when no `_INDEX` route is defined by using the
-`defaultRoute` parameter.
-
-~~~dart
-@override
-Widget build(BuildContext context){
-  GgRouter({
-    'sports': _sports,
-    // ...
-  },
-  defaultRoute: 'sports')
-}
-~~~
-
-### Nested routes
-
-You can arbitrarily nest routes. Just place another `GgRouter` widget within
-one of the routes. Child `GgRouter` widgets do not need to be direct children.
+Each of these routes will replace its siblings when being selected.
 
 ### Popover routes
 
-By default all routes replace the previous route's content. To open a popover,
-e. g. a dialog, using routes, make use of `GgPopoverRoute`.
+To show a route in front of existing content, create a popover route:
 
 ~~~dart
 GgPopoverRoute(
@@ -129,6 +96,68 @@ GgPopoverRoute(
   inAnimation: _rotateIn,   // The appearing animation
   outAnimation: _rotateOut, // The disappearing animation
 ),
+~~~
+
+### Nested routes
+
+You can arbitrarily nest these routes. Just place another `GgRouter` widget
+within one of the routes. Child `GgRouter` widgets do not need to be direct
+children.
+
+## Handling fallbacks
+
+### Index route
+
+To define a default route which is shown when none of the routes is selected,
+add a route with name `'_INDEX_'`:
+
+~~~dart
+GgRouter(
+  {
+    '_INDEX_': _index,
+    'sports': _sports,
+    // ...
+  }
+);
+~~~
+
+### Default route
+
+Chose a default route when no `_INDEX` route is defined by using the
+`defaultRoute` parameter.
+
+~~~dart
+GgRouter(
+  {
+    'sports': _sports,
+    // ...
+  },
+  defaultRoute: 'sports'
+);
+~~~
+
+### Wildcard routes
+
+If you want to handle arbitrary route names, e.g., parsing an ID from the URI,
+you can setup a wild card route using `*` as route name:
+
+~~~dart
+return GgRouter(
+  {
+    // ...
+    '*': _wildCardPage,
+  },
+  /// ...
+);
+~~~
+
+To get the name of the actual route, use `GgRouter.of(context).routeName`:
+
+~~~dart
+Widget _wildCardPage(BuildContext context) {
+  final routeName = GgRouter.of(context).routeName;
+  // ... do something with the routeName
+}
 ~~~
 
 ## Navigation
@@ -260,9 +289,7 @@ Widget _moveOut(
 }
 ~~~
 
-## Other
-
-### Save and restore route state
+## Save and restore route state
 
 `GgRouter` constructor offers a `saveState` and `restorState` callback:
 
@@ -270,13 +297,13 @@ Widget _moveOut(
 - `restoreState` will be called at the very first beginning and allows you
   to restore a previously defined state.
 
-### Error handling
+## Error handling
 
 If you open a URI in the browser that is not defined using `GgRouter(...)`, an
 error is thrown. To handle that error, assign an error handler to
 `GgRouter.of(context).errorHandler`.
 
-### Example
+## Example
 
 An example demonstrating all of the features above can be found in `example/main.dart`.
 

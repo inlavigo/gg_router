@@ -288,7 +288,7 @@ main() {
       expect(lastBuiltNode.path, '/a0/a10');
       expect(receivedError!.id, 'GRC008448');
       expect(receivedError!.message,
-          'Route "/a0" has no child named "invalidRoute".');
+          'Route "/a0" has no child named "invalidRoute" nor does your GgRouter define a "*" wild card route.');
 
       // ..................................................
       // Invalid URLs should be removed from the route tree
@@ -596,6 +596,89 @@ main() {
         );
 
         expect(root.defaultChildName, 'a');
+      });
+    });
+
+    // #########################################################################
+    group('Wild card routes', () {
+      // .......................................................................
+      testWidgets(
+          'If no wild card is defined and an unknown route is opened, an error is thrown.',
+          (WidgetTester tester) async {
+        // .......................................
+        // Define a router with no wild card route
+        await setUp(
+          tester,
+          child: Builder(builder: (context) {
+            return GgRouter(
+              {
+                'a': (_) => Container(),
+                '_INDEX_': (_) => Container(),
+              },
+              key: GlobalKey(),
+              defaultRoute: 'a',
+            );
+          }),
+        );
+
+        // ........................................
+        // Route to a known route first -> no error
+        routerDelegate.root.navigateTo('/a');
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), null);
+
+        // .................................
+        // Route to an unknown route -> error
+
+        // .........................
+        GgRouteTreeNodeError? error;
+        routerDelegate.root.errorHandler = (err) => error = err;
+        routerDelegate.root.navigateTo('/unknown');
+
+        await tester.pumpAndSettle();
+        expect(error!.message,
+            'Route "/" has no child named "unknown" nor does your GgRouter define a "*" wild card route.');
+      });
+
+      // .......................................................................
+      testWidgets(
+          'If a wild card is defined and we navigate to an unknown route, the wild card route is opened.',
+          (WidgetTester tester) async {
+        // .......................................
+        // Define a router with no wild card route
+
+        final wildCardKey = GlobalKey();
+        final routeAKey = GlobalKey();
+
+        await setUp(
+          tester,
+          child: Builder(builder: (context) {
+            return GgRouter(
+              {
+                'a': (_) => Container(key: routeAKey),
+                '_INDEX_': (_) => Container(),
+                '*': (_) => Container(key: wildCardKey),
+              },
+              key: GlobalKey(),
+              defaultRoute: 'a',
+            );
+          }),
+        );
+
+        // ............................
+        // Route to a known route first
+        routerDelegate.root.navigateTo('/a');
+        await tester.pumpAndSettle();
+        expect(find.byKey(routeAKey), findsOneWidget);
+        expect(find.byKey(wildCardKey), findsNothing);
+
+        // .....................................................
+        // Route to an unknown route -> wild card route is opened
+        routerDelegate.root.navigateTo('/unknown');
+        await tester.pumpAndSettle();
+        expect(find.byKey(routeAKey), findsNothing);
+        expect(find.byKey(wildCardKey), findsOneWidget);
+        expect(routerDelegate.currentConfiguration.location, 'unknown');
       });
     });
 

@@ -328,8 +328,10 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
     // .......................................................
     // Check if a widget is available for the new visible node
+    final routeExists = widget.children.keys.contains;
     bool routeIsValid = newVisibleNode == null ||
-        widget.children.keys.contains(newVisibleNode.name);
+        routeExists(newVisibleNode.name) ||
+        routeExists('*');
 
     // If no widget is available
     if (!routeIsValid) {
@@ -339,7 +341,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
         GgRouteTreeNodeError(
           id: 'GRC008448',
           message:
-              'Route "${parentNode.path}" has no child named "${invalidNode.name}".',
+              'Route "${parentNode.path}" has no child named "${invalidNode.name}" nor does your GgRouter define a "*" wild card route.',
         ),
       );
 
@@ -445,8 +447,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // .......................................................
     // If no animation is needed, just show the staying widget
     else {
-      final child =
-          _stagedNode != null ? widget.children[_stagedNode!.name] : null;
+      final child = _content(_stagedNode);
 
       return _stagedNode != null
           ? GgRouterCore(
@@ -461,16 +462,24 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   }
 
   // ...........................................................................
+  WidgetBuilder? _content(GgRouteTreeNode? node) {
+    // If a widget is defined for the name of the node, take that widget.
+    // Otherwise take the wild card route.
+    final nodeName = node == null
+        ? null
+        : widget.children.containsKey(node.name)
+            ? node.name
+            : '*';
+
+    return nodeName == null ? null : widget.children[nodeName];
+  }
+
+  // ...........................................................................
   Widget _animate() {
     // .....................................
     // Show the widget belonging to the node
-    final childToFadeIn = _nodeToBeFadedIn != null
-        ? widget.children[_nodeToBeFadedIn!.name]
-        : null;
-
-    final childToFadeOut = _nodeToBeFadedOut != null
-        ? widget.children[_nodeToBeFadedOut!.name]
-        : null;
+    final childToFadeIn = _content(_nodeToBeFadedIn);
+    final childToFadeOut = _content(_nodeToBeFadedOut);
 
     final stayingWidget = childToFadeIn != null
         ? null

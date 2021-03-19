@@ -67,6 +67,7 @@ class GgRouterExample extends StatelessWidget {
               'sports': _sportsPage,
               'transportation': _transportationPage,
               'places': _placesPage,
+              '*': _wildCardPage,
             },
             key: ValueKey('mainRouter'),
             inAnimation: _zoomIn,
@@ -199,6 +200,20 @@ class GgRouterExample extends StatelessWidget {
       key: ValueKey('indexPage'),
       child: Text(
         'GgRouter',
+        style: Theme.of(context).textTheme.headline2,
+      ),
+    );
+  }
+
+  // ...........................................................................
+  Widget _wildCardPage(BuildContext context) {
+    final routeName = GgRouter.of(context).routeName;
+
+    return Center(
+      key: ValueKey('wildCardPage'),
+      child: Text(
+        'Wildcard: $routeName',
+        key: ValueKey('WildCardText: $routeName'),
         style: Theme.of(context).textTheme.headline2,
       ),
     );

@@ -396,7 +396,7 @@ main() {
     });
 
     // .........................................................................
-    testWidgets('opening a unknown URL should show an error in the snack bar',
+    testWidgets('opening an unknown URL should show an error in the snack bar',
         (WidgetTester tester) async {
       await setUp(tester);
 
@@ -406,9 +406,27 @@ main() {
       final snackBar =
           GgEasyWidgetTest(find.byType(SnackBar), tester).widget as SnackBar;
       expect((snackBar.content as Text).data,
-          'Route "/sports" has no child named "superhero".');
+          'Route "/sports" has no child named "superhero" nor does your GgRouter define a "*" wild card route.');
 
       await tester.pumpAndSettle(Duration(seconds: 5));
+
+      await tearDown(tester);
+    });
+
+    // .........................................................................
+    testWidgets('navigating to /xyz should open the wildcard page.',
+        (WidgetTester tester) async {
+      await setUp(tester);
+
+      routerDelegate.setNewRoutePath(RouteInformation(location: '/xyz'));
+      await tester.pumpAndSettle();
+
+      // Check if /xyz is the path of the staged child
+      expect(routerDelegate.root.stagedChildPath, 'xyz');
+
+      // Check if the name of the wild card route could be accessed
+      // using the context.
+      expect(find.byKey(ValueKey('WildCardText: xyz')), findsOneWidget);
 
       await tearDown(tester);
     });

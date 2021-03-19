@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.0
+
+* Added the option to define wild card routes using '*' as route name.
+
 ## 1.0.0-beta.5 - March 13th, 2021
 
 * Animations
@@ -16,7 +20,6 @@
   * They must get the name `_INDEX_.
 
 * Renamed several identifiers.
-
 
 ## 1.0.0-beta.4 - March 13th, 2021
 
