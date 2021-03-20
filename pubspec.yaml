@@ -1,5 +1,5 @@
 name: gg_router
-description: Create nested routes in Flutter. Sync app state and browser URL. Navigate absolutely and relatively. Animate route transitions. Save and restore application state. Manage URI query parameters.
+description: Create nested routes. Sync app state and browser URL. Navigate absolutely and relatively. Animate route transitions. Save and restore state. Manage URI query parameters.
 version: 1.0.1
 homepage: "https://github.com/inlavigo/gg_router"
 
