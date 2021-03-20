@@ -83,15 +83,19 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
           return Container(key: ValueKey('RouterDelegateLoadingScreen'));
         }
 
-        return GgRouter.root(
-          child: Overlay(
-            initialEntries: [
-              OverlayEntry(builder: (context) {
-                return child;
-              }),
-            ],
+        return Semantics(
+          container: true,
+          explicitChildNodes: true,
+          child: GgRouter.root(
+            child: Overlay(
+              initialEntries: [
+                OverlayEntry(builder: (context) {
+                  return child;
+                }),
+              ],
+            ),
+            node: _root,
           ),
-          node: _root,
         );
       },
     );

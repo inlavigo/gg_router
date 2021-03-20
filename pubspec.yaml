@@ -1,6 +1,6 @@
 name: gg_router
-description: »Everything is a widget is now true for routing too!« - Powerful AND! simple routing and navigation for Flutter.
-version: 1.0.0
+description: Create nested routes in Flutter. Sync app state and browser URL. Navigate absolutely and relatively. Animate route transitions. Save and restore application state. Manage URI query parameters.
+version: 1.0.1
 homepage: "https://github.com/inlavigo/gg_router"
 
 environment:

@@ -1,18 +1,28 @@
 # GgRouter - Easy Routing for Flutter
 
-»Everything is a widget is now true for routing too!« GgRouter gives you a simple
-and powerful routing library for flutter.
+`GgRouter` is a simple _and_ powerful routing package for Flutter. Just define
+your nested routes. Add query parameters. Define the route transitions. GgRouter
+will do the rest for you:
 
-- Define nested routes and route query params as ordinary widgets.
-- Navigate with ease from one widget to another.
-- Easily define route animations.
-- Save and Restore the complete router state of your app.
-- Automatic get back to the last state when returning to a previous route.
+- GgRouter selects the right widgets for rendering
+- GgRouter restores the previous route state.
+- GgRouter performs only necessary animations.
+- GgRouter parses the URI and applies it to your application state.
+- GgRouter synchronizes route tree changes to the browser URI.
+
+Additionally, GgRouter allows you to create index routes, default routes,
+wildcard routes. And finally, it can backup and restore the complete route
+tree as JSON.
+
+## Demo
+
+Here you can watch a  [Youtube demo](https://www.youtube.com/watch?v=b9wYtl0eySU) of GgRouter.
 
 ![Features](./img/gg_router_short.gif)
 
 ## Content
 
+- [Demo](#demo)
 - [Initialize GgRouter](#initialize-ggrouter)
 - [Define routes](#define-routes)
   - [Page routes](#page-routes)
@@ -231,10 +241,9 @@ To use the value of a query param in a widget, use these method:
 
 ### Animate route transitions
 
-`GgRouter` offers a very simple way to animate route transitions. `GgRouter`
-offers an effortless way to animate route transitions. Use `inAnimation` and
-`outAnimation` to define animations that are applied to the appearing and the
-disappearing route:
+`GgRouter` offers a simple way to animate route transitions. Use `inAnimation`
+and `outAnimation` to define animations that are applied to the appearing and
+the disappearing route:
 
 ~~~dart
 builder: (context) {

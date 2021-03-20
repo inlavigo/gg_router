@@ -1,10 +1,14 @@
 # Change Log
 
-## 1.0.0
+## 1.0.1 - March 20th, 2021
+
+* Fixed a bug braking semantic labels
+
+## 1.0.0 - March 19th, 2021
 
 * Added the option to define wild card routes using '*' as route name.
 
-## 1.0.0-beta.5 - March 13th, 2021
+## 1.0.0-beta.5 - March 18th, 2021
 
 * Animations
   * Route transitions can be animated now.

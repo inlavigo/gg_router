@@ -200,6 +200,82 @@ main() {
       expect(content, findsOneWidget);
     });
 
+    // #########################################################################
+    group('semantics widget', () {
+      // ..........................................
+      // Define a sample widget with two containers
+      final widget = Stack(children: [
+        Positioned(
+          left: 0,
+          child: Semantics(
+            label: 'Hello',
+            child: Container(width: 100, height: 100),
+          ),
+        ),
+        Positioned(
+          right: 0,
+          child: Semantics(
+            label: 'World',
+            child: Container(width: 100, height: 100),
+          ),
+        ),
+      ]);
+
+      // .......................................................................
+      testWidgets(
+          'when instantiated without GgRouter, semantic widgets should work correctly',
+          (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: widget,
+          ),
+        );
+        expect(find.bySemanticsLabel('Hello'), findsOneWidget);
+        expect(find.bySemanticsLabel('World'), findsOneWidget);
+      });
+
+      // .......................................................................
+      testWidgets(
+          'when instantiated within an overlay, semantic widgets should work too',
+          (WidgetTester tester) async {
+        await tester.pumpWidget(
+          GgRouter.root(
+            node: GgRouteTreeNode(name: '_ROOT_'),
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: Overlay(initialEntries: [
+                OverlayEntry(builder: (context) {
+                  return widget;
+                }),
+              ]),
+            ),
+          ),
+        );
+
+        expect(find.bySemanticsLabel('Hello'), findsOneWidget);
+        expect(find.bySemanticsLabel('World'), findsOneWidget);
+      });
+
+      // .......................................................................
+      testWidgets(
+          'when instantiated within a RouterDelegate, semantic widgets should work too',
+          (WidgetTester tester) async {
+        // ..............................
+        final routerDelegate = GgRouterDelegate(
+          child: widget,
+        );
+
+        await tester.pumpWidget(
+          MaterialApp.router(
+              routeInformationParser: GgRouteInformationParser(),
+              routerDelegate: routerDelegate),
+        );
+
+        expect(find.bySemanticsLabel('Hello'), findsOneWidget);
+        expect(find.bySemanticsLabel('World'), findsOneWidget);
+      });
+    });
+
     // .........................................................................
     test('dispose', () {
       final delegate = GgRouterDelegate(child: Container());
