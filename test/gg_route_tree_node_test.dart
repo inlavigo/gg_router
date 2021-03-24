@@ -449,6 +449,17 @@ main() {
     });
 
     // #########################################################################
+    group('child(name)', () {
+      test(
+          'should return child with name or null if no child is existing with name',
+          () {
+        init();
+        expect(root.child('child-a0'), childA0);
+        expect(root.child('child-x'), isNull);
+      });
+    });
+
+    // #########################################################################
     group('hasChild(name)', () {
       test('should return when child with name exists, otherwise false', () {
         init();

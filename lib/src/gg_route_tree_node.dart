@@ -304,6 +304,10 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
+  /// Returns a child node with [name]. If none exists, null is returned
+  GgRouteTreeNode? child(String name) => _children[name];
+
+  // ...........................................................................
   /// The default child is chosen, when you want to navigate to _LAST_ and
   /// no child is already staged.
   String? defaultChildName;
@@ -311,9 +315,7 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns the default child if some exists
   GgRouteTreeNode? get defaultChild =>
-      (defaultChildName != null && hasChild(name: defaultChildName!))
-          ? findOrCreateChild(defaultChildName!)
-          : null;
+      (defaultChildName != null) ? child(defaultChildName!) : null;
 
   // ...........................................................................
   /// Returns true if the node has a child with [name].
