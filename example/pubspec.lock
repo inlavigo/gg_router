@@ -106,7 +106,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.0.1"
+    version: "1.1.0-dev.2"
   gg_value:
     dependency: "direct main"
     description:

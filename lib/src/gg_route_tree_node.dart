@@ -186,6 +186,9 @@ class GgRouteTreeNode {
     _initSubscriptions();
   }
 
+  /// Create a root node
+  static GgRouteTreeNode get newRoot => GgRouteTreeNode(name: '_ROOT_');
+
   // ...........................................................................
   /// Call this function when the node is about to be disposed.
   dispose() => _dispose.reversed.forEach((d) => d());

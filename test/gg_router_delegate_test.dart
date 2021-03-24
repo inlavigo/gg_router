@@ -66,6 +66,39 @@ main() {
     }
 
     // .........................................................................
+    testWidgets('should take "root" as root node when not null',
+        (WidgetTester tester) async {
+      final root = GgRouteTreeNode.newRoot;
+      final delegate = GgRouterDelegate(child: Container(), root: root);
+      expect(delegate.root, root);
+    });
+
+    // .........................................................................
+    testWidgets(
+        'should apply "defaultRoute" when a root node is given and the staged child is "/"',
+        (WidgetTester tester) async {
+      final root = GgRouteTreeNode.newRoot;
+      expect(root.stagedChildPath, '');
+      final delegate = GgRouterDelegate(
+          child: Container(), root: root, defaultRoute: 'hello');
+      expect(delegate.root, root);
+      expect(root.stagedChild!.path, '/hello');
+    });
+
+    // .........................................................................
+    testWidgets(
+        'should not apply "defaultRoute" when a root node is given and the staged child is "/something"',
+        (WidgetTester tester) async {
+      final root = GgRouteTreeNode.newRoot;
+      root.navigateTo('/something');
+      expect(root.stagedChildPath, 'something');
+      final delegate = GgRouterDelegate(
+          child: Container(), root: root, defaultRoute: 'hello');
+      expect(delegate.root, root);
+      expect(root.stagedChild!.path, '/something');
+    });
+
+    // .........................................................................
     testWidgets('should work correctly', (WidgetTester tester) async {
       await setUp(tester);
 

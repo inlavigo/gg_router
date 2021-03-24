@@ -19,7 +19,7 @@ main() {
   late GgRouteTreeNode childC;
 
   init() {
-    root = exampleRouteNode(name: '_ROOT_');
+    root = GgRouteTreeNode.newRoot;
     childA0 = exampleRouteNode(name: 'child-a0', parent: root);
     childA1 = exampleRouteNode(name: 'child-a1', parent: root);
     childB = exampleRouteNode(name: 'child-b', parent: childA0);

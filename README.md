@@ -16,9 +16,10 @@ tree as JSON.
 
 ## Demo
 
-Here you can watch a  [Youtube demo](https://www.youtube.com/watch?v=b9wYtl0eySU) of GgRouter.
+Klick [here](https://www.youtube.com/watch?v=b9wYtl0eySU) to watch a YouTube
+demo of GgRouter.
 
-![Features](./img/gg_router_short.gif)
+![Features](https://github.com/inlavigo/gg_router/raw/master/img/gg_router_short.gif)
 
 ## Content
 

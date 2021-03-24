@@ -33,8 +33,9 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
     this.saveState,
     this.restoreState,
     this.defaultRoute,
+    GgRouteTreeNode? root,
   }) : navigatorKey = GlobalKey<NavigatorState>() {
-    _initRoot();
+    _initRoot(root);
     _restoreState();
     _initSaveStateTrigger();
     _listenToChanges();
@@ -69,7 +70,9 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   Future<String?> Function()? restoreState;
 
   // ...........................................................................
-  /// The default route loaded on beginning
+  /// The default route loaded on beginning. The default route is ignored when
+  /// a root node is specified in the constructor AND the root has already a
+  /// staged child.
   final String? defaultRoute;
 
   // ...........................................................................
@@ -175,9 +178,11 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
   // ...........................................................................
   final List<Function()> _dispose = [];
-  final _root = GgRouteTreeNode(name: '_ROOT_');
-  _initRoot() {
-    if (this.defaultRoute != null) {
+  late GgRouteTreeNode _root;
+  _initRoot(GgRouteTreeNode? root) {
+    _root = root ?? GgRouteTreeNode(name: '_ROOT_');
+
+    if (_root.stagedChild == null && this.defaultRoute != null) {
       _root.navigateTo(this.defaultRoute!);
     }
   }
