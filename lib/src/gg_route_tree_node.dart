@@ -288,7 +288,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns a child node with [name]. If none exists, one is created.
-  GgRouteTreeNode child(String name) {
+  GgRouteTreeNode findOrCreateChild(String name) {
     if (isIndexChild) {
       throw ArgumentError(
           'The route "$path" is an index routes and must not have children.');
@@ -312,7 +312,7 @@ class GgRouteTreeNode {
   /// Returns the default child if some exists
   GgRouteTreeNode? get defaultChild =>
       (defaultChildName != null && hasChild(name: defaultChildName!))
-          ? child(defaultChildName!)
+          ? findOrCreateChild(defaultChildName!)
           : null;
 
   // ...........................................................................
@@ -361,7 +361,7 @@ class GgRouteTreeNode {
           stagedChild = stagedChild.stagedChild ?? result.defaultChild;
         }
       } else {
-        result = result.child(element);
+        result = result.findOrCreateChild(element);
       }
     });
 
@@ -954,12 +954,12 @@ class GgRouteTreeNode {
         // Read children.
         // If the value is a map, create a child.
         if (value is Map) {
-          child(key)._parseJson(value);
+          findOrCreateChild(key)._parseJson(value);
         } else {
           // .................
           // Read staged child
           if (key == stagedChildJsonKey) {
-            final childNode = child(value);
+            final childNode = findOrCreateChild(value);
             childNode._setIsStaged(true);
             _stagedChild.value = childNode;
           }

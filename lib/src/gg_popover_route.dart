@@ -104,7 +104,7 @@ class _GgPopoverRouteState extends State<GgPopoverRoute>
   // ...........................................................................
   _update() {
     final node = GgRouter.of(context).node;
-    final popoverChild = node.child(widget.name);
+    final popoverChild = node.findOrCreateChild(widget.name);
     final popoverIsShown = popoverChild.isStaged;
 
     final fadeIn =

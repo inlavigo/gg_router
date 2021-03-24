@@ -182,7 +182,8 @@ main() {
         restoreState: () => SynchronousFuture(exampleData),
       );
       expect(routerDelegate.root.stagedChildPath, 'routeB');
-      expect(routerDelegate.root.child('routeB').param('b')?.value, 1234);
+      expect(routerDelegate.root.findOrCreateChild('routeB').param('b')?.value,
+          1234);
     });
 
     // .........................................................................

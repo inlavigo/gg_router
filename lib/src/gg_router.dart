@@ -321,7 +321,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // Update the child indexes
     int i = 0;
     widget.children.keys.forEach((key) {
-      final child = parentNode.child(key);
+      final child = parentNode.findOrCreateChild(key);
       child.widgetIndex = i;
       i++;
     });
@@ -358,7 +358,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // If no visible child is defined, take the index route
     if (newVisibleNode == null) {
       newVisibleNode = widget.children.containsKey('_INDEX_')
-          ? parentNode.child('_INDEX_')
+          ? parentNode.findOrCreateChild('_INDEX_')
           : null;
     }
 
@@ -366,7 +366,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // If no index child is defined, take the default route
     if (newVisibleNode == null && widget.defaultRoute != null) {
       newVisibleNode = widget.children.containsKey(widget.defaultRoute)
-          ? parentNode.child(widget.defaultRoute!)
+          ? parentNode.findOrCreateChild(widget.defaultRoute!)
           : null;
       newVisibleNode?.navigateTo('.');
     }
@@ -541,7 +541,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   // ...........................................................................
   _createChildNodes(GgRouteTreeNode parentNode) {
     widget.children.keys.forEach((routeName) {
-      parentNode.child(routeName);
+      parentNode.findOrCreateChild(routeName);
     });
   }
 

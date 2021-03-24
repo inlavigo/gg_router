@@ -189,9 +189,9 @@ main() {
     update() {
       index = lastBuiltNode;
 
-      a0 = lastBuiltNode.root.child('a0');
-      b0 = lastBuiltNode.root.child('b0');
-      a11 = a0.child('a11');
+      a0 = lastBuiltNode.root.findOrCreateChild('a0');
+      b0 = lastBuiltNode.root.findOrCreateChild('b0');
+      a11 = a0.findOrCreateChild('a11');
     }
 
     // .........................................................................
@@ -235,7 +235,7 @@ main() {
 
       // Now activate /b0 -> /a0/a11 should stay visible
       // because no _INDEX_ route has been defined for b0
-      lastBuiltNode.parent!.parent!.child('b0').navigateTo('.');
+      lastBuiltNode.parent!.parent!.findOrCreateChild('b0').navigateTo('.');
 
       await tester.pumpAndSettle();
       expect(lastBuiltNode.path, '/a0/a11');
@@ -247,7 +247,7 @@ main() {
 
       // Now let's activate an invalid route. ->
       // The previous defined route should stay visible
-      lastBuiltNode.parent!.child('unknown').navigateTo('.');
+      lastBuiltNode.parent!.findOrCreateChild('unknown').navigateTo('.');
       await tester.pumpAndSettle();
       await tester.pumpAndSettle();
       expect(lastBuiltNode.path, '/b0/b11');
@@ -294,7 +294,9 @@ main() {
       // Invalid URLs should be removed from the route tree
       expect(lastBuiltNode.root.hasChild(name: 'a0'), true);
       expect(
-        lastBuiltNode.root.child('a0').hasChild(name: 'invalidRoute'),
+        lastBuiltNode.root
+            .findOrCreateChild('a0')
+            .hasChild(name: 'invalidRoute'),
         false,
       );
 
@@ -366,7 +368,7 @@ main() {
             router = GgRouter.of(c1);
 
             final childName = 'childRoute$x';
-            router.node.child(childName).navigateTo('.');
+            router.node.findOrCreateChild(childName).navigateTo('.');
 
             return GgRouter(
               {
@@ -761,7 +763,7 @@ main() {
         // Create a router delegate
         final routerDelegate = GgRouterDelegate(child: router);
         final root = routerDelegate.root;
-        root.child('routeA').navigateTo('.');
+        root.findOrCreateChild('routeA').navigateTo('.');
 
         // .............
         // Create an app
@@ -784,7 +786,7 @@ main() {
 
         // ..........................
         // Now let's switch to routeB
-        root.child('routeB').navigateTo('.');
+        root.findOrCreateChild('routeB').navigateTo('.');
 
         // ..........................
         // At the beginning both, routeA and routeB should be visbible

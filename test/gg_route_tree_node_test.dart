@@ -4,8 +4,6 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'dart:developer';
-
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/gg_router.dart';
@@ -237,7 +235,7 @@ main() {
 
           // ...........
           // Add a child
-          final childD = childC.child('child-d');
+          final childD = childC.findOrCreateChild('child-d');
           checkCounter();
 
           // Remove a child
@@ -423,16 +421,16 @@ main() {
     });
 
     // #########################################################################
-    group('child(name)', () {
+    group('findOrCreateChild(name)', () {
       test('Should return an existing child, when possible', () {
         init();
-        expect(root.child('child-a0'), same(childA0));
-        expect(childA0.child('child-b'), same(childB));
+        expect(root.findOrCreateChild('child-a0'), same(childA0));
+        expect(childA0.findOrCreateChild('child-b'), same(childB));
       });
 
       test('Should create and return a new child, when not existing', () {
         init();
-        final childA1 = root.child('child-a1');
+        final childA1 = root.findOrCreateChild('child-a1');
         expect(childA1.name, 'child-a1');
         expect(childA1.parent, root);
         expect(root.children.length, 2);
@@ -440,8 +438,8 @@ main() {
 
       test('Should throw an exception, if node is an index route', () {
         init();
-        final indexNode = childA0.child('_INDEX_');
-        expect(() => indexNode.child('xyz'),
+        final indexNode = childA0.findOrCreateChild('_INDEX_');
+        expect(() => indexNode.findOrCreateChild('xyz'),
             throwsA(predicate((ArgumentError f) {
           expect(f.message,
               'The route "${indexNode.path}" is an index routes and must not have children.');
@@ -483,7 +481,7 @@ main() {
 
       test('returns true if node has no name, otherwise false', () {
         init();
-        expect(childA0.child('_INDEX_').isIndexChild, true);
+        expect(childA0.findOrCreateChild('_INDEX_').isIndexChild, true);
         expect(childA0.isIndexChild, false);
       });
     });
@@ -505,7 +503,7 @@ main() {
       test('should return the defaultChild if one was created before', () {
         init();
         root.defaultChildName = 'defaultChild';
-        final defaultChild = root.child('defaultChild');
+        final defaultChild = root.findOrCreateChild('defaultChild');
         expect(root.defaultChild, defaultChild);
       });
     });
@@ -935,7 +933,7 @@ main() {
 
           // Let's add another child, and check if changes on the new child's
           // params are communicated.
-          final newChild = childC.child('new-child');
+          final newChild = childC.findOrCreateChild('new-child');
           newChild.findOrCreateParam(name: 'k', seed: 5);
           fake.flushMicrotasks();
           expect(calls0, 1);
@@ -1056,9 +1054,9 @@ main() {
       test('should create new child nodes, if not existing', () {
         init();
         root.stagedChildPathSegments = ['x', 'y', 'z'];
-        final x = root.child('x');
-        final y = x.child('y');
-        final z = y.child('z');
+        final x = root.findOrCreateChild('x');
+        final y = x.findOrCreateChild('y');
+        final z = y.findOrCreateChild('z');
 
         expect(root.isStaged, true);
         expect(x.isStaged, true);
@@ -1233,9 +1231,9 @@ main() {
       setUp(() {
         root = GgRouteTreeNode(name: '_ROOT_');
         root.findOrCreateParam(name: 'rootParam', seed: 1);
-        child = root.child('child');
+        child = root.findOrCreateChild('child');
         child.findOrCreateParam(name: 'childParam', seed: 1.1);
-        grandChild = child.child('grandChild');
+        grandChild = child.findOrCreateChild('grandChild');
         grandChild.findOrCreateParam(name: 'grandChildParam', seed: false);
       });
 
@@ -1319,10 +1317,10 @@ main() {
         final root = GgRouteTreeNode(name: '_ROOT_');
         expect(root.json, '{}');
 
-        final child = root.child('child');
+        final child = root.findOrCreateChild('child');
         expect(root.json, '{"child":{}}');
 
-        final grand = child.child('grand');
+        final grand = child.findOrCreateChild('grand');
         expect(root.json, '{"child":{"grand":{}}}');
 
         final parsedFoo = OtherClass();
@@ -1343,7 +1341,8 @@ main() {
         expect(root.json, expectedJson);
 
         root.json = expectedJson;
-        final parsedGrand = root.child('child').child('grand');
+        final parsedGrand =
+            root.findOrCreateChild('child').findOrCreateChild('grand');
         expect(parsedGrand.param('foo')?.value, parsedFoo);
       });
 
@@ -1351,12 +1350,12 @@ main() {
         final root = GgRouteTreeNode(name: '_ROOT_');
         root.navigateTo('.');
         root.navigateTo('/stagedChild');
-        expect(root.child('stagedChild').isStaged, true);
+        expect(root.findOrCreateChild('stagedChild').isStaged, true);
         final json = root.json;
 
         final rootCopy = GgRouteTreeNode(name: '_ROOT_');
         rootCopy.json = json;
-        expect(rootCopy.stagedChild, rootCopy.child('stagedChild'));
+        expect(rootCopy.stagedChild, rootCopy.findOrCreateChild('stagedChild'));
       });
     });
   });
