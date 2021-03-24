@@ -55,7 +55,10 @@ class _Params {
     T Function(String)? parse,
     String Function(T)? stringify,
   }) {
+    // Find existing parameter
     var result = _params[name];
+
+    // If param does not already exist, create it.
     if (result == null) {
       result = GgValue<T>(
         seed: seed,
@@ -78,19 +81,27 @@ class _Params {
       }
 
       _listenToChanges(result.stream);
+      _onChangeTrigger.trigger();
 
       _params[name] = result;
     } else {
       _checkType<T>(result);
     }
 
+    // Return existing or created parameter
     return result as GgValue<T>;
   }
 
   // ...........................................................................
+  /// Returns true, once dispose was called
   dispose() {
     _dispose.reversed.forEach((element) => element());
+    _dispose.clear();
   }
+
+  // ...........................................................................
+  /// Returns true, once dispose was called
+  bool get isDisposed => _dispose.isEmpty;
 
   // ...........................................................................
   /// Returns own param
@@ -109,7 +120,7 @@ class _Params {
 
   // ...........................................................................
   /// A stream that informs if any of the parameter changes
-  Stream<void> get onOwnOrChildChange => _onOwnOrChildChange.stream;
+  Stream<void> get onChange => _onChange.stream;
 
   // ...........................................................................
   final List<Function()> _dispose = [];
@@ -138,15 +149,14 @@ class _Params {
   final _params = Map<String, GgValue>();
 
   // ...........................................................................
-  final _onOwnOrChildChange = StreamController<void>.broadcast();
+  final _onChange = StreamController<void>.broadcast();
   _initOnChange() {
-    _dispose.add(() => _onOwnOrChildChange.close());
+    _dispose.add(() => _onChange.close());
   }
 
   // ...........................................................................
   _listenToChanges(Stream stream) {
     final s = stream.listen((_) => _onChangeTrigger.trigger());
-    _onChangeTrigger.trigger();
     _dispose.add(s.cancel);
   }
 
@@ -154,10 +164,11 @@ class _Params {
   late GgOncePerCycle _onChangeTrigger;
   _initOnChangeTrigger() {
     _onChangeTrigger = GgOncePerCycle(task: () {
-      if (!_onOwnOrChildChange.isClosed && _onOwnOrChildChange.hasListener) {
-        _onOwnOrChildChange.add(null);
+      if (!_onChange.isClosed && _onChange.hasListener) {
+        _onChange.add(null);
       }
     });
+    _dispose.add(_onChangeTrigger.dispose);
   }
 }
 
@@ -191,7 +202,14 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Call this function when the node is about to be disposed.
-  dispose() => _dispose.reversed.forEach((d) => d());
+  dispose() {
+    _dispose.reversed.forEach((d) => d());
+    _dispose.clear();
+  }
+
+  // ...........................................................................
+  /// Returns true, once dispose was called
+  bool get isDisposed => _dispose.isEmpty;
 
   // ...........................................................................
   /// A string representation of the node outputting the path of the node.
@@ -240,6 +258,7 @@ class GgRouteTreeNode {
   // onChange
   // ############################
 
+  /// Informs about any changes of the node itself as well as its children.
   Stream<void> get onChange => _onChange.stream;
 
   // ######################
@@ -506,7 +525,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// A stream that informs when the node's parameters change.
-  Stream<void> get onOwnParamChange => _params.onOwnOrChildChange;
+  Stream<void> get onOwnParamChange => _params.onChange;
 
   // ...........................................................................
   /// A stream that informs when the node's own or its child parameters change.
@@ -764,7 +783,9 @@ class GgRouteTreeNode {
     _dispose.add(() => _params.dispose());
 
     // Inform about parameter changes
-    final s = _params.onOwnOrChildChange.listen((event) => _reportChange());
+    final s = _params.onChange.listen((event) {
+      _reportChange();
+    });
     _dispose.add(s.cancel);
   }
 

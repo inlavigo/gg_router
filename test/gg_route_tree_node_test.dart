@@ -4,6 +4,8 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:developer';
+
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/gg_router.dart';
@@ -45,18 +47,63 @@ main() {
       test(
           'should remove all children from the node. '
           'Should remove the node from its parents list of children. '
-          'Should reset the staged child property of its parent.', () {
+          'Should reset the staged child property of its parent. '
+          'Should dispose also all children', () {
         init();
         final parent = childB.parent!;
         childB.navigateTo('.');
+
+        // At the beginning none of the nodes is disposed
+        expect(root.isDisposed, false);
+        expect(childA0.isDisposed, false);
+        expect(childB.isDisposed, false);
+        expect(childC.isDisposed, false);
+
+        // Stage childB
         expect(childB.isStaged, true);
         expect(childB.children.length, 1);
         expect(parent.children.length, 1);
         expect(parent.stagedChild, childB);
+
+        // Dispose childB
+        // => childA0 should not have any children anymore
+        // => childB should not have any children anymore
+        // => childA0 should not have a staged child anymore
+        // => childC as well childB should be disposed
         childB.dispose();
         expect(parent.children.length, 0);
         expect(childB.children.length, 0);
         expect(parent.stagedChild, null);
+        expect(childC.isDisposed, true);
+        expect(childB.isDisposed, true);
+        expect(childA0.isDisposed, false);
+        expect(root.isDisposed, false);
+
+        // Finalize
+        dispose();
+      });
+
+      test('should make sure no changes are delivered anymore', () {
+        fakeAsync((fake) {
+          init();
+
+          // Listen to changes
+          var changeCounter = 0;
+          root.onChange.listen((event) => changeCounter++);
+
+          // Make a test change before dispose
+          // => Changes are delivered
+          childC.findOrCreateParam(name: 'x', seed: 5);
+          fake.flushMicrotasks();
+          expect(changeCounter, 1);
+
+          // Make a change and dispose then
+          // => Changes are not delivered anymore
+          childC.findOrCreateParam(name: 'y', seed: 5);
+          root.dispose();
+          fake.flushMicrotasks();
+          expect(changeCounter, 1);
+        });
       });
     });
 

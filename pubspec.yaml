@@ -1,6 +1,6 @@
 name: gg_router
 description: Create nested routes. Sync app state and browser URL. Navigate absolutely and relatively. Animate route transitions. Save and restore state. Manage URI query parameters.
-version: 1.1.0-dev.2
+version: 1.1.0
 homepage: "https://github.com/inlavigo/gg_router"
 
 environment:
@@ -12,8 +12,8 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  gg_value: ^1.0.3
-  gg_once_per_cycle: ^1.0.0
+  gg_value: ^1.1.0
+  gg_once_per_cycle: ^1.1.0
 
 dev_dependencies:
   flutter_test:
