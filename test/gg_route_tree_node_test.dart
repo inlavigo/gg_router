@@ -89,18 +89,24 @@ main() {
           var changeCounter = 0;
           root.onChange.listen((event) => changeCounter++);
 
+          var changeCounter1 = 0;
+          childC.onChange.listen((event) => changeCounter1++);
+
           // Make a test change before dispose
           // => Changes are delivered
-          childC.findOrCreateParam(name: 'x', seed: 5);
+          childC.findOrCreateChild('newChild1');
           fake.flushMicrotasks();
           expect(changeCounter, 1);
+          expect(changeCounter1, 1);
 
           // Make a change and dispose then
           // => Changes are not delivered anymore
-          childC.findOrCreateParam(name: 'y', seed: 5);
+          childC.findOrCreateChild('newChild2');
           root.dispose();
+          childC.dispose();
           fake.flushMicrotasks();
           expect(changeCounter, 1);
+          expect(changeCounter1, 1);
         });
       });
     });

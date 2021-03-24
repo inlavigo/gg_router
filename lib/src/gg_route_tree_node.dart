@@ -862,6 +862,7 @@ class GgRouteTreeNode {
         parent?._reportChange();
       }
     });
+    _dispose.add(_onChangeTrigger.dispose);
   }
 
   // ...........................................................................

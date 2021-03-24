@@ -1,12 +1,12 @@
 # Change Log
 
-## 1.1.0-dev.2 - March 23th, 2021
+## 1.1.0 - March 24th, 2021
 
+* Fixed issues with disposing the route tree
+* Renamed `GgRouteTreeNode:child` into `GgRouteTreeNode:findOrCreateChild`
+* Reintroduced `GgRouteTreeNode:child`
 * Refined handling when a root and a default path is submitted to
   GgRouterDelegate.
-
-## 1.1.0-dev.1 - March 20th, 2021
-
 * `GgRouterDelegate` can take a pre-configured root node, which helps the route
   tree be managed outside the widget hierarchy.
 * `GgRouteTreeNode.newRoot` was introduced to create root nodes.
