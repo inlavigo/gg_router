@@ -870,6 +870,28 @@ main() {
           expect(root.child('abc')?.semanticsLabel, 'ABC Label');
         },
       );
+
+      testWidgets('Semantic labels should also work for PopoverRoute',
+          (WidgetTester tester) async {
+        // ......................
+        // Create a popover route
+        final root = GgRouteTreeNode.newRoot;
+        await tester.pumpWidget(
+          GgRouter.root(
+              child: GgPopoverRoute(
+                key: GlobalKey(),
+                name: 'xyz',
+                base: Container(),
+                popover: (_) => Container(),
+                semanticLabel: 'XYZ Label',
+              ),
+              node: root),
+        );
+
+        // ........................................
+        // Has semantic label been written to node?
+        expect(root.child('xyz')?.semanticsLabel, 'XYZ Label');
+      });
     });
   });
 }
