@@ -138,6 +138,7 @@ class GgRouter extends StatefulWidget {
   GgRouter(
     this.children, {
     required Key key,
+    this.semanticLabels = const {},
     this.defaultRoute,
     this.inAnimation,
     this.outAnimation,
@@ -147,6 +148,7 @@ class GgRouter extends StatefulWidget {
         super(key: key) {
     _checkChildren();
     _checkAnimations();
+    _checkSemanticLabels();
   }
 
   // ...........................................................................
@@ -156,6 +158,7 @@ class GgRouter extends StatefulWidget {
       : _rootChild = child,
         _rootNode = node,
         children = const {},
+        semanticLabels = const {},
         defaultRoute = null,
         inAnimation = null,
         outAnimation = null,
@@ -168,6 +171,9 @@ class GgRouter extends StatefulWidget {
 
   /// The child routes of this router.
   final Map<String, Widget Function(BuildContext)> children;
+
+  /// A map assigning a semantics label to each route.
+  final Map<String, String> semanticLabels;
 
   /// This animation is applied to the widget appearing on route transitions.
   final GgAnimationBuilder? inAnimation;
@@ -240,6 +246,18 @@ class GgRouter extends StatefulWidget {
       }
     });
   }
+
+  // ...........................................................................
+  _checkSemanticLabels() {
+    semanticLabels.keys.forEach((key) {
+      if (!children.containsKey(key)) {
+        throw ArgumentError(
+            'You specified a semantic label for route "$key", but you did not setup a route with name "$key".');
+      }
+    });
+  }
+
+  // ...........................................................................
 }
 
 // #############################################################################

@@ -818,5 +818,25 @@ main() {
         await tester.pumpAndSettle();
       });
     });
+
+    // #########################################################################
+    group('Semantic labels', () {
+      test(
+          'should throw an exception if semantic labels for non existing routes are defined',
+          () {
+        expect(() {
+          GgRouter({}, semanticLabels: {'xyz': 'X Y Z'}, key: GlobalKey());
+        }, throwsA(predicate((ArgumentError e) {
+          expect(e.message,
+              'You specified a semantic label for route "xyz", but you did not setup a route with name "xyz".');
+          return true;
+        })));
+      });
+
+      test('should pass if semantic labels match the routes', () {
+        GgRouter({'xyz': (_) => Container()},
+            semanticLabels: {'xyz': 'X Y Z'}, key: GlobalKey());
+      });
+    });
   });
 }
