@@ -196,6 +196,8 @@ class GgRouter extends StatefulWidget {
       'Did not find an instance of GgRouterDelegate.\n'
       'Please wrap your GgRouter into a MaterialApp.router(...) and '
       'assign an instance of GgRouterDelegate to "routerDelegate".\n'
+      'When testing, it is sufficient to wrap the GgRouter under test into'
+      'another GgRouter.root instance.\n'
       'For more details look into "gg_router/example/main.dart".';
 
   // ...........................................................................
@@ -316,6 +318,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // For each child route, create a node
     _createChildNodes(parentNode);
     _setupDefaultChild(parentNode);
+    _setupSemanticLabels(parentNode);
 
     // ........................
     // Observe the visible child
@@ -573,6 +576,13 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     }
 
     parentNode.defaultChildName = widget.defaultRoute;
+  }
+
+  // ...........................................................................
+  _setupSemanticLabels(GgRouteTreeNode parentNode) {
+    widget.semanticLabels.forEach((key, value) {
+      parentNode.findOrCreateChild(key).semanticsLabel = value;
+    });
   }
 
   late AnimationController _animation;

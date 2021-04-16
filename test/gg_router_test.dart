@@ -837,6 +837,39 @@ main() {
         GgRouter({'xyz': (_) => Container()},
             semanticLabels: {'xyz': 'X Y Z'}, key: GlobalKey());
       });
+
+      testWidgets(
+        "Semantic labels should be written to route tree",
+        (WidgetTester tester) async {
+          // ..................
+          // Create a root node
+          final root = GgRouteTreeNode.newRoot;
+
+          // ......................
+          // Instantiate the router
+          await tester.pumpWidget(
+            GgRouter.root(
+                child: GgRouter(
+                  {
+                    'xyz': (_) => Container(key: GlobalKey()),
+                    'abc': (_) => Container(key: GlobalKey()),
+                  },
+                  semanticLabels: {
+                    'xyz': 'XYZ Label',
+                    'abc': 'ABC Label',
+                  },
+                  key: GlobalKey(),
+                  defaultRoute: 'xyz',
+                ),
+                node: root),
+          );
+
+          // ..............................................................
+          // Check if the semantic labels have ben written to the node tree
+          expect(root.child('xyz')?.semanticsLabel, 'XYZ Label');
+          expect(root.child('abc')?.semanticsLabel, 'ABC Label');
+        },
+      );
     });
   });
 }
