@@ -1392,5 +1392,18 @@ main() {
         dispose();
       });
     });
+
+    // #########################################################################
+    group('semanticsLabelForPath', () {
+      test('should return the semantics label of the element relative to path',
+          () {
+        init();
+        expect(childC.semanticsLabelForPath('.'), childC.name);
+        expect(childC.semanticsLabelForPath('..'), childB.name);
+        expect(childC.semanticsLabelForPath('/'), root.name);
+        expect(childC.semanticsLabelForPath('../../child-a0'), childA0.name);
+        dispose();
+      });
+    });
   });
 }

@@ -707,14 +707,22 @@ class GgRouteTreeNode {
   // Semantics
   // ######################
 
+  // ...........................................................................
   /// Assigns a semantics label to the node
   set semanticsLabel(String label) {
     _semanticsLabel = label;
   }
 
+  // ...........................................................................
   /// Returns the semantics label of the node or the node when none has
   /// been set.
   String get semanticsLabel => _semanticsLabel ?? name;
+
+  // ...........................................................................
+  String semanticsLabelForPath(String path) {
+    final node = _nodeForPath(path);
+    return node.semanticsLabel;
+  }
 
   // ######################
   // Private
@@ -948,10 +956,22 @@ class GgRouteTreeNode {
 
   // ################
   // navigate
-  _navigateTo(String path) {
+
+  // ...........................................................................
+  GgRouteTreeNode _startElement(String path) {
     final startElement = path.startsWith('/') ? root : this;
+    return startElement;
+  }
+
+  // ...........................................................................
+  GgRouteTreeNode _nodeForPath(String path) {
+    return _startElement(path).descendants(path: path.split('/'));
+  }
+
+  // ...........................................................................
+  _navigateTo(String path) {
     final pathComponents = path.split('/');
-    startElement.stagedChildPathSegments = pathComponents;
+    _startElement(path).stagedChildPathSegments = pathComponents;
   }
 
   // ##############
