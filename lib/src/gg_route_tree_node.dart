@@ -254,6 +254,7 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns the index in the parent's children array.
   int? widgetIndex;
+
   // ############################
   // onChange
   // ############################
@@ -703,6 +704,19 @@ class GgRouteTreeNode {
   }
 
   // ######################
+  // Semantics
+  // ######################
+
+  /// Assigns a semantics label to the node
+  set semanticsLabel(String label) {
+    _semanticsLabel = label;
+  }
+
+  /// Returns the semantics label of the node or the node when none has
+  /// been set.
+  String get semanticsLabel => _semanticsLabel ?? name;
+
+  // ######################
   // Private
   // ######################
 
@@ -1018,6 +1032,14 @@ class GgRouteTreeNode {
     });
     return result;
   }
+
+  // #########
+  // Semantics
+
+  String? _semanticsLabel;
+
+  // ...........................................................................
+
 }
 
 // #############################################################################
