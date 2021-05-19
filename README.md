@@ -334,7 +334,7 @@ To retrieve the semantic label for a given route, use `GgRouter`'s the
 final semanticsLabel = GgRouter.of(context).semanticLabelForPath(route);
 ~~~
 
-Doing so you can now assign semantic labels to buttons that perform route
+By doing so, you can now assign semantic labels to buttons that perform route
 operations.
 
 ## Error handling
