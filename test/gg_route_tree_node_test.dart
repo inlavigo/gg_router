@@ -1375,5 +1375,35 @@ main() {
         expect(rootCopy.stagedChild, rootCopy.findOrCreateChild('stagedChild'));
       });
     });
+
+    // #########################################################################
+    group('set and get semanticsLabel', () {
+      test('should return the node name if no semantics label has been set',
+          () {
+        init();
+        expect(childC.semanticsLabel, childC.name);
+        dispose();
+      });
+
+      test('should return the previously set semantics label', () {
+        init();
+        childC.semanticsLabel = 'Child C';
+        expect(childC.semanticsLabel, 'Child C');
+        dispose();
+      });
+    });
+
+    // #########################################################################
+    group('semanticsLabelForPath', () {
+      test('should return the semantics label of the element relative to path',
+          () {
+        init();
+        expect(childC.semanticsLabelForPath('.'), childC.name);
+        expect(childC.semanticsLabelForPath('..'), childB.name);
+        expect(childC.semanticsLabelForPath('/'), root.name);
+        expect(childC.semanticsLabelForPath('../../child-a0'), childA0.name);
+        dispose();
+      });
+    });
   });
 }

@@ -18,6 +18,7 @@ class GgPopoverRoute extends StatefulWidget {
   GgPopoverRoute({
     required Key key,
     required this.name,
+    this.semanticLabel,
     required this.base,
     required this.popover,
     this.inAnimation,
@@ -33,6 +34,9 @@ class GgPopoverRoute extends StatefulWidget {
 
   /// The name of the route opening this popover.
   final String name;
+
+  /// The semantic label assigned to the popover
+  final String? semanticLabel;
 
   /// This animation is applied to the appearing popover
   final GgAnimationBuilder? inAnimation;
@@ -60,6 +64,7 @@ class _GgPopoverRouteState extends State<GgPopoverRoute>
   // ...........................................................................
   @override
   void initState() {
+    _initSemanticLabel();
     _initAnimation();
     _observeActiveChildChange();
     super.initState();
@@ -186,5 +191,13 @@ class _GgPopoverRouteState extends State<GgPopoverRoute>
     _animation =
         AnimationController(vsync: this, duration: widget.animationDuration);
     _dispose.add(() => _animation.dispose());
+  }
+
+  // ...........................................................................
+  _initSemanticLabel() {
+    if (widget.semanticLabel != null) {
+      final node = GgRouter.of(context).node.findOrCreateChild(widget.name);
+      node.semanticsLabel = widget.semanticLabel!;
+    }
   }
 }

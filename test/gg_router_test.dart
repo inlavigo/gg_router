@@ -818,5 +818,138 @@ main() {
         await tester.pumpAndSettle();
       });
     });
+
+    // #########################################################################
+    group('Semantic labels', () {
+      test(
+          'should throw an exception if semantic labels for non existing routes are defined',
+          () {
+        expect(() {
+          GgRouter({}, semanticLabels: {'xyz': 'X Y Z'}, key: GlobalKey());
+        }, throwsA(predicate((ArgumentError e) {
+          expect(e.message,
+              'You specified a semantic label for route "xyz", but you did not setup a route with name "xyz".');
+          return true;
+        })));
+      });
+
+      test('should pass if semantic labels match the routes', () {
+        GgRouter({'xyz': (_) => Container()},
+            semanticLabels: {'xyz': 'X Y Z'}, key: GlobalKey());
+      });
+
+      testWidgets(
+        "Semantic labels should be written to route tree",
+        (WidgetTester tester) async {
+          // ..................
+          // Create a root node
+          final root = GgRouteTreeNode.newRoot;
+
+          // ......................
+          // Instantiate the router
+          await tester.pumpWidget(
+            GgRouter.root(
+                child: GgRouter(
+                  {
+                    'xyz': (_) => Container(key: GlobalKey()),
+                    'abc': (_) => Container(key: GlobalKey()),
+                  },
+                  semanticLabels: {
+                    'xyz': 'XYZ Label',
+                    'abc': 'ABC Label',
+                  },
+                  key: GlobalKey(),
+                  defaultRoute: 'xyz',
+                ),
+                node: root),
+          );
+
+          // ..............................................................
+          // Check if the semantic labels have ben written to the node tree
+          expect(root.child('xyz')?.semanticsLabel, 'XYZ Label');
+          expect(root.child('abc')?.semanticsLabel, 'ABC Label');
+        },
+      );
+
+      testWidgets('Semantic labels should also work for PopoverRoute',
+          (WidgetTester tester) async {
+        // ......................
+        // Create a popover route
+        final root = GgRouteTreeNode.newRoot;
+        await tester.pumpWidget(
+          GgRouter.root(
+              child: GgPopoverRoute(
+                key: GlobalKey(),
+                name: 'xyz',
+                base: Container(),
+                popover: (_) => Container(),
+                semanticLabel: 'XYZ Label',
+              ),
+              node: root),
+        );
+
+        // ........................................
+        // Has semantic label been written to node?
+        expect(root.child('xyz')?.semanticsLabel, 'XYZ Label');
+      });
+
+      testWidgets(
+          'GgRouter.of(context).semanticLabelForPath() should return the right semantic label',
+          (WidgetTester tester) async {
+        // ...................
+        // Create a route tree
+        final root = GgRouteTreeNode.newRoot;
+        bool didCheck = false;
+        await tester.pumpWidget(
+          GgRouter.root(
+              child: GgRouter(
+                {
+                  'childA': (_) {
+                    return GgRouter(
+                      {
+                        'childA0': (context) {
+                          didCheck = true;
+
+                          // ...................................................
+                          // Check if semantic labels can be retrieved correctly
+                          expect(
+                            GgRouter.of(context).semanticLabelForPath('../'),
+                            'childA',
+                          );
+
+                          expect(
+                            GgRouter.of(context).semanticLabelForPath('../../'),
+                            root.name,
+                          );
+
+                          expect(
+                            GgRouter.of(context)
+                                .semanticLabelForPath('../../childB'),
+                            'childB Label',
+                          );
+
+                          return Container();
+                        }
+                      },
+                      key: GlobalKey(),
+                      defaultRoute: 'childA0',
+                    );
+                  },
+                  'childB': (_) {
+                    return Container();
+                  },
+                },
+                semanticLabels: {'childB': 'childB Label'},
+                key: GlobalKey(),
+                defaultRoute: 'childA',
+              ),
+              node: root),
+        );
+
+        // .....................
+        // Check semantic labels
+        expect(didCheck, true);
+      });
+    });
   });
 }

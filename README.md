@@ -11,8 +11,8 @@ will do the rest for you:
 - GgRouter synchronizes route tree changes to the browser URI.
 
 Additionally, GgRouter allows you to create index routes, default routes,
-wildcard routes. And finally, it can backup and restore the complete route
-tree as JSON.
+wildcard routes, assign semantic labels to routes. And finally, it can backup
+and restore the complete route tree as JSON.
 
 ## Demo
 
@@ -45,6 +45,7 @@ demo of GgRouter.
   - [Animate route transitions](#animate-route-transitions)
   - [Route specific animations](#route-specific-animations)
 - [Save and restore route state](#save-and-restore-route-state)
+- [Add semantic labels to routes](#add-semantic-labels-to-routes)
 - [Error handling](#error-handling)
 - [Example](#example)
 - [Features and bugs](#features-and-bugs)
@@ -306,6 +307,35 @@ Widget _moveOut(
 - `saveState` will be called with a JSON string when the route state changes.
 - `restoreState` will be called at the very first beginning and allows you
   to restore a previously defined state.
+
+## Add semantic labels to routes
+
+The `semanticLabels` constructor parameter of `GgRouter` allows you to specify a
+semantic label for each route:
+
+~~~dart
+@override
+ GgRouter(
+
+  // ...
+
+  semanticLabels: {
+    'sports':         'Navigate to sports page',
+    'transportation': 'Navigate to transportations page',
+    'places':         'Navigate to places page',
+  }
+);
+~~~
+
+To retrieve the semantic label for a given route, use `GgRouter`'s the
+`semanticLabelForPath(...)` property:
+
+~~~dart
+final semanticsLabel = GgRouter.of(context).semanticLabelForPath(route);
+~~~
+
+Doing so you can now assign semantic labels to buttons that perform route
+operations.
 
 ## Error handling
 

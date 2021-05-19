@@ -148,7 +148,6 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
       try {
         uri = Uri.parse(route.location!);
       } catch (e) {
-        print('Error while parsing url ${route.location}');
         return SynchronousFuture(null);
       }
 

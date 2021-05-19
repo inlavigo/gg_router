@@ -480,5 +480,15 @@ main() {
       expect(preferences.getString('lastApplicationState'),
           contains('"$stagedChildKey":"hospital"'));
     });
+
+    // .........................................................................
+    testWidgets('Semantic labels should be assigned correctly',
+        (WidgetTester tester) async {
+      await setUp(tester);
+      expect(find.bySemanticsLabel('Navigate to Sports Page'), findsOneWidget);
+      expect(find.bySemanticsLabel('Navigate to Transportation Page'),
+          findsOneWidget);
+      expect(find.bySemanticsLabel('Navigate to Places Page'), findsOneWidget);
+    });
   });
 }
