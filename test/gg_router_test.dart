@@ -892,6 +892,64 @@ main() {
         // Has semantic label been written to node?
         expect(root.child('xyz')?.semanticsLabel, 'XYZ Label');
       });
+
+      testWidgets(
+          'GgRouter.of(context).semanticLabelForPath() should return the right semantic label',
+          (WidgetTester tester) async {
+        // ...................
+        // Create a route tree
+        final root = GgRouteTreeNode.newRoot;
+        bool didCheck = false;
+        await tester.pumpWidget(
+          GgRouter.root(
+              child: GgRouter(
+                {
+                  'childA': (_) {
+                    return GgRouter(
+                      {
+                        'childA0': (context) {
+                          didCheck = true;
+
+                          // ...................................................
+                          // Check if semantic labels can be retrieved correctly
+                          expect(
+                            GgRouter.of(context).semanticLabelForPath('../'),
+                            'childA',
+                          );
+
+                          expect(
+                            GgRouter.of(context).semanticLabelForPath('../../'),
+                            root.name,
+                          );
+
+                          expect(
+                            GgRouter.of(context)
+                                .semanticLabelForPath('../../childB'),
+                            'childB Label',
+                          );
+
+                          return Container();
+                        }
+                      },
+                      key: GlobalKey(),
+                      defaultRoute: 'childA0',
+                    );
+                  },
+                  'childB': (_) {
+                    return Container();
+                  },
+                },
+                semanticLabels: {'childB': 'childB Label'},
+                key: GlobalKey(),
+                defaultRoute: 'childA',
+              ),
+              node: root),
+        );
+
+        // .....................
+        // Check semantic labels
+        expect(didCheck, true);
+      });
     });
   });
 }
