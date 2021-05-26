@@ -1391,6 +1391,17 @@ main() {
         expect(childC.semanticsLabel, 'Child C');
         dispose();
       });
+
+      test(
+          'should return the the parent label for _INDEX_ routes '
+          'but only when index route has not semantic label set', () {
+        init();
+        final index = childA0.findOrCreateChild('_INDEX_');
+        expect(index.semanticsLabel, childA0.semanticsLabel);
+        index.semanticsLabel = 'Semantic Label';
+        expect(index.semanticsLabel, 'Semantic Label');
+        dispose();
+      });
     });
 
     // #########################################################################

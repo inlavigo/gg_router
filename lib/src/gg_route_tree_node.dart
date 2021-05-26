@@ -716,7 +716,10 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns the semantics label of the node or the node when none has
   /// been set.
-  String get semanticsLabel => _semanticsLabel ?? name;
+  String get semanticsLabel {
+    return _semanticsLabel ??
+        (name == '_INDEX_' ? parent!.semanticsLabel : name);
+  }
 
   // ...........................................................................
   String semanticsLabelForPath(String path) {
