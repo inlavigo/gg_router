@@ -1425,7 +1425,17 @@ main() {
         expect(childC.semanticLabelForPath('.'), childC.name);
         expect(childC.semanticLabelForPath('..'), childB.name);
         expect(childC.semanticLabelForPath('/'), root.name);
-        expect(childC.semanticLabelForPath('../../child-a0'), childA0.name);
+        expect(childC.semanticLabelForPath('../../'), childA0.name);
+        dispose();
+      });
+    });
+
+    // #########################################################################
+    group('setSemanticLabelForPath(path, label)', () {
+      test('should set the semantic label of the element relative to path', () {
+        init();
+        childC.setSemanticLabelForPath(path: '../../', label: 'DEF');
+        expect(childA0.semanticLabel, 'DEF');
         dispose();
       });
     });

@@ -727,6 +727,12 @@ class GgRouteTreeNode {
     return node.semanticLabel;
   }
 
+  // ...........................................................................
+  setSemanticLabelForPath({required String path, required String label}) {
+    final node = _nodeForPath(path);
+    node.semanticLabel = label;
+  }
+
   // ######################
   // Private
   // ######################
