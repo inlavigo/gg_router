@@ -74,11 +74,11 @@ class GgRouterExample extends StatelessWidget {
             inAnimation: _zoomIn,
             outAnimation: _zoomOut,
             semanticLabels: {
-              '_INDEX_': 'Navigate to Index Page',
-              'sports': 'Navigate to Sports Page',
-              'transportation': 'Navigate to Transportation Page',
-              'places': 'Navigate to Places Page',
-              '*': 'Another Page',
+              '_INDEX_': () => 'Navigate to Index Page',
+              'sports': () => 'Navigate to Sports Page',
+              'transportation': () => 'Navigate to Transportation Page',
+              'places': () => 'Navigate to Places Page',
+              '*': () => 'Another Page',
             },
           );
         },

@@ -825,7 +825,8 @@ main() {
           'should throw an exception if semantic labels for non existing routes are defined',
           () {
         expect(() {
-          GgRouter({}, semanticLabels: {'xyz': 'X Y Z'}, key: GlobalKey());
+          GgRouter({},
+              semanticLabels: {'xyz': () => 'X Y Z'}, key: GlobalKey());
         }, throwsA(predicate((ArgumentError e) {
           expect(e.message,
               'You specified a semantic label for route "xyz", but you did not setup a route with name "xyz".');
@@ -835,7 +836,7 @@ main() {
 
       test('should pass if semantic labels match the routes', () {
         GgRouter({'xyz': (_) => Container()},
-            semanticLabels: {'xyz': 'X Y Z'}, key: GlobalKey());
+            semanticLabels: {'xyz': () => 'X Y Z'}, key: GlobalKey());
       });
 
       testWidgets(
@@ -855,8 +856,8 @@ main() {
                     'abc': (_) => Container(key: GlobalKey()),
                   },
                   semanticLabels: {
-                    'xyz': 'XYZ Label',
-                    'abc': 'ABC Label',
+                    'xyz': () => 'XYZ Label',
+                    'abc': () => 'ABC Label',
                   },
                   key: GlobalKey(),
                   defaultRoute: 'xyz',
@@ -866,8 +867,8 @@ main() {
 
           // ..............................................................
           // Check if the semantic labels have ben written to the node tree
-          expect(root.child('xyz')?.semanticsLabel, 'XYZ Label');
-          expect(root.child('abc')?.semanticsLabel, 'ABC Label');
+          expect(root.child('xyz')?.semanticsLabel(), 'XYZ Label');
+          expect(root.child('abc')?.semanticsLabel(), 'ABC Label');
         },
       );
 
@@ -883,14 +884,14 @@ main() {
                 name: 'xyz',
                 base: Container(),
                 popover: (_) => Container(),
-                semanticLabel: 'XYZ Label',
+                semanticLabel: () => 'XYZ Label',
               ),
               node: root),
         );
 
         // ........................................
         // Has semantic label been written to node?
-        expect(root.child('xyz')?.semanticsLabel, 'XYZ Label');
+        expect(root.child('xyz')?.semanticsLabel(), 'XYZ Label');
       });
 
       testWidgets(
@@ -939,7 +940,7 @@ main() {
                     return Container();
                   },
                 },
-                semanticLabels: {'childB': 'childB Label'},
+                semanticLabels: {'childB': () => 'childB Label'},
                 key: GlobalKey(),
                 defaultRoute: 'childA',
               ),

@@ -49,7 +49,7 @@ class _Params {
   GgValue<T> findOrCreateParam<T>({
     required GgRouteTreeNode parent,
     required T seed,
-    required dynamic? uriParam,
+    required uriParam,
     required String name,
     bool spam = false,
     T Function(String)? parse,
@@ -623,9 +623,9 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns the URI parameter for a given parameter [name].
   /// Returns null, if no URI parameter exists for that name.
-  dynamic? uriParamForName(String name) {
+  uriParamForName(String name) {
     GgRouteTreeNode? node = this;
-    dynamic? seed;
+    var seed;
     while (node != null && seed == null) {
       seed = node.uriParams[name];
       node = node.parent;
@@ -709,19 +709,19 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Assigns a semantics label to the node
-  set semanticsLabel(String label) {
+  set semanticsLabel(String Function() label) {
     _semanticsLabel = label;
   }
 
   // ...........................................................................
   /// Returns the semantics label of the node or the node when none has
   /// been set.
-  String get semanticsLabel => _semanticsLabel ?? name;
+  String Function() get semanticsLabel => _semanticsLabel ?? () => name;
 
   // ...........................................................................
   String semanticsLabelForPath(String path) {
     final node = _nodeForPath(path);
-    return node.semanticsLabel;
+    return node.semanticsLabel();
   }
 
   // ######################
@@ -1056,7 +1056,7 @@ class GgRouteTreeNode {
   // #########
   // Semantics
 
-  String? _semanticsLabel;
+  String Function()? _semanticsLabel;
 
   // ...........................................................................
 

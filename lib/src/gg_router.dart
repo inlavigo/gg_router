@@ -179,7 +179,7 @@ class GgRouter extends StatefulWidget {
   final Map<String, Widget Function(BuildContext)> children;
 
   /// A map assigning a semantics label to each route.
-  final Map<String, String> semanticLabels;
+  final Map<String, String Function()> semanticLabels;
 
   /// This animation is applied to the widget appearing on route transitions.
   final GgAnimationBuilder? inAnimation;
