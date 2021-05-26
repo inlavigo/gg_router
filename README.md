@@ -44,9 +44,11 @@ demo of GgRouter.
 - [Animations](#animations)
   - [Animate route transitions](#animate-route-transitions)
   - [Route specific animations](#route-specific-animations)
-- [Save and restore route state](#save-and-restore-route-state)
-- [Add semantic labels to routes](#add-semantic-labels-to-routes)
-- [Error handling](#error-handling)
+- [More stuff](#more-stuff)
+  - [Save and restore route state](#save-and-restore-route-state)
+  - [Rebuild widget on route changes](#rebuild-widget-on-route-changes)
+  - [Add semantic labels to routes](#add-semantic-labels-to-routes)
+  - [Error handling](#error-handling)
 - [Example](#example)
 - [Features and bugs](#features-and-bugs)
 
@@ -300,7 +302,9 @@ Widget _moveOut(
 }
 ~~~
 
-## Save and restore route state
+## More stuff
+
+### Save and restore route state
 
 `GgRouter` constructor offers a `saveState` and `restorState` callback:
 
@@ -308,7 +312,22 @@ Widget _moveOut(
 - `restoreState` will be called at the very first beginning and allows you
   to restore a previously defined state.
 
-## Add semantic labels to routes
+### Rebuild widget on route changes
+
+If you want to rebuild a widget each time the active route is changing,
+use `GgRouteChangeBuilder`.
+
+~~~dart
+int buildNumber;
+
+final widget = GgRouter.root(
+        child: GgRouteChangeBuilder(
+            key: key, builder: (_) => Text('${buildNumber++}')),
+        node: rootNode,
+      );
+~~~
+
+### Add semantic labels to routes
 
 The `semanticLabels` constructor parameter of `GgRouter` allows you to specify a
 semantic label for each route:
@@ -337,7 +356,7 @@ final semanticsLabel = GgRouter.of(context).semanticLabelForPath(route);
 By doing so, you can now assign semantic labels to buttons that perform route
 operations.
 
-## Error handling
+### Error handling
 
 If you open a URI in the browser that is not defined using `GgRouter(...)`, an
 error is thrown. To handle that error, assign an error handler to
