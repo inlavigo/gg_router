@@ -49,6 +49,12 @@ class GgRouterCore extends StatelessWidget {
   }
 
   // ...........................................................................
+  /// Returns the semantic label for a given path
+  void setSemanticLabelForPath({required String path, required String label}) {
+    return node.setSemanticLabelForPath(path: path, label: label);
+  }
+
+  // ...........................................................................
   /// Returns the name of the route, this [GgRouter] instance is assigned.
   /// Returns null if the route doesn't have a name.
   String? get routeName {
