@@ -36,7 +36,7 @@ class GgPopoverRoute extends StatefulWidget {
   final String name;
 
   /// The semantic label assigned to the popover
-  final String Function()? semanticLabel;
+  final String? semanticLabel;
 
   /// This animation is applied to the appearing popover
   final GgAnimationBuilder? inAnimation;

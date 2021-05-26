@@ -1381,14 +1381,14 @@ main() {
       test('should return the node name if no semantics label has been set',
           () {
         init();
-        expect(childC.semanticsLabel(), childC.name);
+        expect(childC.semanticsLabel, childC.name);
         dispose();
       });
 
       test('should return the previously set semantics label', () {
         init();
-        childC.semanticsLabel = () => 'Child C';
-        expect(childC.semanticsLabel(), 'Child C');
+        childC.semanticsLabel = 'Child C';
+        expect(childC.semanticsLabel, 'Child C');
         dispose();
       });
     });
