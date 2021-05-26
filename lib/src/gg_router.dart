@@ -45,7 +45,7 @@ class GgRouterCore extends StatelessWidget {
   // ...........................................................................
   /// Returns the semantic label for a given path
   String semanticLabelForPath(String path) {
-    return node.semanticsLabelForPath(path);
+    return node.semanticLabelForPath(path);
   }
 
   // ...........................................................................
@@ -178,7 +178,7 @@ class GgRouter extends StatefulWidget {
   /// The child routes of this router.
   final Map<String, Widget Function(BuildContext)> children;
 
-  /// A map assigning a semantics label to each route.
+  /// A map assigning a semantic label to each route.
   final Map<String, String> semanticLabels;
 
   /// This animation is applied to the widget appearing on route transitions.
@@ -587,7 +587,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   // ...........................................................................
   _setupSemanticLabels(GgRouteTreeNode parentNode) {
     widget.semanticLabels.forEach((key, value) {
-      parentNode.findOrCreateChild(key).semanticsLabel = value;
+      parentNode.findOrCreateChild(key).semanticLabel = value;
     });
   }
 

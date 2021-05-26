@@ -350,7 +350,7 @@ To retrieve the semantic label for a given route, use `GgRouter`'s the
 `semanticLabelForPath(...)` property:
 
 ~~~dart
-final semanticsLabel = GgRouter.of(context).semanticLabelForPath(route);
+final semanticLabel = GgRouter.of(context).semanticLabelForPath(route);
 ~~~
 
 By doing so, you can now assign semantic labels to buttons that perform route

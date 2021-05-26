@@ -866,8 +866,8 @@ main() {
 
           // ..............................................................
           // Check if the semantic labels have ben written to the node tree
-          expect(root.child('xyz')?.semanticsLabel, 'XYZ Label');
-          expect(root.child('abc')?.semanticsLabel, 'ABC Label');
+          expect(root.child('xyz')?.semanticLabel, 'XYZ Label');
+          expect(root.child('abc')?.semanticLabel, 'ABC Label');
         },
       );
 
@@ -890,7 +890,7 @@ main() {
 
         // ........................................
         // Has semantic label been written to node?
-        expect(root.child('xyz')?.semanticsLabel, 'XYZ Label');
+        expect(root.child('xyz')?.semanticLabel, 'XYZ Label');
       });
 
       testWidgets(

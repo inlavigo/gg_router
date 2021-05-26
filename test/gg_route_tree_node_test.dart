@@ -1377,18 +1377,17 @@ main() {
     });
 
     // #########################################################################
-    group('set and get semanticsLabel', () {
-      test('should return the node name if no semantics label has been set',
-          () {
+    group('set and get semanticLabel', () {
+      test('should return the node name if no semantic label has been set', () {
         init();
-        expect(childC.semanticsLabel, childC.name);
+        expect(childC.semanticLabel, childC.name);
         dispose();
       });
 
-      test('should return the previously set semantics label', () {
+      test('should return the previously set semantic label', () {
         init();
-        childC.semanticsLabel = 'Child C';
-        expect(childC.semanticsLabel, 'Child C');
+        childC.semanticLabel = 'Child C';
+        expect(childC.semanticLabel, 'Child C');
         dispose();
       });
 
@@ -1397,22 +1396,22 @@ main() {
           'but only when index route has not semantic label set', () {
         init();
         final index = childA0.findOrCreateChild('_INDEX_');
-        expect(index.semanticsLabel, childA0.semanticsLabel);
-        index.semanticsLabel = 'Semantic Label';
-        expect(index.semanticsLabel, 'Semantic Label');
+        expect(index.semanticLabel, childA0.semanticLabel);
+        index.semanticLabel = 'Semantic Label';
+        expect(index.semanticLabel, 'Semantic Label');
         dispose();
       });
     });
 
     // #########################################################################
-    group('semanticsLabelForPath', () {
-      test('should return the semantics label of the element relative to path',
+    group('semanticLabelForPath', () {
+      test('should return the semantic label of the element relative to path',
           () {
         init();
-        expect(childC.semanticsLabelForPath('.'), childC.name);
-        expect(childC.semanticsLabelForPath('..'), childB.name);
-        expect(childC.semanticsLabelForPath('/'), root.name);
-        expect(childC.semanticsLabelForPath('../../child-a0'), childA0.name);
+        expect(childC.semanticLabelForPath('.'), childC.name);
+        expect(childC.semanticLabelForPath('..'), childB.name);
+        expect(childC.semanticLabelForPath('/'), root.name);
+        expect(childC.semanticLabelForPath('../../child-a0'), childA0.name);
         dispose();
       });
     });

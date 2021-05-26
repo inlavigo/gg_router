@@ -197,7 +197,7 @@ class _GgPopoverRouteState extends State<GgPopoverRoute>
   _initSemanticLabel() {
     if (widget.semanticLabel != null) {
       final node = GgRouter.of(context).node.findOrCreateChild(widget.name);
-      node.semanticsLabel = widget.semanticLabel!;
+      node.semanticLabel = widget.semanticLabel!;
     }
   }
 }

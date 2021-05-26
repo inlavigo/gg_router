@@ -708,23 +708,22 @@ class GgRouteTreeNode {
   // ######################
 
   // ...........................................................................
-  /// Assigns a semantics label to the node
-  set semanticsLabel(String label) {
-    _semanticsLabel = label;
+  /// Assigns a semantic label to the node
+  set semanticLabel(String label) {
+    _semanticLabel = label;
   }
 
   // ...........................................................................
-  /// Returns the semantics label of the node or the node when none has
+  /// Returns the semantic label of the node or the node when none has
   /// been set.
-  String get semanticsLabel {
-    return _semanticsLabel ??
-        (name == '_INDEX_' ? parent!.semanticsLabel : name);
+  String get semanticLabel {
+    return _semanticLabel ?? (name == '_INDEX_' ? parent!.semanticLabel : name);
   }
 
   // ...........................................................................
-  String semanticsLabelForPath(String path) {
+  String semanticLabelForPath(String path) {
     final node = _nodeForPath(path);
-    return node.semanticsLabel;
+    return node.semanticLabel;
   }
 
   // ######################
@@ -1059,7 +1058,7 @@ class GgRouteTreeNode {
   // #########
   // Semantics
 
-  String? _semanticsLabel;
+  String? _semanticLabel;
 
   // ...........................................................................
 

@@ -6,7 +6,7 @@
 
 ## 1.2.0+dev.1 - May 19th, 2021
 
-* Assign semantics resp. accessibility labels to routes.
+* Assign semantic resp. accessibility labels to routes.
 
 ## 1.1.0 - March 24th, 2021
 

@@ -137,11 +137,11 @@ class GgRouterExample extends StatelessWidget {
         builder: (context, snapshot) {
           final isStaged = router.routeNameOfActiveChild == route;
           final path = '$route/_LAST_';
-          final semanticsLabel = router.semanticLabelForPath(route);
+          final semanticLabel = router.semanticLabelForPath(route);
 
           return Semantics(
             excludeSemantics: true,
-            label: semanticsLabel,
+            label: semanticLabel,
             child: TextButton(
               key: ValueKey(route),
               onPressed: () => router.navigateTo(path),
