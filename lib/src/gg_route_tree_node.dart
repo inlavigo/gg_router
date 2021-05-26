@@ -679,6 +679,7 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// This key is used to store the staged child name to JSON
   static const stagedChildJsonKey = '__stagedChild';
+  static const semanticLabelJsonKey = '__semanticLabel';
 
   // ...........................................................................
   /// Reads the JSON string and creates routes and  parameters. Parameters that
@@ -1003,6 +1004,12 @@ class GgRouteTreeNode {
             _stagedChild.value = childNode;
           }
 
+          // ...................
+          // Read semantic label
+          if (key == semanticLabelJsonKey) {
+            _semanticLabel = value;
+          }
+
           // ...........
           // Read params
           // If an param exists, parse the value into the param
@@ -1041,6 +1048,11 @@ class GgRouteTreeNode {
     // Write staged child
     if (_stagedChild.value != null) {
       result[stagedChildJsonKey] = _stagedChild.value!.name;
+    }
+
+    // Write semantic labels
+    if (_semanticLabel != null) {
+      result[semanticLabelJsonKey] = _semanticLabel;
     }
 
     // Write parameters

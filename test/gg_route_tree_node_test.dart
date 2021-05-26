@@ -1326,6 +1326,11 @@ main() {
         root.findOrCreateParam(name: 'unknownParam', seed: 5);
         expect(root.param('unknownParam')?.value, 123);
       });
+
+      test('should parse semantic label', () {
+        root.json = '{"__semanticLabel": "Semantic Label"}';
+        expect(root.semanticLabel, 'Semantic Label');
+      });
     });
 
     // #########################################################################
@@ -1373,6 +1378,15 @@ main() {
         final rootCopy = GgRouteTreeNode(name: '_ROOT_');
         rootCopy.json = json;
         expect(rootCopy.stagedChild, rootCopy.findOrCreateChild('stagedChild'));
+      });
+
+      test('should also save semantic label', () {
+        final root = GgRouteTreeNode(name: '_ROOT_');
+        root.semanticLabel = 'ABC';
+        final json = root.json;
+        final rootCopy = GgRouteTreeNode(name: '_ROOT_');
+        rootCopy.json = json;
+        expect(rootCopy.semanticLabel, 'ABC');
       });
     });
 
