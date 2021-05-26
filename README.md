@@ -23,34 +23,35 @@ demo of GgRouter.
 
 ## Content
 
-- [Demo](#demo)
-- [Initialize GgRouter](#initialize-ggrouter)
-- [Define routes](#define-routes)
-  - [Page routes](#page-routes)
-  - [Popover routes](#popover-routes)
-  - [Nested routes](#nested-routes)
-- [Handling fallbacks](#handling-fallbacks)
-  - [Index route](#index-route)
-  - [Default route](#default-route)
-  - [Wildcard routes](#wildcard-routes)
-- [Navigation](#navigation)
-  - [Navigate absolutely](#navigate-absolutely)
-  - [Navigate relatively](#navigate-relatively)
-  - [Navigate to last route](#navigate-to-last-route)
-  - [Navigation Bars](#navigation-bars)
-- [URI query params](#uri-query-params)
-  - [Define query params](#define-query-params)
-  - [Access query params](#access-query-params)
-- [Animations](#animations)
-  - [Animate route transitions](#animate-route-transitions)
-  - [Route specific animations](#route-specific-animations)
-- [More stuff](#more-stuff)
-  - [Save and restore route state](#save-and-restore-route-state)
-  - [Rebuild widget on route changes](#rebuild-widget-on-route-changes)
-  - [Add semantic labels to routes](#add-semantic-labels-to-routes)
-  - [Error handling](#error-handling)
-- [Example](#example)
-- [Features and bugs](#features-and-bugs)
+- [GgRouter - Easy Routing for Flutter](#ggrouter---easy-routing-for-flutter)
+  - [Demo](#demo)
+  - [Initialize GgRouter](#initialize-ggrouter)
+  - [Define routes](#define-routes)
+    - [Page routes](#page-routes)
+    - [Popover routes](#popover-routes)
+    - [Nested routes](#nested-routes)
+  - [Handling fallbacks](#handling-fallbacks)
+    - [Index route](#index-route)
+    - [Default route](#default-route)
+    - [Wildcard routes](#wildcard-routes)
+  - [Navigation](#navigation)
+    - [Navigate absolutely](#navigate-absolutely)
+    - [Navigate relatively](#navigate-relatively)
+    - [Navigate to last route](#navigate-to-last-route)
+    - [Navigation Bars](#navigation-bars)
+  - [URI query params](#uri-query-params)
+    - [Define query params](#define-query-params)
+    - [Access query params](#access-query-params)
+  - [Animations](#animations)
+    - [Animate route transitions](#animate-route-transitions)
+    - [Route specific animations](#route-specific-animations)
+  - [More stuff](#more-stuff)
+    - [Save and restore route state](#save-and-restore-route-state)
+    - [Rebuild widget on route changes](#rebuild-widget-on-route-changes)
+    - [Add semantic labels to routes](#add-semantic-labels-to-routes)
+    - [Error handling](#error-handling)
+  - [Example](#example)
+  - [Features and bugs](#features-and-bugs)
 
 ## Initialize GgRouter
 
@@ -355,6 +356,9 @@ final semanticLabel = GgRouter.of(context).semanticLabelForPath(route);
 
 By doing so, you can now assign semantic labels to buttons that perform route
 operations.
+
+If you need to specify a semantic label for a child router in advance, you
+can use `GgRouter.of(context).setSemanticLabelForPath(path, label)`.
 
 ### Error handling
 
