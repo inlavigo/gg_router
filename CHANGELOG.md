@@ -1,16 +1,11 @@
 # Change Log
 
-## 1.2.0+dev.5 - May 26th, 2021
+## 1.2.0 - June 29th, 2021
 
 * Introduced `GgRouteChangeBuilder`
-* Renamed semanticsLabel into semanticLabel
-* Store semantic label into JSON
 * Allow to set semantics label for a given route
 * Allow to specify semantic labels for a given route path
-
-## 1.2.0+dev.1 - May 19th, 2021
-
-* Assign semantic resp. accessibility labels to routes.
+* Store semantic label into JSON
 
 ## 1.1.0 - March 24th, 2021
 
