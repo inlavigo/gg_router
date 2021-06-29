@@ -4,6 +4,7 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gg_router/gg_router.dart';
 
@@ -62,7 +63,11 @@ class GgNavigationPage extends StatelessWidget {
       }
     });
 
-    final result = GgRouter.from(router, children: decoratedChildren);
+    final result = GgRouter.from(
+      router,
+      children: decoratedChildren,
+      animationDuration: router.animationDuration,
+    );
     return result;
   }
 
@@ -108,8 +113,32 @@ class GgPageWithNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: null,
+    return Stack(
+      children: [
+        content,
+        _navigationBar(context),
+      ],
+    );
+  }
+
+  // ...........................................................................
+  Widget _navigationBar(BuildContext context) {
+    return Row(
+      children: [
+        TextButton(
+            onPressed: () {
+              GgRouter.of(context).navigateTo('../../');
+            },
+            child: Text('Back')),
+        Spacer(),
+        Text('Title'),
+        Spacer(),
+        TextButton(
+            onPressed: () {
+              GgRouter.of(context).navigateTo('../../');
+            },
+            child: Text('Close')),
+      ],
     );
   }
 }

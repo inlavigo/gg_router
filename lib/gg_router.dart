@@ -14,3 +14,5 @@ export 'src/gg_popover_route.dart';
 export 'src/gg_route_params.dart';
 
 export 'src/gg_route_change_builder.dart';
+
+export 'src/gg_navigation_page.dart';

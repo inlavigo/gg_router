@@ -244,6 +244,7 @@ class GgRouter extends StatefulWidget {
     if (rootRouter) {
       final rootRouterState =
           context.findRootAncestorStateOfType<GgRouterState>()!;
+
       core = rootRouterState.rootRouterCore;
     }
 
