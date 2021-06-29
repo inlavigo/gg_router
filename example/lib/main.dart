@@ -156,49 +156,40 @@ class GgRouterExample extends StatelessWidget {
   // ...........................................................................
   Widget _dialog(BuildContext context) {
     return GgNavigationPage(
-      router: GgRouter(
-        {
-          '_INDEX_': (ctx2) => Container(
-              color: Colors.red,
-              child: Center(
-                child: TextButton(
-                  onPressed: () => GgRouter.of(context).navigateTo('pageA'),
-                  child: Text('pageA'),
-                ),
-              )),
-          'pageA': (ctx3) => GgNavigationPage(
-                router: GgRouter(
-                  {
-                    '_INDEX_': (_) => Container(
-                          color: Colors.green,
-                          child: Center(
-                              child: TextButton(
-                                  onPressed: () {
-                                    GgRouter.of(ctx3).navigateTo('pageA1');
-                                  },
-                                  child: Text('ChildA1'))),
-                        ),
-                    'pageA1': (_) => GgNavigationPage(
-                          router: GgRouter(
-                            {
-                              '_INDEX_': (_) => Container(
-                                    color: Colors.orange,
-                                    child: Center(
-                                      child: Text('pagea1'),
-                                    ),
-                                  ),
-                            },
-                            key: GlobalKey(),
-                          ),
-                        )
-                  },
-                  key: GlobalKey(),
-                ),
-              )
-        },
-        key: GlobalKey(debugLabel: 'NavigationPage'),
+      pageContent: (ctx2) => Container(
+        color: Colors.red,
+        child: Center(
+          child: TextButton(
+            onPressed: () => GgRouter.of(context).navigateTo('pageA'),
+            child: Text('pageA'),
+          ),
+        ),
       ),
+      children: {
+        'pageA': (ctx3) => GgNavigationPage(
+              pageContent: (_) => Container(
+                color: Colors.green,
+                child: Center(
+                    child: TextButton(
+                        onPressed: () {
+                          GgRouter.of(ctx3).navigateTo('pageA1');
+                        },
+                        child: Text('ChildA1'))),
+              ),
+              children: {
+                'pageA1': (_) => GgNavigationPage(
+                      pageContent: (_) => Container(
+                        color: Colors.orange,
+                        child: Center(
+                          child: Text('pagea1'),
+                        ),
+                      ),
+                    )
+              },
+            )
+      },
     );
+
     /* return Dialog(
       child: Stack(
         children: [
