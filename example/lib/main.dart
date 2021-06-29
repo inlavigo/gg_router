@@ -41,6 +41,7 @@ class GgRouterExample extends StatelessWidget {
       darkTheme: ThemeData(brightness: Brightness.dark),
       theme: ThemeData(brightness: Brightness.light),
       debugShowCheckedModeBanner: debugShowCheckedModeBanner,
+      showSemanticsDebugger: false,
     );
   }
 
@@ -72,6 +73,13 @@ class GgRouterExample extends StatelessWidget {
             key: ValueKey('mainRouter'),
             inAnimation: _zoomIn,
             outAnimation: _zoomOut,
+            semanticLabels: {
+              '_INDEX_': 'Navigate to Index Page',
+              'sports': 'Navigate to Sports Page',
+              'transportation': 'Navigate to Transportation Page',
+              'places': 'Navigate to Places Page',
+              '*': 'Another Page',
+            },
           );
         },
       ),
@@ -128,10 +136,17 @@ class GgRouterExample extends StatelessWidget {
         stream: router.onActiveChildChange,
         builder: (context, snapshot) {
           final isStaged = router.routeNameOfActiveChild == route;
-          return TextButton(
-            key: ValueKey(route),
-            onPressed: () => router.navigateTo('$route/_LAST_'),
-            child: _text(title, context, isStaged),
+          final path = '$route/_LAST_';
+          final semanticLabel = router.semanticLabelForPath(route);
+
+          return Semantics(
+            excludeSemantics: true,
+            label: semanticLabel,
+            child: TextButton(
+              key: ValueKey(route),
+              onPressed: () => router.navigateTo(path),
+              child: _text(title, context, isStaged),
+            ),
           );
         },
       );

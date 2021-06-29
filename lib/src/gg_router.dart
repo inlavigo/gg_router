@@ -43,6 +43,18 @@ class GgRouterCore extends StatelessWidget {
   }
 
   // ...........................................................................
+  /// Returns the semantic label for a given path
+  String semanticLabelForPath(String path) {
+    return node.semanticLabelForPath(path);
+  }
+
+  // ...........................................................................
+  /// Returns the semantic label for a given path
+  void setSemanticLabelForPath({required String path, required String label}) {
+    return node.setSemanticLabelForPath(path: path, label: label);
+  }
+
+  // ...........................................................................
   /// Returns the name of the route, this [GgRouter] instance is assigned.
   /// Returns null if the route doesn't have a name.
   String? get routeName {
@@ -138,6 +150,7 @@ class GgRouter extends StatefulWidget {
   GgRouter(
     this.children, {
     required Key key,
+    this.semanticLabels = const {},
     this.defaultRoute,
     this.inAnimation,
     this.outAnimation,
@@ -147,6 +160,7 @@ class GgRouter extends StatefulWidget {
         super(key: key) {
     _checkChildren();
     _checkAnimations();
+    _checkSemanticLabels();
   }
 
   // ...........................................................................
@@ -156,6 +170,7 @@ class GgRouter extends StatefulWidget {
       : _rootChild = child,
         _rootNode = node,
         children = const {},
+        semanticLabels = const {},
         defaultRoute = null,
         inAnimation = null,
         outAnimation = null,
@@ -168,6 +183,9 @@ class GgRouter extends StatefulWidget {
 
   /// The child routes of this router.
   final Map<String, Widget Function(BuildContext)> children;
+
+  /// A map assigning a semantic label to each route.
+  final Map<String, String> semanticLabels;
 
   /// This animation is applied to the widget appearing on route transitions.
   final GgAnimationBuilder? inAnimation;
@@ -190,6 +208,8 @@ class GgRouter extends StatefulWidget {
       'Did not find an instance of GgRouterDelegate.\n'
       'Please wrap your GgRouter into a MaterialApp.router(...) and '
       'assign an instance of GgRouterDelegate to "routerDelegate".\n'
+      'When testing, it is sufficient to wrap the GgRouter under test into'
+      'another GgRouter.root instance.\n'
       'For more details look into "gg_router/example/main.dart".';
 
   // ...........................................................................
@@ -240,6 +260,18 @@ class GgRouter extends StatefulWidget {
       }
     });
   }
+
+  // ...........................................................................
+  _checkSemanticLabels() {
+    semanticLabels.keys.forEach((key) {
+      if (!children.containsKey(key)) {
+        throw ArgumentError(
+            'You specified a semantic label for route "$key", but you did not setup a route with name "$key".');
+      }
+    });
+  }
+
+  // ...........................................................................
 }
 
 // #############################################################################
@@ -298,6 +330,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // For each child route, create a node
     _createChildNodes(parentNode);
     _setupDefaultChild(parentNode);
+    _setupSemanticLabels(parentNode);
 
     // ........................
     // Observe the visible child
@@ -555,6 +588,13 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     }
 
     parentNode.defaultChildName = widget.defaultRoute;
+  }
+
+  // ...........................................................................
+  _setupSemanticLabels(GgRouteTreeNode parentNode) {
+    widget.semanticLabels.forEach((key, value) {
+      parentNode.findOrCreateChild(key).semanticLabel = value;
+    });
   }
 
   late AnimationController _animation;

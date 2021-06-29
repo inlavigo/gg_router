@@ -1326,6 +1326,11 @@ main() {
         root.findOrCreateParam(name: 'unknownParam', seed: 5);
         expect(root.param('unknownParam')?.value, 123);
       });
+
+      test('should parse semantic label', () {
+        root.json = '{"__semanticLabel": "Semantic Label"}';
+        expect(root.semanticLabel, 'Semantic Label');
+      });
     });
 
     // #########################################################################
@@ -1373,6 +1378,65 @@ main() {
         final rootCopy = GgRouteTreeNode(name: '_ROOT_');
         rootCopy.json = json;
         expect(rootCopy.stagedChild, rootCopy.findOrCreateChild('stagedChild'));
+      });
+
+      test('should also save semantic label', () {
+        final root = GgRouteTreeNode(name: '_ROOT_');
+        root.semanticLabel = 'ABC';
+        final json = root.json;
+        final rootCopy = GgRouteTreeNode(name: '_ROOT_');
+        rootCopy.json = json;
+        expect(rootCopy.semanticLabel, 'ABC');
+      });
+    });
+
+    // #########################################################################
+    group('set and get semanticLabel', () {
+      test('should return the node name if no semantic label has been set', () {
+        init();
+        expect(childC.semanticLabel, childC.name);
+        dispose();
+      });
+
+      test('should return the previously set semantic label', () {
+        init();
+        childC.semanticLabel = 'Child C';
+        expect(childC.semanticLabel, 'Child C');
+        dispose();
+      });
+
+      test(
+          'should return the the parent label for _INDEX_ routes '
+          'but only when index route has not semantic label set', () {
+        init();
+        final index = childA0.findOrCreateChild('_INDEX_');
+        expect(index.semanticLabel, childA0.semanticLabel);
+        index.semanticLabel = 'Semantic Label';
+        expect(index.semanticLabel, 'Semantic Label');
+        dispose();
+      });
+    });
+
+    // #########################################################################
+    group('semanticLabelForPath', () {
+      test('should return the semantic label of the element relative to path',
+          () {
+        init();
+        expect(childC.semanticLabelForPath('.'), childC.name);
+        expect(childC.semanticLabelForPath('..'), childB.name);
+        expect(childC.semanticLabelForPath('/'), root.name);
+        expect(childC.semanticLabelForPath('../../'), childA0.name);
+        dispose();
+      });
+    });
+
+    // #########################################################################
+    group('setSemanticLabelForPath(path, label)', () {
+      test('should set the semantic label of the element relative to path', () {
+        init();
+        childC.setSemanticLabelForPath(path: '../../', label: 'DEF');
+        expect(childA0.semanticLabel, 'DEF');
+        dispose();
       });
     });
   });
