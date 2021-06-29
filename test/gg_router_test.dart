@@ -556,6 +556,57 @@ main() {
     });
 
     // #########################################################################
+    group('GgRouter.from', () {
+      final other = GgRouter(
+        {},
+        key: GlobalKey(),
+        animationDuration: Duration(),
+        defaultRoute: 'default',
+        inAnimation: (c, a, child) => Container(),
+        outAnimation: (c, a, child) => Container(),
+        semanticLabels: {},
+      );
+
+      test('should a copy of the router by default', () {
+        final copy = GgRouter.from(other);
+        expect(other.animationDuration, copy.animationDuration);
+        expect(other.children, copy.children);
+        expect(other.defaultRoute, copy.defaultRoute);
+        expect(other.inAnimation, copy.inAnimation);
+        expect(other.outAnimation, copy.outAnimation);
+        expect(other.semanticLabels, copy.semanticLabels);
+        expect(other.key, copy.key);
+      });
+
+      test('should allow to overwrite properties', () {
+        final newKey = GlobalKey();
+        final newChildren = {'x': (_) => Container()};
+        final newAnimationDuration = Duration();
+        final newDefaultRoute = 'other';
+        final newInAnimation = (c, a, child) => Container();
+        final newOutAnimation = (c, a, child) => Container();
+        final newSemanticLabels = {'a': 'bla bla'};
+
+        final copy = GgRouter.from(
+          other,
+          key: newKey,
+          children: newChildren,
+          animationDuration: newAnimationDuration,
+          defaultRoute: newDefaultRoute,
+          inAnimation: newInAnimation,
+          outAnimation: newOutAnimation,
+          semanticLabels: newSemanticLabels,
+        );
+        expect(copy.animationDuration, newAnimationDuration);
+        expect(copy.children, newChildren);
+        expect(copy.defaultRoute, copy.defaultRoute);
+        expect(copy.inAnimation, copy.inAnimation);
+        expect(copy.outAnimation, copy.outAnimation);
+        expect(copy.semanticLabels, copy.semanticLabels);
+      });
+    });
+
+    // #########################################################################
     group('Default children', () {
       // .......................................................................
       testWidgets(

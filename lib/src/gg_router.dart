@@ -178,6 +178,27 @@ class GgRouter extends StatefulWidget {
         super(key: key);
 
   // ...........................................................................
+  /// Copies a router object and allows to replace single properties.
+  GgRouter.from(
+    GgRouter other, {
+    Key? key,
+    Map<String, String>? semanticLabels,
+    String? defaultRoute,
+    Map<String, Widget Function(BuildContext)>? children,
+    GgAnimationBuilder? inAnimation,
+    GgAnimationBuilder? outAnimation,
+    Duration? animationDuration,
+  })  : children = children ?? other.children,
+        semanticLabels = semanticLabels ?? other.semanticLabels,
+        defaultRoute = defaultRoute ?? other.defaultRoute,
+        inAnimation = inAnimation ?? other.inAnimation,
+        outAnimation = outAnimation ?? other.outAnimation,
+        animationDuration = animationDuration ?? other.animationDuration,
+        _rootChild = other._rootChild,
+        _rootNode = other._rootNode,
+        super(key: key ?? other.key);
+
+  // ...........................................................................
   /// The duration for route transitions.
   final Duration animationDuration;
 
