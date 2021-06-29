@@ -866,8 +866,8 @@ main() {
 
           // ..............................................................
           // Check if the semantic labels have ben written to the node tree
-          expect(root.child('xyz')?.semanticsLabel, 'XYZ Label');
-          expect(root.child('abc')?.semanticsLabel, 'ABC Label');
+          expect(root.child('xyz')?.semanticLabel, 'XYZ Label');
+          expect(root.child('abc')?.semanticLabel, 'ABC Label');
         },
       );
 
@@ -890,7 +890,7 @@ main() {
 
         // ........................................
         // Has semantic label been written to node?
-        expect(root.child('xyz')?.semanticsLabel, 'XYZ Label');
+        expect(root.child('xyz')?.semanticLabel, 'XYZ Label');
       });
 
       testWidgets(
@@ -926,6 +926,56 @@ main() {
                             GgRouter.of(context)
                                 .semanticLabelForPath('../../childB'),
                             'childB Label',
+                          );
+
+                          return Container();
+                        }
+                      },
+                      key: GlobalKey(),
+                      defaultRoute: 'childA0',
+                    );
+                  },
+                  'childB': (_) {
+                    return Container();
+                  },
+                },
+                semanticLabels: {'childB': 'childB Label'},
+                key: GlobalKey(),
+                defaultRoute: 'childA',
+              ),
+              node: root),
+        );
+
+        // .....................
+        // Check semantic labels
+        expect(didCheck, true);
+      });
+
+      testWidgets(
+          'GgRouter.of(context).setSemanticLabelForPath(path, label) should allow to set a semantic labe for a given relative path',
+          (WidgetTester tester) async {
+        // ...................
+        // Create a route tree
+        final root = GgRouteTreeNode.newRoot;
+        bool didCheck = false;
+        await tester.pumpWidget(
+          GgRouter.root(
+              child: GgRouter(
+                {
+                  'childA': (_) {
+                    return GgRouter(
+                      {
+                        'childA0': (context) {
+                          didCheck = true;
+
+                          GgRouter.of(context).setSemanticLabelForPath(
+                              path: '../', label: 'CUSTOMLABEL');
+
+                          // ...................................................
+                          // Check if semantic labels can be retrieved correctly
+                          expect(
+                            GgRouter.of(context).semanticLabelForPath('../'),
+                            'CUSTOMLABEL',
                           );
 
                           return Container();

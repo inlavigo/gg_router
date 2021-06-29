@@ -49,7 +49,7 @@ class _Params {
   GgValue<T> findOrCreateParam<T>({
     required GgRouteTreeNode parent,
     required T seed,
-    required dynamic? uriParam,
+    required uriParam,
     required String name,
     bool spam = false,
     T Function(String)? parse,
@@ -623,9 +623,9 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns the URI parameter for a given parameter [name].
   /// Returns null, if no URI parameter exists for that name.
-  dynamic? uriParamForName(String name) {
+  uriParamForName(String name) {
     GgRouteTreeNode? node = this;
-    dynamic? seed;
+    var seed;
     while (node != null && seed == null) {
       seed = node.uriParams[name];
       node = node.parent;
@@ -679,6 +679,7 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// This key is used to store the staged child name to JSON
   static const stagedChildJsonKey = '__stagedChild';
+  static const semanticLabelJsonKey = '__semanticLabel';
 
   // ...........................................................................
   /// Reads the JSON string and creates routes and  parameters. Parameters that
@@ -708,20 +709,28 @@ class GgRouteTreeNode {
   // ######################
 
   // ...........................................................................
-  /// Assigns a semantics label to the node
-  set semanticsLabel(String label) {
-    _semanticsLabel = label;
+  /// Assigns a semantic label to the node
+  set semanticLabel(String label) {
+    _semanticLabel = label;
   }
 
   // ...........................................................................
-  /// Returns the semantics label of the node or the node when none has
+  /// Returns the semantic label of the node or the node when none has
   /// been set.
-  String get semanticsLabel => _semanticsLabel ?? name;
+  String get semanticLabel {
+    return _semanticLabel ?? (name == '_INDEX_' ? parent!.semanticLabel : name);
+  }
 
   // ...........................................................................
-  String semanticsLabelForPath(String path) {
+  String semanticLabelForPath(String path) {
     final node = _nodeForPath(path);
-    return node.semanticsLabel;
+    return node.semanticLabel;
+  }
+
+  // ...........................................................................
+  setSemanticLabelForPath({required String path, required String label}) {
+    final node = _nodeForPath(path);
+    node.semanticLabel = label;
   }
 
   // ######################
@@ -1001,6 +1010,12 @@ class GgRouteTreeNode {
             _stagedChild.value = childNode;
           }
 
+          // ...................
+          // Read semantic label
+          if (key == semanticLabelJsonKey) {
+            _semanticLabel = value;
+          }
+
           // ...........
           // Read params
           // If an param exists, parse the value into the param
@@ -1041,6 +1056,11 @@ class GgRouteTreeNode {
       result[stagedChildJsonKey] = _stagedChild.value!.name;
     }
 
+    // Write semantic labels
+    if (_semanticLabel != null) {
+      result[semanticLabelJsonKey] = _semanticLabel;
+    }
+
     // Write parameters
     _params._params.forEach((name, value) {
       result[name] = value.jsonDecodedValue;
@@ -1056,7 +1076,7 @@ class GgRouteTreeNode {
   // #########
   // Semantics
 
-  String? _semanticsLabel;
+  String? _semanticLabel;
 
   // ...........................................................................
 

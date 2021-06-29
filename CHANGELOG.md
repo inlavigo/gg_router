@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.2.0 - June 29th, 2021
+
+* Introduced `GgRouteChangeBuilder`
+* Allow to set semantics label for a given route
+* Allow to specify semantic labels for a given route path
+* Store semantic label into JSON
+
 ## 1.1.0 - March 24th, 2021
 
 * Fixed issues with disposing the route tree
