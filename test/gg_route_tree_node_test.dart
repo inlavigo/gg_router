@@ -15,6 +15,8 @@ main() {
   late GgRouteTreeNode root;
   late GgRouteTreeNode childA0;
   late GgRouteTreeNode childA1;
+  late GgRouteTreeNode childA2;
+  late GgRouteTreeNode childA2Index;
   late GgRouteTreeNode childB;
   late GgRouteTreeNode childC;
 
@@ -22,6 +24,8 @@ main() {
     root = GgRouteTreeNode.newRoot;
     childA0 = exampleRouteNode(name: 'child-a0', parent: root);
     childA1 = exampleRouteNode(name: 'child-a1', parent: root);
+    childA2 = exampleRouteNode(name: 'child-a2', parent: root);
+    childA2Index = exampleRouteNode(name: '_INDEX_', parent: childA2);
     childB = exampleRouteNode(name: 'child-b', parent: childA0);
     childC = exampleRouteNode(name: 'child-c', parent: childB);
   }
@@ -419,7 +423,7 @@ main() {
     group('children', () {
       test('should return a list of all children', () {
         init();
-        expect(root.children.toList(), [childA0, childA1]);
+        expect(root.children.toList(), [childA0, childA1, childA2]);
         expect(childA0.children.toList(), [childB]);
         expect(childB.children.toList(), [childC]);
         expect(childC.children.toList(), []);
@@ -439,7 +443,7 @@ main() {
         final childA1 = root.findOrCreateChild('child-a1');
         expect(childA1.name, 'child-a1');
         expect(childA1.parent, root);
-        expect(root.children.length, 2);
+        expect(root.children.length, 3);
       });
 
       test('Should throw an exception, if node is an index route', () {
@@ -1100,6 +1104,13 @@ main() {
       test('should handle "." the element itself', () {
         init();
         childC.stagedChildPathSegments = ['.', '..', 'child-b'];
+      });
+
+      test('should automatically stage the _INDEX_ child when available', () {
+        init();
+        root.stagedChildPathSegments = ['child-a2'];
+        expect(childA2.isStaged, true);
+        expect(childA2Index.isStaged, true);
       });
     });
 

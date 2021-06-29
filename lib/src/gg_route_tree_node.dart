@@ -564,7 +564,10 @@ class GgRouteTreeNode {
   /// - `..` addresses parent node
   /// - `.` addresses node itself
   set stagedChildPathSegments(List<String> path) {
-    final node = descendants(path: path);
+    var node = descendants(path: path);
+    if (node.hasChild(name: '_INDEX_')) {
+      node = node.child('_INDEX_')!;
+    }
 
     final nodesFromRoot = node.ancestors.reversed;
 
