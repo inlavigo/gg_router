@@ -611,7 +611,10 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
           }
         });
 
-        return Stack(children: stack);
+        return ClipRect(
+          clipBehavior: Clip.hardEdge,
+          child: Stack(children: stack),
+        );
       },
     );
   }
