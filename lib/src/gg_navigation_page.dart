@@ -54,6 +54,10 @@ class GgNavigationPage extends StatefulWidget {
   static const noNavigationPageRootFound =
       'No ancestor of type GgNavigationPageRoot found. Please make sure to '
       'wrap your GgNavigationPage instance into a GgNavigationPageRoot instance';
+
+  // ...........................................................................
+  // Is written by GgNavigationPageRoot
+  bool _isRoot = false;
 }
 
 // #############################################################################
@@ -90,7 +94,7 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
   }
 
   // ...........................................................................
-  bool get isRoot => widget is GgNavigationPageRoot;
+  bool get isRoot => widget._isRoot;
 
   // ...........................................................................
   _generateChildren(BuildContext context) {
@@ -102,7 +106,10 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
         throw ArgumentError(
             GgNavigationPage.indexWidgetMustNotBeANavigationPage);
       }
-      return GgPageWithNavBar(content: content);
+      return GgPageWithNavBar(
+        content: content,
+        showBackButton: !isRoot,
+      );
     };
 
     if (widget.children != null) {
@@ -133,7 +140,9 @@ class GgNavigationPageRoot extends StatefulWidget {
             pageContent: pageContent,
             children: children,
             semanticLabels: semanticLabels),
-        super(key: key);
+        super(key: key) {
+    navigationPage._isRoot = true;
+  }
 
   final GgNavigationPage navigationPage;
 
@@ -182,9 +191,11 @@ class GgPageWithNavBar extends StatelessWidget {
   const GgPageWithNavBar({
     Key? key,
     required this.content,
+    this.showBackButton = true,
   }) : super(key: key);
 
   final Widget content;
+  final bool showBackButton;
 
   @override
   Widget build(BuildContext context) {
@@ -217,15 +228,16 @@ class GgPageWithNavBar extends StatelessWidget {
         padding: EdgeInsets.all(rootPage.navigationBarPadding),
         child: Row(
           children: [
-            MouseRegion(
-              key: ValueKey('GgNavigationPageBackButton'),
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTapUp: (_) => ownNode.navigateTo('../'),
-                child: rootPage.navigationBarBackButton?.call(context) ??
-                    Text('Back'),
+            if (showBackButton)
+              MouseRegion(
+                key: ValueKey('GgNavigationPageBackButton'),
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTapUp: (_) => ownNode.navigateTo('../'),
+                  child: rootPage.navigationBarBackButton?.call(context) ??
+                      Text('Back'),
+                ),
               ),
-            ),
             Spacer(),
             Container(
               key: ValueKey('GgNavigationPageTitle'),

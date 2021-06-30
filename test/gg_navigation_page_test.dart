@@ -188,6 +188,44 @@ main() {
     expect(text.data, 'Child 0 Page');
   });
 
+  testWidgets('should not show a back button on root page', (tester) async {
+    final root = GgRouteTreeNode.newRoot;
+
+    final customizedBackButton = Text('Back');
+    final customizedCloseButton = Text('Close');
+    final customizedTitle = Text('Title');
+
+    // .........................................
+    // Create a widget with customized app bar
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: GgRouter.root(
+          node: root,
+          child: GgRouter(
+            {
+              'rootPage': (_) => GgNavigationPageRoot(
+                    pageContent: (_) => Container(),
+                    key: GlobalKey(),
+                    navigationBarBackButton: (_) => customizedBackButton,
+                    navigationBarCloseButton: (_) => customizedCloseButton,
+                    navigationBarTitle: (_) => customizedTitle,
+                  ),
+            },
+            defaultRoute: 'rootPage',
+            key: GlobalKey(),
+          ),
+        ),
+      ),
+    );
+
+    // ...................................
+    // Test if customized buttons are used
+    expect(find.byWidget(customizedBackButton), findsNothing);
+    expect(find.byWidget(customizedCloseButton), findsOneWidget);
+    expect(find.byWidget(customizedTitle), findsOneWidget);
+  });
+
   testWidgets('should allow to customize back button, title and close button',
       (tester) async {
     final root = GgRouteTreeNode.newRoot;
@@ -205,22 +243,29 @@ main() {
           node: root,
           child: GgRouter(
             {
-              'child0': (_) => GgNavigationPageRoot(
+              'child': (_) => GgNavigationPageRoot(
                     pageContent: (_) => Container(),
-                    children: {},
+                    children: {
+                      'grandchild': (_) => GgNavigationPage(
+                            pageContent: (_) => Container(),
+                          )
+                    },
                     key: GlobalKey(),
                     navigationBarBackButton: (_) => customizedBackButton,
                     navigationBarCloseButton: (_) => customizedCloseButton,
                     navigationBarTitle: (_) => customizedTitle,
                   ),
             },
-            defaultRoute: 'child0',
-            semanticLabels: {'child0': 'Child 0 Page'},
+            defaultRoute: 'child',
+            semanticLabels: {'child': 'Child Page'},
             key: GlobalKey(),
           ),
         ),
       ),
     );
+
+    root.navigateTo('child/grandchild');
+    await tester.pumpAndSettle();
 
     // ...................................
     // Test if customized buttons are used
