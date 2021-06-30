@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.3.0+beta.1 - June 30th, 2021
+
+* Use  `GgShowInForeground` to define which widgets should be shown in the
+  foreground: a) the widget animated in or b) the widget animated out.
+* Added `GgNavigationPage` to create deeply nested navigation pages similar
+  to `CupertinoPageScaffold` and `CupertinoNavigationBar`.
+
 ## 1.2.0 - June 29th, 2021
 
 * Introduced `GgRouteChangeBuilder`
