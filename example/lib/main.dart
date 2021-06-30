@@ -165,7 +165,8 @@ class GgRouterExample extends StatelessWidget {
             _checkBox(context),
             Spacer(),
             TextButton(
-              onPressed: () => GgRouter.of(ctx2).navigateTo('pageA'),
+              key: ValueKey('Details Button'),
+              onPressed: () => GgRouter.of(ctx2).navigateTo('details'),
               child: Text('Details'),
             ),
             Spacer(),
@@ -173,22 +174,23 @@ class GgRouterExample extends StatelessWidget {
         ),
       ),
       children: {
-        'pageA': (ctx3) => GgNavigationPage(
+        'details': (ctx3) => GgNavigationPage(
               pageContent: (_) => Container(
                 color: Color(0xFF555555),
                 child: Center(
                     child: TextButton(
+                        key: ValueKey('More Details Button'),
                         onPressed: () {
-                          GgRouter.of(ctx3).navigateTo('pageA1');
+                          GgRouter.of(ctx3).navigateTo('more-details');
                         },
-                        child: Text('Even more details'))),
+                        child: Text('More details'))),
               ),
               children: {
-                'pageA1': (_) => GgNavigationPage(
+                'more-details': (_) => GgNavigationPage(
                       pageContent: (_) => Container(
                         color: Color(0xFF666666),
                         child: Center(
-                          child: Text('Even more details'),
+                          child: Text('More details'),
                         ),
                       ),
                     )
