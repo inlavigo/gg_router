@@ -154,36 +154,41 @@ class GgRouterExample extends StatelessWidget {
   }
 
   // ...........................................................................
-  Widget _dialog(BuildContext context) {
+  Widget _dialogContent(BuildContext context) {
     return GgNavigationPageRoot(
       inAnimation: _navigateIn(context),
       outAnimation: _navigateOut(context),
-      pageContent: (ctx2) => Container(
-        color: Colors.red,
-        child: Center(
-          child: TextButton(
-            onPressed: () => GgRouter.of(ctx2).navigateTo('../pageA'),
-            child: Text('Navigate to pageA'),
-          ),
+      pageContent: (ctx2) => Center(
+        child: Column(
+          children: [
+            Spacer(),
+            _checkBox(context),
+            Spacer(),
+            TextButton(
+              onPressed: () => GgRouter.of(ctx2).navigateTo('pageA'),
+              child: Text('Details'),
+            ),
+            Spacer(),
+          ],
         ),
       ),
       children: {
         'pageA': (ctx3) => GgNavigationPage(
               pageContent: (_) => Container(
-                color: Colors.green,
+                color: Color(0xFF555555),
                 child: Center(
                     child: TextButton(
                         onPressed: () {
                           GgRouter.of(ctx3).navigateTo('pageA1');
                         },
-                        child: Text('Navigate to Child A1'))),
+                        child: Text('Even more details'))),
               ),
               children: {
                 'pageA1': (_) => GgNavigationPage(
                       pageContent: (_) => Container(
-                        color: Colors.orange,
+                        color: Color(0xFF666666),
                         child: Center(
-                          child: Text('This is pageA1'),
+                          child: Text('Even more details'),
                         ),
                       ),
                     )
@@ -191,33 +196,13 @@ class GgRouterExample extends StatelessWidget {
             )
       },
     );
+  }
 
-    /* return Dialog(
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.topRight,
-            child: IconButton(
-              key: ValueKey('dialogCloseButton'),
-              icon: Icon(Icons.close),
-              onPressed: () {
-                GgRouter.of(context).navigateTo('..');
-              },
-            ),
-          ),
-          Center(
-            child: Column(
-              children: [
-                Expanded(child: Container()),
-                _checkBox(context),
-                Expanded(child: Container()),
-              ],
-            ),
-          ),
-        ],
-      ),
+  // ...........................................................................
+  Widget _dialog(BuildContext context) {
+    return Dialog(
+      child: _dialogContent(context),
     );
-    */
   }
 
   // ...........................................................................

@@ -188,19 +188,27 @@ class GgPageWithNavBar extends StatelessWidget {
 
     return Row(
       children: [
-        TextButton(
+        Container(
+          key: ValueKey('GgNavigationPageBackButton'),
+          child: TextButton(
             onPressed: () {
               GgRouter.of(context).navigateTo('../');
             },
-            child: Text('Back')),
+            child: Text('Back'),
+          ),
+        ),
         Spacer(),
         Text('Title'),
         Spacer(),
-        TextButton(
+        Container(
+          key: ValueKey('GgNavigationPageCloseButton'),
+          child: TextButton(
             onPressed: () {
               rootNode.navigateTo('../');
             },
-            child: Text('Close')),
+            child: Text('Close'),
+          ),
+        ),
       ],
     );
   }

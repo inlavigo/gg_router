@@ -384,7 +384,7 @@ main() {
       // Finally let's close the dialog
       // => dialog is removed from the URI
       final dialogCloseButton = GgEasyWidgetTest(
-        find.byKey(ValueKey('dialogCloseButton')),
+        find.byKey(ValueKey('GgNavigationPageCloseButton')),
         tester,
       );
       await dialogCloseButton.press();
