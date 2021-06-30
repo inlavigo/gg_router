@@ -1028,6 +1028,12 @@ main() {
         expect(childB.stagedChildPathSegments, ['child-c']);
         expect(childC.stagedChildPathSegments, []);
       });
+
+      test('should remove "_INDEX_" from the path', () {
+        init();
+        childA2Index.navigateTo('.');
+        expect(root.stagedChildPath, 'child-a2');
+      });
     });
 
     // #########################################################################

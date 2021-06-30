@@ -605,7 +605,14 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  String get stagedChildPath => stagedChildPathSegments.join('/');
+  String get stagedChildPath {
+    final result = stagedChildPathSegments;
+    if (result.isNotEmpty && result.last == '_INDEX_') {
+      result.remove('_INDEX_');
+    }
+
+    return result.join('/');
+  }
 
   // ...........................................................................
   /// Activates the path in the node hierarchy.
