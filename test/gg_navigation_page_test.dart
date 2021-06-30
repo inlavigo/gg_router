@@ -86,6 +86,7 @@ main() {
         BuildContext context,
         Animation animation,
         Widget child,
+        Size size,
       ) {
         return child;
       };
@@ -94,6 +95,7 @@ main() {
         BuildContext context,
         Animation animation,
         Widget child,
+        Size size,
       ) {
         return child;
       };

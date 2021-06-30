@@ -17,7 +17,19 @@ class GgNavigationPage extends StatefulWidget {
     required this.pageContent,
     this.children,
     this.semanticLabels = const {},
-  }) : super(key: key) {
+  })  : _isRoot = false,
+        super(key: key) {
+    _checkChildren(children);
+  }
+
+  // ...........................................................................
+  GgNavigationPage._withRoot(
+      {Key? key,
+      required this.pageContent,
+      this.children,
+      this.semanticLabels = const {}})
+      : _isRoot = true,
+        super(key: key) {
     _checkChildren(children);
   }
 
@@ -57,7 +69,7 @@ class GgNavigationPage extends StatefulWidget {
 
   // ...........................................................................
   // Is written by GgNavigationPageRoot
-  bool _isRoot = false;
+  final bool _isRoot;
 }
 
 // #############################################################################
@@ -136,13 +148,11 @@ class GgNavigationPageRoot extends StatefulWidget {
     this.navigationBarBackButton,
     this.navigationBarCloseButton,
     this.navigationBarTitle,
-  })  : navigationPage = GgNavigationPage(
+  })  : navigationPage = GgNavigationPage._withRoot(
             pageContent: pageContent,
             children: children,
             semanticLabels: semanticLabels),
-        super(key: key) {
-    navigationPage._isRoot = true;
-  }
+        super(key: key);
 
   final GgNavigationPage navigationPage;
 

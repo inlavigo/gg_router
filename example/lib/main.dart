@@ -492,6 +492,7 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
+    Size size,
   ) {
     // In the first part of the animation the old widget is faded out
     final scale = animation.value < 0.5
@@ -509,6 +510,7 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
+    Size size,
   ) {
     // In the second part of the animation the new widget is faded in
     final scale = animation.value >= 0.5
@@ -526,9 +528,10 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
+    Size size,
   ) {
-    final w = MediaQuery.of(context).size.width;
-    final h = MediaQuery.of(context).size.height;
+    final w = size.width;
+    final h = size.height;
     final index = GgRouter.of(context).indexOfChildAnimatingIn;
 
     final fromLeft = Offset(-w * (1.0 - animation.value), 0);
@@ -552,9 +555,10 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
+    Size size,
   ) {
-    final w = MediaQuery.of(context).size.width;
-    final h = MediaQuery.of(context).size.height;
+    final w = size.width;
+    final h = size.height;
     final index = GgRouter.of(context).indexOfChildAnimatingOut;
 
     final toRight = Offset(w * (animation.value), 0);
@@ -578,6 +582,7 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
+    Size size,
   ) {
     final scale = animation.value;
     final angle = 2 * pi * animation.value;
@@ -600,6 +605,7 @@ class GgRouterExample extends StatelessWidget {
     BuildContext context,
     Animation animation,
     Widget child,
+    Size size,
   ) {
     final scale = 1.0 - animation.value;
     final angle = -2 * pi * animation.value;
@@ -635,26 +641,26 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   GgAnimationBuilder _navigateIn(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
-    return (BuildContext context, Animation animation, Widget child) {
+    return (BuildContext context, Animation animation, Widget child,
+        Size size) {
       final currentRoute = GgRouter.of(context).nameOfChildAnimatingIn;
 
       return currentRoute != '_INDEX_'
-          ? GgShowInForeground(child: _moveInFromRight(animation, child, width))
+          ? GgShowInForeground(
+              child: _moveInFromRight(animation, child, size.width))
           : child;
     };
   }
 
   // ...........................................................................
   GgAnimationBuilder _navigateOut(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
-    return (BuildContext context, Animation animation, Widget child) {
+    return (BuildContext context, Animation animation, Widget child,
+        Size size) {
       final currentRoute = GgRouter.of(context).nameOfChildAnimatingOut;
 
       return currentRoute != '_INDEX_'
-          ? GgShowInForeground(child: _moveOutToRight(animation, child, width))
+          ? GgShowInForeground(
+              child: _moveOutToRight(animation, child, size.width))
           : child;
     };
   }

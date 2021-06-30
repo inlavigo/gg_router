@@ -33,7 +33,7 @@ main() {
         name: 'popover',
         base: base,
         popover: (_) => popover,
-        inAnimation: (context, animation, child) => Stack(
+        inAnimation: (context, animation, child, size) => Stack(
           children: [
             Text(
               '${animation.value}',
@@ -42,7 +42,7 @@ main() {
             child
           ],
         ),
-        outAnimation: (context, animation, child) => Stack(
+        outAnimation: (context, animation, child, size) => Stack(
           children: [
             Text(
               '${animation.value}',

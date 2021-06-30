@@ -562,8 +562,8 @@ main() {
         key: GlobalKey(),
         animationDuration: Duration(),
         defaultRoute: 'default',
-        inAnimation: (c, a, child) => Container(),
-        outAnimation: (c, a, child) => Container(),
+        inAnimation: (c, a, child, size) => Container(),
+        outAnimation: (c, a, child, size) => Container(),
         semanticLabels: {},
       );
 
@@ -583,8 +583,8 @@ main() {
         final newChildren = {'x': (_) => Container()};
         final newAnimationDuration = Duration();
         final newDefaultRoute = 'other';
-        final newInAnimation = (c, a, child) => Container();
-        final newOutAnimation = (c, a, child) => Container();
+        final newInAnimation = (c, a, child, size) => Container();
+        final newOutAnimation = (c, a, child, size) => Container();
         final newSemanticLabels = {'a': 'bla bla'};
 
         final copy = GgRouter.from(
@@ -783,7 +783,7 @@ main() {
 
           // Wrap animated widgets into a stack showing a text with the
           // animation value
-          inAnimation: (context, animation, child) {
+          inAnimation: (context, animation, child, size) {
             updateAnimationDetails(context);
             return Stack(
               children: [
@@ -795,7 +795,7 @@ main() {
               ],
             );
           },
-          outAnimation: (context, animation, child) {
+          outAnimation: (context, animation, child, size) {
             updateAnimationDetails(context);
             return Stack(
               children: [
@@ -884,8 +884,10 @@ main() {
         bool showOutRouteOnTheTopWhileAnimating = false;
         bool showInRouteOnTheTopWhileAnimating = false;
 
-        final GgAnimationBuilder animation = (context, animation, child) {
+        final GgAnimationBuilder animation = (context, animation, child, size) {
           final c = child as GgRouterCore;
+          expect(size.width, 800);
+          expect(size.height, 600);
 
           return (c.routeName == 'routeOut' &&
                       showOutRouteOnTheTopWhileAnimating) ||
