@@ -57,40 +57,6 @@ class GgNavigationPage extends StatefulWidget {
 }
 
 // #############################################################################
-class GgNavigationPageRoot extends GgNavigationPage {
-  // ...........................................................................
-  GgNavigationPageRoot({
-    Key? key,
-    required Widget Function(BuildContext) pageContent,
-    Map<String, GgNavigationPage Function(BuildContext)>? children,
-    Map<String, String> semanticLabels = const {},
-    this.inAnimation,
-    this.outAnimation,
-    this.animationDuration = const Duration(milliseconds: 500),
-  }) : super(
-          key: key,
-          pageContent: pageContent,
-          children: children,
-          semanticLabels: semanticLabels,
-        );
-
-  // ...........................................................................
-  /// The duration for route transitions.
-  final Duration animationDuration;
-
-  /// This animation is applied to the widget appearing on route transitions.
-  final GgAnimationBuilder? inAnimation;
-
-  /// this animation is applied to the widget disappearing on route transitions.
-  final GgAnimationBuilder? outAnimation;
-
-  // ...........................................................................
-  static GgNavigationPageRoot? of(BuildContext context) {
-    return context.findAncestorWidgetOfExactType<GgNavigationPageRoot>();
-  }
-}
-
-// #############################################################################
 // .............................................................................
 class _GgNavigationPageState extends State<GgNavigationPage> {
   // ...........................................................................
@@ -124,6 +90,9 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
   }
 
   // ...........................................................................
+  bool get isRoot => widget is GgNavigationPageRoot;
+
+  // ...........................................................................
   _generateChildren(BuildContext context) {
     final result = Map<String, Widget Function(BuildContext)>();
 
@@ -144,6 +113,51 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
   }
 }
 
+// ######################
+// GgNavigationPageRoot
+// ######################
+
+class GgNavigationPageRoot extends StatefulWidget {
+  GgNavigationPageRoot({
+    Key? key,
+    required Widget Function(BuildContext) pageContent,
+    Map<String, GgNavigationPage Function(BuildContext)>? children,
+    Map<String, String> semanticLabels = const {},
+    this.inAnimation,
+    this.outAnimation,
+    this.animationDuration = const Duration(milliseconds: 500),
+  })  : navigationPage = GgNavigationPage(
+            pageContent: pageContent,
+            children: children,
+            semanticLabels: semanticLabels),
+        super(key: key);
+
+  final GgNavigationPage navigationPage;
+
+  @override
+  GgNavigationPageRootState createState() => GgNavigationPageRootState();
+
+  // ...........................................................................
+  /// The duration for route transitions.
+  final Duration animationDuration;
+
+  /// This animation is applied to the widget appearing on route transitions.
+  final GgAnimationBuilder? inAnimation;
+
+  /// this animation is applied to the widget disappearing on route transitions.
+  final GgAnimationBuilder? outAnimation;
+
+  // ...........................................................................
+  static GgNavigationPageRoot? of(BuildContext context) {
+    return context.findAncestorWidgetOfExactType<GgNavigationPageRoot>();
+  }
+}
+
+class GgNavigationPageRootState extends State<GgNavigationPageRoot> {
+  @override
+  Widget build(BuildContext context) => widget.navigationPage;
+}
+
 // #############################################################################
 class GgPageWithNavBar extends StatelessWidget {
   const GgPageWithNavBar({Key? key, required this.content}) : super(key: key);
@@ -162,11 +176,21 @@ class GgPageWithNavBar extends StatelessWidget {
 
   // ...........................................................................
   Widget _navigationBar(BuildContext context) {
+    // Get root navigation page state
+    final rootState =
+        context.findAncestorStateOfType<GgNavigationPageRootState>();
+
+    assert(rootState != null);
+    assert(rootState?.context != null);
+    final rootNode = GgRouter.of(rootState!.context).node;
+
+    // Use context of rootState to get the parent node
+
     return Row(
       children: [
         TextButton(
             onPressed: () {
-              GgRouter.of(context).navigateTo('../../');
+              GgRouter.of(context).navigateTo('../');
             },
             child: Text('Back')),
         Spacer(),
@@ -174,7 +198,7 @@ class GgPageWithNavBar extends StatelessWidget {
         Spacer(),
         TextButton(
             onPressed: () {
-              GgRouter.of(context).navigateTo('../../');
+              rootNode.navigateTo('../');
             },
             child: Text('Close')),
       ],
