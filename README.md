@@ -11,7 +11,8 @@ will do the rest for you:
 - GgRouter synchronizes route tree changes to the browser URI.
 
 Additionally, GgRouter allows you to create index routes, default routes,
-wildcard routes, assign semantic labels to routes. And finally, it can backup
+wildcard routes, assign semantic labels to routes. With `GgNavigationPage` a page
+based hierarchical navigation system is provided. And finally, it can backup
 and restore the complete route tree as JSON.
 
 ## Demo
@@ -23,35 +24,35 @@ demo of GgRouter.
 
 ## Content
 
-- [GgRouter - Easy Routing for Flutter](#ggrouter---easy-routing-for-flutter)
-  - [Demo](#demo)
-  - [Initialize GgRouter](#initialize-ggrouter)
-  - [Define routes](#define-routes)
-    - [Page routes](#page-routes)
-    - [Popover routes](#popover-routes)
-    - [Nested routes](#nested-routes)
-  - [Handling fallbacks](#handling-fallbacks)
-    - [Index route](#index-route)
-    - [Default route](#default-route)
-    - [Wildcard routes](#wildcard-routes)
-  - [Navigation](#navigation)
-    - [Navigate absolutely](#navigate-absolutely)
-    - [Navigate relatively](#navigate-relatively)
-    - [Navigate to last route](#navigate-to-last-route)
-    - [Navigation Bars](#navigation-bars)
-  - [URI query params](#uri-query-params)
-    - [Define query params](#define-query-params)
-    - [Access query params](#access-query-params)
-  - [Animations](#animations)
-    - [Animate route transitions](#animate-route-transitions)
-    - [Route specific animations](#route-specific-animations)
-  - [More stuff](#more-stuff)
-    - [Save and restore route state](#save-and-restore-route-state)
-    - [Rebuild widget on route changes](#rebuild-widget-on-route-changes)
-    - [Add semantic labels to routes](#add-semantic-labels-to-routes)
-    - [Error handling](#error-handling)
-  - [Example](#example)
-  - [Features and bugs](#features-and-bugs)
+- [Demo](#demo)
+- [Initialize GgRouter](#initialize-ggrouter)
+- [Define routes](#define-routes)
+  - [Page routes](#page-routes)
+  - [Popover routes](#popover-routes)
+  - [Nested routes](#nested-routes)
+- [Handling fallbacks](#handling-fallbacks)
+  - [Index route](#index-route)
+  - [Default route](#default-route)
+  - [Wildcard routes](#wildcard-routes)
+- [Navigation](#navigation)
+  - [Navigate absolutely](#navigate-absolutely)
+  - [Navigate relatively](#navigate-relatively)
+  - [Navigate to last route](#navigate-to-last-route)
+  - [Navigation Bars](#navigation-bars)
+- [URI query params](#uri-query-params)
+  - [Define query params](#define-query-params)
+  - [Access query params](#access-query-params)
+- [Animations](#animations)
+  - [Animate route transitions](#animate-route-transitions)
+  - [Route specific animations](#route-specific-animations)
+- [Page Navigation](#page-navigation)
+- [More stuff](#more-stuff)
+  - [Save and restore route state](#save-and-restore-route-state)
+  - [Rebuild widget on route changes](#rebuild-widget-on-route-changes)
+  - [Add semantic labels to routes](#add-semantic-labels-to-routes)
+  - [Error handling](#error-handling)
+- [Example](#example)
+- [Features and bugs](#features-and-bugs)
 
 ## Initialize GgRouter
 
@@ -254,9 +255,9 @@ the disappearing route:
 builder: (context) {
   return GgRouter(
     // ...
-    inAnimation: (context, animation, child)
+    inAnimation: (context, animation, child, size)
       => Transform.scale(scale: animation.value, child: child),
-    outAnimation: (context, animation, child)
+    outAnimation: (context, animation, child, size)
       => Transform.scale(scale: 1.0 - animation.value, child: child),
   );
 },
@@ -264,7 +265,8 @@ builder: (context) {
 
 With the possibility to define separate in and out animations, you can create
 advanced transitions. E.g., move an appearing widget in from the left side and
-out from the right side.
+out from the right side. Use the provided `size` parameter to define how far
+animated widgets should be moved.
 
 ### Route specific animations
 
@@ -302,6 +304,54 @@ Widget _moveOut(
   );
 }
 ~~~
+
+## Page Navigation
+
+With `GgNavigationPage` we provide a simple way to create nested navigation
+pages:
+
+![Features](img/gg_navigation_page.gif)
+
+To create pages as shown in the animation, just nest instances of
+`GgNavigationPage` inside each other:
+
+~~~dart
+Widget build(context){
+  return GgNavigationPageRoot(
+    pageContent: (context) => _parentPage;
+    children: {
+      'child': (context) => GgNavigationPage(
+        pageContent: (_) => Container(
+          color: Color(0xFF555555),
+          child: _childPage,
+        children: {
+          'grand-child': (_) => GgNavigationPage(
+                pageContent: _grandChildPage
+        },
+      )
+    },
+  );
+}
+~~~
+
+The code above will create the following page hierarchy:
+
+~~~txt
+  |-root
+    |-child
+      |-grand-child
+~~~
+
+These things are done by the package for you:
+
+- Setup `GgRouter` to match the page hierarchy.
+- Show a navigation bar at the top of your pages
+- Configure back and close button on the navigation page
+- Sync browser URL and page position
+
+To see an example, launch `example/lib/main.dart`, click on "Sports" at the
+top, click on "Basketball" at the bottom, and then click on the "basketball" in
+the center of the screen.
 
 ## More stuff
 
