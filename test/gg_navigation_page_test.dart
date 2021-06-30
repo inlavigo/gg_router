@@ -187,4 +187,45 @@ main() {
     Text text = tester.widget(textFinder);
     expect(text.data, 'Child 0 Page');
   });
+
+  testWidgets('should allow to customize back button, title and close button',
+      (tester) async {
+    final root = GgRouteTreeNode.newRoot;
+
+    final customizedBackButton = Text('Back');
+    final customizedCloseButton = Text('Close');
+    final customizedTitle = Text('Title');
+
+    // .........................................
+    // Create a widget with customized app bar
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: GgRouter.root(
+          node: root,
+          child: GgRouter(
+            {
+              'child0': (_) => GgNavigationPageRoot(
+                    pageContent: (_) => Container(),
+                    children: {},
+                    key: GlobalKey(),
+                    navigationBarBackButton: (_) => customizedBackButton,
+                    navigationBarCloseButton: (_) => customizedCloseButton,
+                    navigationBarTitle: (_) => customizedTitle,
+                  ),
+            },
+            defaultRoute: 'child0',
+            semanticLabels: {'child0': 'Child 0 Page'},
+            key: GlobalKey(),
+          ),
+        ),
+      ),
+    );
+
+    // ...................................
+    // Test if customized buttons are used
+    expect(find.byWidget(customizedBackButton), findsOneWidget);
+    expect(find.byWidget(customizedCloseButton), findsOneWidget);
+    expect(find.byWidget(customizedTitle), findsOneWidget);
+  });
 }

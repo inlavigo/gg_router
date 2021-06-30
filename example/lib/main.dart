@@ -156,10 +156,27 @@ class GgRouterExample extends StatelessWidget {
   // ...........................................................................
   Widget _dialogContent(BuildContext context) {
     return GgNavigationPageRoot(
+      // Customize animation
       inAnimation: _navigateIn(context),
       outAnimation: _navigateOut(context),
+
+      // Customize navigation bar style
       navigationBarBackgroundColor: Color(0x0AFFFFFF),
       navigationBarPadding: 10,
+
+      // Customize back button
+      navigationBarBackButton: (_) => Icon(
+        Icons.arrow_back_ios_new,
+        size: 18.0,
+      ),
+
+      // Customize close button
+      navigationBarCloseButton: (_) => Icon(
+        Icons.close,
+        size: 18.0,
+      ),
+
+      // Setup page content
       pageContent: (ctx2) => Center(
         child: Column(
           children: [

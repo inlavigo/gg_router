@@ -113,9 +113,7 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
   }
 }
 
-// ######################
-// GgNavigationPageRoot
-// ######################
+// #############################################################################
 
 class GgNavigationPageRoot extends StatefulWidget {
   GgNavigationPageRoot({
@@ -128,6 +126,9 @@ class GgNavigationPageRoot extends StatefulWidget {
     this.animationDuration = const Duration(milliseconds: 500),
     this.navigationBarBackgroundColor = Colors.transparent,
     this.navigationBarPadding = 0,
+    this.navigationBarBackButton,
+    this.navigationBarCloseButton,
+    this.navigationBarTitle,
   })  : navigationPage = GgNavigationPage(
             pageContent: pageContent,
             children: children,
@@ -139,9 +140,21 @@ class GgNavigationPageRoot extends StatefulWidget {
   @override
   GgNavigationPageRootState createState() => GgNavigationPageRootState();
 
+  // ...........................................................................
   // The background color of the navigation bar
   final Color navigationBarBackgroundColor;
+
+  // The padding of the navigation bar
   final double navigationBarPadding;
+
+  // Use this callback to customize the close button appearance
+  final Widget Function(BuildContext)? navigationBarCloseButton;
+
+  // Use this callback to customize the back button appearance
+  final Widget Function(BuildContext)? navigationBarBackButton;
+
+  // Use this callback to customize the title appearance
+  final Widget Function(BuildContext)? navigationBarTitle;
 
   // ...........................................................................
   /// The duration for route transitions.
@@ -204,30 +217,31 @@ class GgPageWithNavBar extends StatelessWidget {
         padding: EdgeInsets.all(rootPage.navigationBarPadding),
         child: Row(
           children: [
-            Container(
+            MouseRegion(
               key: ValueKey('GgNavigationPageBackButton'),
-              child: TextButton(
-                onPressed: () {
-                  ownNode.navigateTo('../');
-                },
-                child: Text('Back'),
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTapUp: (_) => ownNode.navigateTo('../'),
+                child: rootPage.navigationBarBackButton?.call(context) ??
+                    Text('Back'),
               ),
             ),
             Spacer(),
             Container(
               key: ValueKey('GgNavigationPageTitle'),
-              child: Text(
-                ownNode.semanticLabel,
-              ),
+              child: rootPage.navigationBarTitle?.call(context) ??
+                  Text(
+                    ownNode.semanticLabel,
+                  ),
             ),
             Spacer(),
-            Container(
+            MouseRegion(
               key: ValueKey('GgNavigationPageCloseButton'),
-              child: TextButton(
-                onPressed: () {
-                  rootNode.navigateTo('../');
-                },
-                child: Text('Close'),
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTapUp: (_) => rootNode.navigateTo('../'),
+                child: rootPage.navigationBarCloseButton?.call(context) ??
+                    Text('Close'),
               ),
             ),
           ],
