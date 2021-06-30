@@ -983,7 +983,13 @@ class GgRouteTreeNode {
   // ...........................................................................
   _navigateTo(String path) {
     final pathComponents = path.split('/');
-    _startElement(path).stagedChildPathSegments = pathComponents;
+
+    // route/_INDEX_ is treated as route/ when navigating
+    if (this.isIndexChild) {
+      parent!._navigateTo(path);
+    } else {
+      _startElement(path).stagedChildPathSegments = pathComponents;
+    }
   }
 
   // ##############

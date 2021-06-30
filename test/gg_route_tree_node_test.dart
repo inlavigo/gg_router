@@ -1139,6 +1139,12 @@ main() {
         childB.navigateTo('./child-c');
         expect(root.stagedChildPath, 'child-a0/child-b/child-c');
       });
+
+      test('Should interpret ".." as "../../" if node is an _INDEX_ node', () {
+        init();
+        childA2Index.navigateTo('../');
+        expect(root.stagedChildPath, '');
+      });
     });
 
     // #########################################################################
