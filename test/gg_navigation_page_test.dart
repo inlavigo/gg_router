@@ -144,4 +144,47 @@ main() {
       expect(router2.outAnimation, outAnimation);
     });
   });
+
+  testWidgets('should show the route\'s semantic label as title',
+      (WidgetTester tester) async {
+    final root = GgRouteTreeNode.newRoot;
+
+    // .........................................
+    // Create a widget showing a navigation page
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: GgRouter.root(
+          node: root,
+          child: GgRouter(
+            {
+              'child0': (_) => GgNavigationPageRoot(
+                    pageContent: (_) => Container(),
+                    children: {},
+                    key: GlobalKey(),
+                  ),
+            },
+            defaultRoute: 'child0',
+            semanticLabels: {'child0': 'Child 0 Page'},
+            key: GlobalKey(),
+          ),
+        ),
+      ),
+    );
+
+    // ...........................
+    // Navigate to the child0 page
+    root.navigateTo('child0');
+    await tester.pumpAndSettle();
+
+    // ...............................................
+    // Check if the semantic label is shown on the top
+    final titleFinder = find.byKey(ValueKey('GgNavigationPageTitle'));
+    expect(titleFinder, findsOneWidget);
+    final textFinder =
+        find.descendant(of: titleFinder, matching: find.byType(Text));
+    expect(textFinder, findsOneWidget);
+    Text text = tester.widget(textFinder);
+    expect(text.data, 'Child 0 Page');
+  });
 }

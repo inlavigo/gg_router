@@ -195,7 +195,13 @@ class GgRouterExample extends StatelessWidget {
                       ),
                     )
               },
+              semanticLabels: {
+                'more-details': 'More Details',
+              },
             )
+      },
+      semanticLabels: {
+        'details': 'Details',
       },
     );
   }
@@ -311,6 +317,7 @@ class GgRouterExample extends StatelessWidget {
               child: GgPopoverRoute(
                 key: ValueKey('dialog'),
                 name: 'popover',
+                semanticLabel: 'Popover Dialog Example',
                 base: Listener(
                   child: _bigIcon(context, Icons.sports_basketball),
                   onPointerUp: (_) =>
@@ -606,32 +613,15 @@ class GgRouterExample extends StatelessWidget {
   }
 
   // ...........................................................................
-  Widget _fadeIn(Animation animation, Widget child, double width) {
-    return Opacity(
-      opacity: Curves.easeInOut.transform(animation.value),
-      child: child,
-    );
-  }
-
-  // ...........................................................................
-  Widget _fadeOut(Animation animation, Widget child, double width) {
-    return Opacity(
-      opacity: Curves.easeInOut.transform(1.0 - animation.value),
-      child: child,
-    );
-  }
-
-  // ...........................................................................
   GgAnimationBuilder _navigateIn(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
     return (BuildContext context, Animation animation, Widget child) {
       final currentRoute = GgRouter.of(context).nameOfChildAnimatingIn;
-      // return _moveLeft(animation, child, width);
+
       return currentRoute != '_INDEX_'
           ? GgShowInForeground(child: _moveInFromRight(animation, child, width))
           : child;
-      // _fadeIn(animation, child, width);
     };
   }
 
@@ -641,12 +631,10 @@ class GgRouterExample extends StatelessWidget {
 
     return (BuildContext context, Animation animation, Widget child) {
       final currentRoute = GgRouter.of(context).nameOfChildAnimatingOut;
-      // return _moveRight(animation, child, width);
 
       return currentRoute != '_INDEX_'
           ? GgShowInForeground(child: _moveOutToRight(animation, child, width))
           : child;
-      //_fadeOut(animation, child, width);
     };
   }
 }

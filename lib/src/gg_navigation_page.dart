@@ -183,6 +183,7 @@ class GgPageWithNavBar extends StatelessWidget {
     assert(rootState != null);
     assert(rootState?.context != null);
     final rootNode = GgRouter.of(rootState!.context).node;
+    final ownNode = GgRouter.of(context).node;
 
     // Use context of rootState to get the parent node
 
@@ -192,13 +193,18 @@ class GgPageWithNavBar extends StatelessWidget {
           key: ValueKey('GgNavigationPageBackButton'),
           child: TextButton(
             onPressed: () {
-              GgRouter.of(context).navigateTo('../');
+              ownNode.navigateTo('../');
             },
             child: Text('Back'),
           ),
         ),
         Spacer(),
-        Text('Title'),
+        Container(
+          key: ValueKey('GgNavigationPageTitle'),
+          child: Text(
+            ownNode.semanticLabel,
+          ),
+        ),
         Spacer(),
         Container(
           key: ValueKey('GgNavigationPageCloseButton'),
