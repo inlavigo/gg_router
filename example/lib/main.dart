@@ -158,12 +158,16 @@ class GgRouterExample extends StatelessWidget {
     return GgNavigationPageRoot(
       inAnimation: _navigateIn(context),
       outAnimation: _navigateOut(context),
+      navigationBarBackgroundColor: Color(0x0AFFFFFF),
+      navigationBarPadding: 10,
       pageContent: (ctx2) => Center(
         child: Column(
           children: [
             Spacer(),
             _checkBox(context),
-            Spacer(),
+            Container(
+              height: 30,
+            ),
             TextButton(
               key: ValueKey('Details Button'),
               onPressed: () => GgRouter.of(ctx2).navigateTo('details'),

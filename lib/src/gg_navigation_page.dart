@@ -126,6 +126,8 @@ class GgNavigationPageRoot extends StatefulWidget {
     this.inAnimation,
     this.outAnimation,
     this.animationDuration = const Duration(milliseconds: 500),
+    this.navigationBarBackgroundColor = Colors.transparent,
+    this.navigationBarPadding = 0,
   })  : navigationPage = GgNavigationPage(
             pageContent: pageContent,
             children: children,
@@ -136,6 +138,10 @@ class GgNavigationPageRoot extends StatefulWidget {
 
   @override
   GgNavigationPageRootState createState() => GgNavigationPageRootState();
+
+  // The background color of the navigation bar
+  final Color navigationBarBackgroundColor;
+  final double navigationBarPadding;
 
   // ...........................................................................
   /// The duration for route transitions.
@@ -160,7 +166,10 @@ class GgNavigationPageRootState extends State<GgNavigationPageRoot> {
 
 // #############################################################################
 class GgPageWithNavBar extends StatelessWidget {
-  const GgPageWithNavBar({Key? key, required this.content}) : super(key: key);
+  const GgPageWithNavBar({
+    Key? key,
+    required this.content,
+  }) : super(key: key);
 
   final Widget content;
 
@@ -180,6 +189,8 @@ class GgPageWithNavBar extends StatelessWidget {
     final rootState =
         context.findAncestorStateOfType<GgNavigationPageRootState>();
 
+    final rootPage = GgNavigationPageRoot.of(context)!;
+
     assert(rootState != null);
     assert(rootState?.context != null);
     final rootNode = GgRouter.of(rootState!.context).node;
@@ -187,35 +198,41 @@ class GgPageWithNavBar extends StatelessWidget {
 
     // Use context of rootState to get the parent node
 
-    return Row(
-      children: [
-        Container(
-          key: ValueKey('GgNavigationPageBackButton'),
-          child: TextButton(
-            onPressed: () {
-              ownNode.navigateTo('../');
-            },
-            child: Text('Back'),
-          ),
+    return Container(
+      color: rootPage.navigationBarBackgroundColor,
+      child: Padding(
+        padding: EdgeInsets.all(rootPage.navigationBarPadding),
+        child: Row(
+          children: [
+            Container(
+              key: ValueKey('GgNavigationPageBackButton'),
+              child: TextButton(
+                onPressed: () {
+                  ownNode.navigateTo('../');
+                },
+                child: Text('Back'),
+              ),
+            ),
+            Spacer(),
+            Container(
+              key: ValueKey('GgNavigationPageTitle'),
+              child: Text(
+                ownNode.semanticLabel,
+              ),
+            ),
+            Spacer(),
+            Container(
+              key: ValueKey('GgNavigationPageCloseButton'),
+              child: TextButton(
+                onPressed: () {
+                  rootNode.navigateTo('../');
+                },
+                child: Text('Close'),
+              ),
+            ),
+          ],
         ),
-        Spacer(),
-        Container(
-          key: ValueKey('GgNavigationPageTitle'),
-          child: Text(
-            ownNode.semanticLabel,
-          ),
-        ),
-        Spacer(),
-        Container(
-          key: ValueKey('GgNavigationPageCloseButton'),
-          child: TextButton(
-            onPressed: () {
-              rootNode.navigateTo('../');
-            },
-            child: Text('Close'),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
