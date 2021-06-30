@@ -155,13 +155,15 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   Widget _dialog(BuildContext context) {
-    return GgNavigationPage(
+    return GgNavigationPageRoot(
+      inAnimation: _navigateIn(context),
+      outAnimation: _navigateOut(context),
       pageContent: (ctx2) => Container(
         color: Colors.red,
         child: Center(
           child: TextButton(
-            onPressed: () => GgRouter.of(context).navigateTo('pageA'),
-            child: Text('pageA'),
+            onPressed: () => GgRouter.of(ctx2).navigateTo('../pageA'),
+            child: Text('Navigate to pageA'),
           ),
         ),
       ),
@@ -174,14 +176,14 @@ class GgRouterExample extends StatelessWidget {
                         onPressed: () {
                           GgRouter.of(ctx3).navigateTo('pageA1');
                         },
-                        child: Text('ChildA1'))),
+                        child: Text('Navigate to Child A1'))),
               ),
               children: {
                 'pageA1': (_) => GgNavigationPage(
                       pageContent: (_) => Container(
                         color: Colors.orange,
                         child: Center(
-                          child: Text('pagea1'),
+                          child: Text('This is pageA1'),
                         ),
                       ),
                     )
@@ -598,5 +600,66 @@ class GgRouterExample extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // ...........................................................................
+  Widget _moveInFromRight(Animation animation, Widget child, double width) {
+    return Transform.translate(
+        offset: Offset(
+            (1.0 - Curves.easeInOut.transform(animation.value)) * width, 0),
+        child: child);
+  }
+
+  // ...........................................................................
+  Widget _moveOutToRight(Animation animation, Widget child, double width) {
+    return Transform.translate(
+      offset: Offset(Curves.easeInOut.transform(animation.value) * width, 0),
+      child: child,
+    );
+  }
+
+  // ...........................................................................
+  Widget _fadeIn(Animation animation, Widget child, double width) {
+    return Opacity(
+      opacity: Curves.easeInOut.transform(animation.value),
+      child: child,
+    );
+  }
+
+  // ...........................................................................
+  Widget _fadeOut(Animation animation, Widget child, double width) {
+    return Opacity(
+      opacity: Curves.easeInOut.transform(1.0 - animation.value),
+      child: child,
+    );
+  }
+
+  // ...........................................................................
+  GgAnimationBuilder _navigateIn(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
+    return (BuildContext context, Animation animation, Widget child) {
+      final currentRoute = GgRouter.of(context).nameOfChildAnimatingIn;
+      // return _moveLeft(animation, child, width);
+      return currentRoute != '_INDEX_'
+          ? GgShowInForeground(child: _moveInFromRight(animation, child, width))
+          : child;
+      // _fadeIn(animation, child, width);
+    };
+  }
+
+  // ...........................................................................
+  GgAnimationBuilder _navigateOut(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
+    return (BuildContext context, Animation animation, Widget child) {
+      final currentRoute = GgRouter.of(context).nameOfChildAnimatingOut;
+      // return _moveRight(animation, child, width);
+
+      return currentRoute != '_INDEX_'
+          ? GgShowInForeground(child: _moveOutToRight(animation, child, width))
+          : child;
+      //_fadeOut(animation, child, width);
+    };
   }
 }

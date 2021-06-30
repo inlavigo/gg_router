@@ -9,6 +9,7 @@ import 'package:gg_router/gg_router.dart';
 import 'package:gg_value/gg_value.dart';
 import 'gg_route_tree_node.dart';
 
+// #############################################################################
 /// A callback GgRouter uses to animate appearing and disappearing widgets.
 /// - [animation] The ongoing animation.
 /// - [child] The child to appear or disappear.
@@ -17,6 +18,22 @@ typedef GgAnimationBuilder = Widget Function(
   Animation animation,
   Widget child,
 );
+
+// #############################################################################
+/// During animation, wrap widgets into GgShowInForeground to have a widget
+/// shown on the top
+class GgShowInForeground extends StatelessWidget {
+  const GgShowInForeground({Key? key, required this.child}) : super(key: key);
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: child,
+    );
+  }
+}
 
 // #############################################################################
 class GgRouterCore extends StatelessWidget {
@@ -571,11 +588,30 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, widget) {
-        return Stack(children: [
+        // By default outWidget is shown in the background
+        // In widget is shown in the foreground
+        final stack = [
           if (outWidget != null) outWidget(),
           if (inWidget != null) inWidget(),
           if (stayingWidget != null) stayingWidget(context),
-        ]);
+        ];
+
+        // But if a widget is wrapped into GgShowInForeground
+        // the widget is always put to foreground
+        stack.sort((a, b) {
+          final showAOnTop = a is GgShowInForeground;
+          final showBOnTop = b is GgShowInForeground;
+
+          if (showAOnTop == showBOnTop) {
+            return 0;
+          } else if (showAOnTop) {
+            return 1;
+          } else {
+            return -1;
+          }
+        });
+
+        return Stack(children: stack);
       },
     );
   }

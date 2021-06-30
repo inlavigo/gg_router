@@ -868,6 +868,132 @@ main() {
         // Finish everything
         await tester.pumpAndSettle();
       });
+
+      testWidgets(
+          'should animate widgets wrapped into "GgShowInForeground" in '
+          'front of other widgets', (tester) async {
+        // .........................................
+        // While animating switch GgShowInForeground
+
+        final routeOutKey = Key('routeOut');
+        final routeInKey = Key('routeIn');
+
+        // .........................................
+        // Create an animation deciding if routeA and/or routeB should be shown
+        // in front of the other
+        bool showOutRouteOnTheTopWhileAnimating = false;
+        bool showInRouteOnTheTopWhileAnimating = false;
+
+        final GgAnimationBuilder animation = (context, animation, child) {
+          final c = child as GgRouterCore;
+
+          return (c.routeName == 'routeOut' &&
+                      showOutRouteOnTheTopWhileAnimating) ||
+                  (c.routeName == 'routeIn' &&
+                      showInRouteOnTheTopWhileAnimating)
+              ? GgShowInForeground(child: child)
+              : child;
+        };
+
+        // .........................................
+        // Check if widget wrapped into "GgShowInForeground" is shown infront
+        // of the other widget
+
+        // ................................
+        // Create a route with two siblings
+        final router = GgRouter(
+          {
+            'routeOut': (context) => Container(key: routeOutKey),
+            'routeIn': (context) => Container(key: routeInKey),
+          },
+          key: ValueKey('mainRouter'),
+
+          // While animating wrap animated child into "GgShowInForeground"
+          // if the corresponding flag is set
+          inAnimation: animation,
+          outAnimation: animation,
+          animationDuration: Duration(milliseconds: 1000),
+        );
+
+        // ........................
+        // Create a router delegate
+        final routerDelegate = GgRouterDelegate(child: router);
+        final root = routerDelegate.root;
+        root.findOrCreateChild('routeOut').navigateTo('.');
+
+        // .............
+        // Create an app
+        await tester.pumpWidget(
+          MaterialApp.router(
+            routeInformationParser: GgRouteInformationParser(),
+            routerDelegate: routerDelegate,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // ......................................
+        // At the beginning routeA should be shown
+        expect(find.byKey(routeOutKey), findsOneWidget);
+        expect(find.byKey(routeInKey), findsNothing);
+
+        // .........................................................
+        // Which widget is shown background and which in foreground?
+        late Finder stackFinder;
+        late Stack stackWidget;
+        late GgRouterCore widgetInForeground;
+        late GgRouterCore widgetInBackground;
+
+        final update = () {
+          stackFinder = find.byType(Stack);
+          expect(stackFinder, findsOneWidget);
+          stackWidget = tester.widget(stackFinder);
+          expect(stackWidget.children.length, 2);
+
+          final last = stackWidget.children.last;
+          final first = stackWidget.children.first;
+
+          widgetInForeground = (last is GgShowInForeground)
+              ? last.child as GgRouterCore
+              : last as GgRouterCore;
+
+          widgetInBackground = (first is GgShowInForeground)
+              ? first.child as GgRouterCore
+              : first as GgRouterCore;
+        };
+
+        // ..........................
+        // Now let's switch to routeIn
+        root.findOrCreateChild('routeIn').navigateTo('.');
+        await tester.pump(Duration(microseconds: 0));
+        update();
+
+        // By default the widget animating in is shown in the foreground
+        expect(widgetInForeground.routeName, 'routeIn');
+        expect(widgetInBackground.routeName, 'routeOut');
+
+        // ........................................
+        // Now let's put routeOut to the foreground
+        showOutRouteOnTheTopWhileAnimating = true;
+        await tester.pump(Duration(microseconds: 100));
+        update();
+
+        expect(widgetInForeground.routeName, 'routeOut');
+        expect(widgetInBackground.routeName, 'routeIn');
+
+        // ........................................
+        // Now let's put routeIn to the foreground
+        showOutRouteOnTheTopWhileAnimating = false;
+        showInRouteOnTheTopWhileAnimating = true;
+
+        await tester.pump(Duration(microseconds: 100));
+        update();
+
+        expect(widgetInForeground.routeName, 'routeIn');
+        expect(widgetInBackground.routeName, 'routeOut');
+
+        // Finish everything
+        await tester.pumpAndSettle();
+      });
     });
 
     // #########################################################################
