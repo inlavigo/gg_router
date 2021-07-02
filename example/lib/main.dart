@@ -195,31 +195,31 @@ class GgRouterExample extends StatelessWidget {
         ),
       ),
       children: {
-        'details': (ctx3) => GgNavigationPage(
+        'details': GgNavigationPage(
+          pageContent: (ctx3) => Container(
+            color: Color(0xFF555555),
+            child: Center(
+                child: TextButton(
+                    key: ValueKey('More Details Button'),
+                    onPressed: () {
+                      GgRouter.of(ctx3).navigateTo('more-details');
+                    },
+                    child: Text('More details'))),
+          ),
+          children: {
+            'more-details': GgNavigationPage(
               pageContent: (_) => Container(
-                color: Color(0xFF555555),
+                color: Color(0xFF666666),
                 child: Center(
-                    child: TextButton(
-                        key: ValueKey('More Details Button'),
-                        onPressed: () {
-                          GgRouter.of(ctx3).navigateTo('more-details');
-                        },
-                        child: Text('More details'))),
+                  child: Text('More details'),
+                ),
               ),
-              children: {
-                'more-details': (_) => GgNavigationPage(
-                      pageContent: (_) => Container(
-                        color: Color(0xFF666666),
-                        child: Center(
-                          child: Text('More details'),
-                        ),
-                      ),
-                    )
-              },
-              semanticLabels: {
-                'more-details': 'More Details',
-              },
             )
+          },
+          semanticLabels: {
+            'more-details': 'More Details',
+          },
+        )
       },
       semanticLabels: {
         'details': 'Details',

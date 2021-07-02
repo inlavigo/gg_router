@@ -39,13 +39,13 @@ class GgNavigationPage extends StatefulWidget {
   final Widget Function(BuildContext) pageContent;
 
   /// The children of the page. Must bee pages also
-  final Map<String, GgNavigationPageBuilder>? children;
+  final Map<String, GgNavigationPage>? children;
 
   /// The semantic labels for each route
   final Map<String, String> semanticLabels;
 
   // ...........................................................................
-  static _checkChildren(Map<String, GgNavigationPageBuilder>? children) {
+  static _checkChildren(Map<String, GgNavigationPage>? children) {
     if (children != null && children.containsKey('_INDEX')) {
       throw ArgumentError(indexWidgetMustNotBeANavigationPage);
     }
@@ -110,24 +110,28 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
   bool get isRoot => widget._isRoot;
 
   // ...........................................................................
-  _generateChildren(BuildContext context) {
-    final result = Map<String, Widget Function(BuildContext)>();
+  _indexPage(BuildContext context) {
+    final content = widget.pageContent(context);
+    if (content is GgNavigationPage) {
+      throw ArgumentError(GgNavigationPage.indexWidgetMustNotBeANavigationPage);
+    }
+    final result = (_) => GgPageWithNavBar(
+          content: content,
+          showBackButton: !isRoot,
+        );
 
-    result['_INDEX_'] = (context) {
-      final content = widget.pageContent(context);
-      if (content is GgNavigationPage) {
-        throw ArgumentError(
-            GgNavigationPage.indexWidgetMustNotBeANavigationPage);
-      }
-      return GgPageWithNavBar(
-        content: content,
-        showBackButton: !isRoot,
-      );
+    return result;
+  }
+
+  // ...........................................................................
+  _generateChildren(BuildContext context) {
+    final Map<String, WidgetBuilder> result = {
+      '_INDEX_': _indexPage(context),
     };
 
-    if (widget.children != null) {
-      result.addAll(widget.children!);
-    }
+    widget.children?.forEach((key, value) {
+      result[key] = (_) => value;
+    });
 
     return result;
   }
@@ -139,7 +143,7 @@ class GgNavigationPageRoot extends StatefulWidget {
   GgNavigationPageRoot({
     Key? key,
     required Widget Function(BuildContext) pageContent,
-    Map<String, GgNavigationPage Function(BuildContext)>? children,
+    Map<String, GgNavigationPage>? children,
     Map<String, String> semanticLabels = const {},
     this.inAnimation,
     this.outAnimation,

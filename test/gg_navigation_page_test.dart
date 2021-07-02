@@ -115,10 +115,9 @@ main() {
               inAnimation: inAnimation,
               outAnimation: outAnimation,
               children: {
-                'childA': (_) {
-                  return GgNavigationPage(
-                      pageContent: (_) => Container(key: contentKey));
-                }
+                'childA': GgNavigationPage(
+                  pageContent: (_) => Container(key: contentKey),
+                )
               },
             ),
           ),
@@ -248,9 +247,9 @@ main() {
               'child': (_) => GgNavigationPageRoot(
                     pageContent: (_) => Container(),
                     children: {
-                      'grandchild': (_) => GgNavigationPage(
-                            pageContent: (_) => Container(),
-                          )
+                      'grandchild': GgNavigationPage(
+                        pageContent: (_) => Container(),
+                      )
                     },
                     key: GlobalKey(),
                     navigationBarBackButton: (_) => customizedBackButton,
