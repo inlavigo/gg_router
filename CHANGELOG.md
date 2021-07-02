@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.0.0+dev.2 - July 2nd, 2021
+
+* Added `typedef GgNavigationPageBuilder`
+
 ## 2.0.0+dev.1 - June 30th, 2021
 
 * Use  `GgShowInForeground` to define which widgets should be shown in the

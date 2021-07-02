@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gg_router/gg_router.dart';
 
+typedef GgNavigationPageBuilder = GgNavigationPage Function(BuildContext);
+
 /// Allows you to create a widget with a navigation bar at the top
 /// and a content widget below.
 class GgNavigationPage extends StatefulWidget {
@@ -37,14 +39,13 @@ class GgNavigationPage extends StatefulWidget {
   final Widget Function(BuildContext) pageContent;
 
   /// The children of the page. Must bee pages also
-  final Map<String, GgNavigationPage Function(BuildContext)>? children;
+  final Map<String, GgNavigationPageBuilder>? children;
 
   /// The semantic labels for each route
   final Map<String, String> semanticLabels;
 
   // ...........................................................................
-  static _checkChildren(
-      Map<String, GgNavigationPage Function(BuildContext)>? children) {
+  static _checkChildren(Map<String, GgNavigationPageBuilder>? children) {
     if (children != null && children.containsKey('_INDEX')) {
       throw ArgumentError(indexWidgetMustNotBeANavigationPage);
     }
