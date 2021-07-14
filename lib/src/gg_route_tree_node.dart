@@ -346,7 +346,8 @@ class GgRouteTreeNode {
   /// - `..` addresses parent node
   /// - '_LAST_' - addresses child that was last staged or the defaultChild
   GgRouteTreeNode descendants({required List<String> path}) {
-    var result = this;
+    var result = (this.isIndexChild ? this.parent : this)!;
+
     path.forEach((element) {
       if (element == '.' || element == '') {
         result = result;
@@ -380,6 +381,11 @@ class GgRouteTreeNode {
       node = node.parent;
     }
     return result;
+  }
+
+  // ...........................................................................
+  GgRouteTreeNode nodeForPath(String path) {
+    return _startElement(path).descendants(path: path.split('/'));
   }
 
   // ######################
@@ -733,13 +739,13 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   String semanticLabelForPath(String path) {
-    final node = _nodeForPath(path);
+    final node = nodeForPath(path);
     return node.semanticLabel;
   }
 
   // ...........................................................................
   setSemanticLabelForPath({required String path, required String label}) {
-    final node = _nodeForPath(path);
+    final node = nodeForPath(path);
     node.semanticLabel = label;
   }
 
@@ -980,11 +986,6 @@ class GgRouteTreeNode {
   GgRouteTreeNode _startElement(String path) {
     final startElement = path.startsWith('/') ? root : this;
     return startElement;
-  }
-
-  // ...........................................................................
-  GgRouteTreeNode _nodeForPath(String path) {
-    return _startElement(path).descendants(path: path.split('/'));
   }
 
   // ...........................................................................

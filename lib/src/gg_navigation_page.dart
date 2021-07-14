@@ -81,10 +81,12 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
   Widget build(BuildContext context) {
     final root = _root(context);
 
+    final routePath = GgRouter.of(context).routePath;
+
     return GgRouter(
       _generateChildren(context),
       semanticLabels: widget.semanticLabels,
-      key: GlobalKey(),
+      key: ValueKey(routePath),
       animationDuration: root.animationDuration,
       inAnimation: root.inAnimation,
       outAnimation: root.outAnimation,
@@ -148,7 +150,7 @@ class GgNavigationPageRoot extends StatefulWidget {
     this.inAnimation,
     this.outAnimation,
     this.animationDuration = const Duration(milliseconds: 500),
-    this.navigationBarBackgroundColor = Colors.transparent,
+    this.navigationBarBackgroundColor,
     this.navigationBarPadding = 0,
     this.navigationBarBackButton,
     this.navigationBarCloseButton,
@@ -166,7 +168,7 @@ class GgNavigationPageRoot extends StatefulWidget {
 
   // ...........................................................................
   // The background color of the navigation bar
-  final Color navigationBarBackgroundColor;
+  final Color? navigationBarBackgroundColor;
 
   // The padding of the navigation bar
   final double navigationBarPadding;

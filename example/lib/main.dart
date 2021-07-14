@@ -161,7 +161,7 @@ class GgRouterExample extends StatelessWidget {
       outAnimation: _navigateOut(context),
 
       // Customize navigation bar style
-      navigationBarBackgroundColor: Color(0x0AFFFFFF),
+      navigationBarBackgroundColor: null,
       navigationBarPadding: 10,
 
       // Customize back button
@@ -180,6 +180,13 @@ class GgRouterExample extends StatelessWidget {
       pageContent: (ctx2) => Center(
         child: Column(
           children: [
+            Row(children: [
+              TextButton(
+                child: Text('Hello World'),
+                onPressed: () {},
+              ),
+              Spacer(),
+            ]),
             Spacer(),
             _checkBox(context),
             Container(

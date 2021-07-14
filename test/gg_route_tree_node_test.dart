@@ -637,6 +637,16 @@ main() {
     });
 
     // #########################################################################
+    group('nodeForPath(path)', () {
+      test('should return the node of path relativ to own node ', () {
+        init();
+        expect(root.nodeForPath('/child-a0'), childA0);
+        expect(childC.nodeForPath('../../../child-a0'), childA0);
+        expect(childA2Index.nodeForPath('..'), root);
+      });
+    });
+
+    // #########################################################################
     group('stagedChild', () {
       test('should return null, if no child is staged', () {
         init();
