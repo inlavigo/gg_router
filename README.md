@@ -15,7 +15,7 @@ wildcard routes, assign semantic labels to routes. With `GgNavigationPage` a pag
 based hierarchical navigation system is provided. And finally, it can backup
 and restore the complete route tree as JSON.
 
-## Demo
+## Demo Video
 
 Klick [here](https://www.youtube.com/watch?v=b9wYtl0eySU) to watch a YouTube
 demo of GgRouter.
@@ -24,35 +24,36 @@ demo of GgRouter.
 
 ## Content
 
-- [Demo](#demo)
-- [Initialize GgRouter](#initialize-ggrouter)
-- [Define routes](#define-routes)
-  - [Page routes](#page-routes)
-  - [Popover routes](#popover-routes)
-  - [Nested routes](#nested-routes)
-- [Handling fallbacks](#handling-fallbacks)
-  - [Index route](#index-route)
-  - [Default route](#default-route)
-  - [Wildcard routes](#wildcard-routes)
-- [Navigation](#navigation)
-  - [Navigate absolutely](#navigate-absolutely)
-  - [Navigate relatively](#navigate-relatively)
-  - [Navigate to last route](#navigate-to-last-route)
-  - [Navigation Bars](#navigation-bars)
-- [URI query params](#uri-query-params)
-  - [Define query params](#define-query-params)
-  - [Access query params](#access-query-params)
-- [Animations](#animations)
-  - [Animate route transitions](#animate-route-transitions)
-  - [Route specific animations](#route-specific-animations)
-- [Page Navigation](#page-navigation)
-- [More stuff](#more-stuff)
-  - [Save and restore route state](#save-and-restore-route-state)
-  - [Rebuild widget on route changes](#rebuild-widget-on-route-changes)
-  - [Add semantic labels to routes](#add-semantic-labels-to-routes)
-  - [Error handling](#error-handling)
-- [Example](#example)
-- [Features and bugs](#features-and-bugs)
+- [GgRouter - Easy Routing for Flutter](#ggrouter---easy-routing-for-flutter)
+  - [Demo Video](#demo-video)
+  - [Initialize GgRouter](#initialize-ggrouter)
+  - [Define routes](#define-routes)
+    - [Page routes](#page-routes)
+    - [Popover routes](#popover-routes)
+    - [Nested routes](#nested-routes)
+  - [Handling fallbacks](#handling-fallbacks)
+    - [Index route](#index-route)
+    - [Default route](#default-route)
+    - [Wildcard routes](#wildcard-routes)
+  - [Navigation](#navigation)
+    - [Navigate absolutely](#navigate-absolutely)
+    - [Navigate relatively](#navigate-relatively)
+    - [Navigate to last route](#navigate-to-last-route)
+    - [Navigation Bars](#navigation-bars)
+  - [URI query params](#uri-query-params)
+    - [Define query params](#define-query-params)
+    - [Access query params](#access-query-params)
+  - [Animations](#animations)
+    - [Animate route transitions](#animate-route-transitions)
+    - [Route specific animations](#route-specific-animations)
+  - [Page Navigation](#page-navigation)
+  - [More stuff](#more-stuff)
+    - [Save and restore route state](#save-and-restore-route-state)
+    - [Rebuild widget on route changes](#rebuild-widget-on-route-changes)
+    - [Add semantic labels to routes](#add-semantic-labels-to-routes)
+    - [Error handling](#error-handling)
+  - [Example](#example)
+  - [Features and bugs](#features-and-bugs)
 
 ## Initialize GgRouter
 

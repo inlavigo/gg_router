@@ -1,8 +1,9 @@
 # Change Log
 
-## 2.0.0+dev.6 - July 14th, 2021
+## 2.0.0+dev.8 - July 14th, 2021
 
 * Background color of `NavigationBar` can be null to allow clicks going widgets beghind
+* Added `parseJson(...)`
 
 ## 2.0.0+dev.5 - July 7th, 2021
 

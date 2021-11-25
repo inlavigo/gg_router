@@ -702,6 +702,14 @@ class GgRouteTreeNode {
   /// are not still existing in the route tree are safed in the right nodes for
   /// later use.
   set json(String json) {
+    parseJson(json: json, parseAllParamsDirectly: false);
+  }
+
+  // ...........................................................................
+  /// Reads the JSON string and creates routes and  parameters. Parameters that
+  /// are not still existing in the route tree are safed in the right nodes for
+  /// later use, but only if parseAllParamsDirectly is false.
+  parseJson({required String json, parseAllParamsDirectly = false}) {
     late Object object;
     try {
       object = jsonDecode(json);
@@ -710,7 +718,7 @@ class GgRouteTreeNode {
           id: 'GRC008475', message: 'Error while decoding JSON: $e');
     }
 
-    _parseJson(object);
+    _parseJson(object, parseAllParamsDirectly);
   }
 
   // ...........................................................................
@@ -1009,7 +1017,7 @@ class GgRouteTreeNode {
   // JSON handling
 
   // ...........................................................................
-  void _parseJson(Object json) {
+  void _parseJson(Object json, bool parseAllParamsDirectly) {
     if (json is Map) {
       final map = json as Map<String, dynamic>;
       map.forEach((key, value) {
@@ -1017,7 +1025,7 @@ class GgRouteTreeNode {
         // Read children.
         // If the value is a map, create a child.
         if (value is Map) {
-          findOrCreateChild(key)._parseJson(value);
+          findOrCreateChild(key)._parseJson(value, parseAllParamsDirectly);
         } else {
           // .................
           // Read staged child
@@ -1042,6 +1050,14 @@ class GgRouteTreeNode {
                 param(key)!.value = value;
               } else {
                 param(key)!.stringValue = value;
+              }
+            } else if (parseAllParamsDirectly) {
+              if (value is bool) {
+                findOrCreateParam<bool>(name: key, seed: value);
+              } else if (value is num) {
+                findOrCreateParam<num>(name: key, seed: value);
+              } else {
+                findOrCreateParam<String>(name: key, seed: value);
               }
             } else {
               uriParams[key] = value;

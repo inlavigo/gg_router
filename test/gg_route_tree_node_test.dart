@@ -1360,6 +1360,21 @@ main() {
         expect(root.param('unknownParam')?.value, 123);
       });
 
+      test('should directly parse json params if parseAllParamsDirectly = true',
+          () {
+        root.parseJson(
+            json: '{"unknownNum": 123}', parseAllParamsDirectly: true);
+        expect(root.param('unknownNum')?.value, 123);
+
+        root.parseJson(
+            json: '{"unknownBool": true}', parseAllParamsDirectly: true);
+        expect(root.param('unknownBool')?.value, true);
+
+        root.parseJson(
+            json: '{"unknownString": "string"}', parseAllParamsDirectly: true);
+        expect(root.param('unknownBool')?.value, 'string');
+      });
+
       test('should parse semantic label', () {
         root.json = '{"__semanticLabel": "Semantic Label"}';
         expect(root.semanticLabel, 'Semantic Label');
