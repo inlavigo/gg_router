@@ -1,6 +1,6 @@
 name: gg_router
 description: Create nested routes. Sync app state and browser URL. Navigate absolutely and relatively. Animate route transitions. Save and restore state. Manage URI query parameters.
-version: 2.0.0+dev.8
+version: 2.0.0+dev.9
 homepage: "https://github.com/inlavigo/gg_router"
 
 environment:
@@ -20,4 +20,4 @@ dev_dependencies:
     sdk: flutter
   fake_async: ^1.1.0
   pedantic: ^1.9.2
-  gg_easy_widget_test: ^1.0.0
+  gg_easy_widget_test: ^1.0.1

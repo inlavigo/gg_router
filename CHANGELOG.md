@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.0.0+dev.9 - December 21st, 2021
+
+* Fixed an issue in documentation
+
 ## 2.0.0+dev.8 - July 14th, 2021
 
 * Background color of `NavigationBar` can be null to allow clicks going widgets beghind

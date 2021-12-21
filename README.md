@@ -415,7 +415,7 @@ can use `GgRouter.of(context).setSemanticLabelForPath(path, label)`.
 
 If you open a URI in the browser that is not defined using `GgRouter(...)`, an
 error is thrown. To handle that error, assign an error handler to
-`GgRouter.of(context).errorHandler`.
+`GgRouter.of(context).node.errorHandler = (error){/* Handle Error**/}`.
 
 ## Example
 

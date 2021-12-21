@@ -5,7 +5,6 @@
 // found in the LICENSE file in the root of this repository.
 
 import 'package:flutter/material.dart';
-import 'package:gg_router/gg_router.dart';
 import 'package:gg_value/gg_value.dart';
 import 'gg_route_tree_node.dart';
 

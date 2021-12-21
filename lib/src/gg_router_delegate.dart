@@ -11,8 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
 import 'package:gg_router/gg_router.dart';
 
-import 'gg_route_tree_node.dart';
-
 /// This [RouterDelegate] applies changes of the route tree to the application's
 /// URI and applies the application's URI to the route tree. Assign an instance
 /// of this delegate to a [Router]'s or [MaterialApp]'s routerDelegate.

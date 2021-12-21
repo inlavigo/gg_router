@@ -1372,7 +1372,7 @@ main() {
 
         root.parseJson(
             json: '{"unknownString": "string"}', parseAllParamsDirectly: true);
-        expect(root.param('unknownBool')?.value, 'string');
+        expect(root.param('unknownString')?.value, 'string');
       });
 
       test('should parse semantic label', () {
