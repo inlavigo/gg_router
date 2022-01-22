@@ -7,7 +7,6 @@
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
 import 'package:gg_value/gg_value.dart';
-import 'gg_route_tree_node.dart';
 
 /// A callback GgRouter uses to animate appearing and disappearing widgets.
 /// - [animation] The ongoing animation.

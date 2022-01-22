@@ -5,7 +5,6 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
@@ -21,8 +20,11 @@ class TestRouteInformationProvider extends RouteInformationProvider
   }
 
   @override
-  void routerReportsNewRouteInformation(RouteInformation routeInformation) {
-    super.routerReportsNewRouteInformation(routeInformation);
+  void routerReportsNewRouteInformation(
+    RouteInformation routeInformation, {
+    required RouteInformationReportingType type,
+  }) {
+    super.routerReportsNewRouteInformation(routeInformation, type: type);
   }
 
   RouteInformation _routeInformation = RouteInformation();
