@@ -50,6 +50,7 @@ main() {
       if (elements.length > 0) {
         return GgEasyWidgetTest(finder, tester);
       }
+      return null;
     }
 
     // .........................................................................

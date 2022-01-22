@@ -14,6 +14,12 @@
 * Breaking changes:
   * Animation callbacks are provided with the size of the enclosing widget
 
+## 1.2.1 - January 22nd, 2022
+
+* Upgraded dependencies
+* Removed warnings
+* Works on Flutter 2.10
+
 ## 1.2.0 - June 29th, 2021
 
 * Introduced `GgRouteChangeBuilder`

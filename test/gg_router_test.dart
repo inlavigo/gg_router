@@ -20,8 +20,10 @@ class TestRouteInformationProvider extends RouteInformationProvider
   }
 
   @override
-  void routerReportsNewRouteInformation(RouteInformation routeInformation,
-      {required RouteInformationReportingType type}) {
+  void routerReportsNewRouteInformation(
+    RouteInformation routeInformation, {
+    required RouteInformationReportingType type,
+  }) {
     super.routerReportsNewRouteInformation(routeInformation, type: type);
   }
 
