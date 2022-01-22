@@ -158,7 +158,8 @@ class _GgPopoverRouteState extends State<GgPopoverRoute>
       _popOver = (BuildContext context) => AnimatedBuilder(
             animation: _animation,
             builder: (context, child) {
-              return animationCallback(context, _animation, content(context));
+              return animationCallback(context, _animation, content(context),
+                  Size(0, 0)); //Todo: Estimate size using layout builder
             },
           );
 

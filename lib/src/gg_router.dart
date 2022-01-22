@@ -5,18 +5,32 @@
 // found in the LICENSE file in the root of this repository.
 
 import 'package:flutter/material.dart';
-import 'package:gg_router/gg_router.dart';
 import 'package:gg_value/gg_value.dart';
 import 'gg_route_tree_node.dart';
 
+// #############################################################################
 /// A callback GgRouter uses to animate appearing and disappearing widgets.
 /// - [animation] The ongoing animation.
 /// - [child] The child to appear or disappear.
+/// - [size] The size of the enclosing widget.
 typedef GgAnimationBuilder = Widget Function(
-  BuildContext context,
-  Animation animation,
-  Widget child,
-);
+    BuildContext context, Animation animation, Widget child, Size size);
+
+// #############################################################################
+/// During animation, wrap widgets into GgShowInForeground to have a widget
+/// shown on the top
+class GgShowInForeground extends StatelessWidget {
+  const GgShowInForeground({Key? key, required this.child}) : super(key: key);
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: child,
+    );
+  }
+}
 
 // #############################################################################
 class GgRouterCore extends StatelessWidget {
@@ -178,6 +192,27 @@ class GgRouter extends StatefulWidget {
         super(key: key);
 
   // ...........................................................................
+  /// Copies a router object and allows to replace single properties.
+  GgRouter.from(
+    GgRouter other, {
+    Key? key,
+    Map<String, String>? semanticLabels,
+    String? defaultRoute,
+    Map<String, Widget Function(BuildContext)>? children,
+    GgAnimationBuilder? inAnimation,
+    GgAnimationBuilder? outAnimation,
+    Duration? animationDuration,
+  })  : children = children ?? other.children,
+        semanticLabels = semanticLabels ?? other.semanticLabels,
+        defaultRoute = defaultRoute ?? other.defaultRoute,
+        inAnimation = inAnimation ?? other.inAnimation,
+        outAnimation = outAnimation ?? other.outAnimation,
+        animationDuration = animationDuration ?? other.animationDuration,
+        _rootChild = other._rootChild,
+        _rootNode = other._rootNode,
+        super(key: key ?? other.key);
+
+  // ...........................................................................
   /// The duration for route transitions.
   final Duration animationDuration;
 
@@ -223,6 +258,7 @@ class GgRouter extends StatefulWidget {
     if (rootRouter) {
       final rootRouterState =
           context.findRootAncestorStateOfType<GgRouterState>()!;
+
       core = rootRouterState.rootRouterCore;
     }
 
@@ -509,53 +545,81 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
   // ...........................................................................
   Widget _animate() {
-    // .....................................
-    // Show the widget belonging to the node
-    final childToFadeIn = _content(_nodeToBeFadedIn);
-    final childToFadeOut = _content(_nodeToBeFadedOut);
+    return LayoutBuilder(builder: (context, layout) {
+      final size = Size(layout.maxWidth, layout.maxHeight);
 
-    final stayingWidget = childToFadeIn != null
-        ? null
-        : (BuildContext context) => GgRouterCore(
-              child: Builder(
-                  builder: (context) =>
-                      widget.children[_stagedNode!.name]?.call(context) ??
-                      Container()),
-              node: _stagedNode!,
-            );
+      // .....................................
+      // Show the widget belonging to the node
+      final childToFadeIn = _content(_nodeToBeFadedIn);
+      final childToFadeOut = _content(_nodeToBeFadedOut);
 
-    final inWidget = childToFadeIn == null
-        ? null
-        : () => widget.inAnimation!.call(
-              context,
-              _animation,
-              GgRouterCore(
-                child: Builder(builder: (context) => childToFadeIn(context)),
-                node: _nodeToBeFadedIn!,
-              ),
-            );
+      final stayingWidget = childToFadeIn != null
+          ? null
+          : (BuildContext context) => GgRouterCore(
+                child: Builder(
+                    builder: (context) =>
+                        widget.children[_stagedNode!.name]?.call(context) ??
+                        Container()),
+                node: _stagedNode!,
+              );
 
-    final outWidget = childToFadeOut == null
-        ? null
-        : () => widget.outAnimation!.call(
-              context,
-              _animation,
-              GgRouterCore(
-                child: Builder(builder: (context) => childToFadeOut(context)),
-                node: _nodeToBeFadedOut!,
-              ),
-            );
+      final inWidget = childToFadeIn == null
+          ? null
+          : () => widget.inAnimation!.call(
+                context,
+                _animation,
+                GgRouterCore(
+                  child: Builder(builder: (context) => childToFadeIn(context)),
+                  node: _nodeToBeFadedIn!,
+                ),
+                size,
+              );
 
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, widget) {
-        return Stack(children: [
-          if (outWidget != null) outWidget(),
-          if (inWidget != null) inWidget(),
-          if (stayingWidget != null) stayingWidget(context),
-        ]);
-      },
-    );
+      final outWidget = childToFadeOut == null
+          ? null
+          : () => widget.outAnimation!.call(
+                context,
+                _animation,
+                GgRouterCore(
+                  child: Builder(builder: (context) => childToFadeOut(context)),
+                  node: _nodeToBeFadedOut!,
+                ),
+                size,
+              );
+
+      return AnimatedBuilder(
+        animation: _animation,
+        builder: (context, widget) {
+          // By default outWidget is shown in the background
+          // In widget is shown in the foreground
+          final stack = [
+            if (outWidget != null) outWidget(),
+            if (inWidget != null) inWidget(),
+            if (stayingWidget != null) stayingWidget(context),
+          ];
+
+          // But if a widget is wrapped into GgShowInForeground
+          // the widget is always put to foreground
+          stack.sort((a, b) {
+            final showAOnTop = a is GgShowInForeground;
+            final showBOnTop = b is GgShowInForeground;
+
+            if (showAOnTop == showBOnTop) {
+              return 0;
+            } else if (showAOnTop) {
+              return 1;
+            } else {
+              return -1;
+            }
+          });
+
+          return ClipRect(
+            clipBehavior: Clip.hardEdge,
+            child: Stack(children: stack),
+          );
+        },
+      );
+    });
   }
 
   // ...........................................................................

@@ -6,7 +6,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter/widgets.dart';
 import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
 
@@ -33,7 +32,7 @@ main() {
         name: 'popover',
         base: base,
         popover: (_) => popover,
-        inAnimation: (context, animation, child) => Stack(
+        inAnimation: (context, animation, child, size) => Stack(
           children: [
             Text(
               '${animation.value}',
@@ -42,7 +41,7 @@ main() {
             child
           ],
         ),
-        outAnimation: (context, animation, child) => Stack(
+        outAnimation: (context, animation, child, size) => Stack(
           children: [
             Text(
               '${animation.value}',

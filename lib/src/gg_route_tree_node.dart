@@ -9,7 +9,6 @@ import 'dart:convert';
 import 'package:gg_value/gg_value.dart';
 import 'package:flutter/foundation.dart';
 import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
-import 'dart:async' show Stream;
 
 // #############################################################################
 /// An error that is reported when a URI cannot be assigned to a route path
@@ -346,7 +345,8 @@ class GgRouteTreeNode {
   /// - `..` addresses parent node
   /// - '_LAST_' - addresses child that was last staged or the defaultChild
   GgRouteTreeNode descendants({required List<String> path}) {
-    var result = this;
+    var result = (this.isIndexChild ? this.parent : this)!;
+
     path.forEach((element) {
       if (element == '.' || element == '') {
         result = result;
@@ -380,6 +380,11 @@ class GgRouteTreeNode {
       node = node.parent;
     }
     return result;
+  }
+
+  // ...........................................................................
+  GgRouteTreeNode nodeForPath(String path) {
+    return _startElement(path).descendants(path: path.split('/'));
   }
 
   // ######################
@@ -564,7 +569,10 @@ class GgRouteTreeNode {
   /// - `..` addresses parent node
   /// - `.` addresses node itself
   set stagedChildPathSegments(List<String> path) {
-    final node = descendants(path: path);
+    var node = descendants(path: path);
+    if (node.hasChild(name: '_INDEX_')) {
+      node = node.child('_INDEX_')!;
+    }
 
     final nodesFromRoot = node.ancestors.reversed;
 
@@ -602,7 +610,14 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  String get stagedChildPath => stagedChildPathSegments.join('/');
+  String get stagedChildPath {
+    final result = stagedChildPathSegments;
+    if (result.isNotEmpty && result.last == '_INDEX_') {
+      result.remove('_INDEX_');
+    }
+
+    return result.join('/');
+  }
 
   // ...........................................................................
   /// Activates the path in the node hierarchy.
@@ -686,6 +701,14 @@ class GgRouteTreeNode {
   /// are not still existing in the route tree are safed in the right nodes for
   /// later use.
   set json(String json) {
+    parseJson(json: json, parseAllParamsDirectly: false);
+  }
+
+  // ...........................................................................
+  /// Reads the JSON string and creates routes and  parameters. Parameters that
+  /// are not still existing in the route tree are safed in the right nodes for
+  /// later use, but only if parseAllParamsDirectly is false.
+  parseJson({required String json, parseAllParamsDirectly = false}) {
     late Object object;
     try {
       object = jsonDecode(json);
@@ -694,7 +717,7 @@ class GgRouteTreeNode {
           id: 'GRC008475', message: 'Error while decoding JSON: $e');
     }
 
-    _parseJson(object);
+    _parseJson(object, parseAllParamsDirectly);
   }
 
   // ...........................................................................
@@ -723,13 +746,13 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   String semanticLabelForPath(String path) {
-    final node = _nodeForPath(path);
+    final node = nodeForPath(path);
     return node.semanticLabel;
   }
 
   // ...........................................................................
   setSemanticLabelForPath({required String path, required String label}) {
-    final node = _nodeForPath(path);
+    final node = nodeForPath(path);
     node.semanticLabel = label;
   }
 
@@ -973,14 +996,15 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  GgRouteTreeNode _nodeForPath(String path) {
-    return _startElement(path).descendants(path: path.split('/'));
-  }
-
-  // ...........................................................................
   _navigateTo(String path) {
     final pathComponents = path.split('/');
-    _startElement(path).stagedChildPathSegments = pathComponents;
+
+    // route/_INDEX_ is treated as route/ when navigating
+    if (this.isIndexChild) {
+      parent!._navigateTo(path);
+    } else {
+      _startElement(path).stagedChildPathSegments = pathComponents;
+    }
   }
 
   // ##############
@@ -992,7 +1016,7 @@ class GgRouteTreeNode {
   // JSON handling
 
   // ...........................................................................
-  void _parseJson(Object json) {
+  void _parseJson(Object json, bool parseAllParamsDirectly) {
     if (json is Map) {
       final map = json as Map<String, dynamic>;
       map.forEach((key, value) {
@@ -1000,7 +1024,7 @@ class GgRouteTreeNode {
         // Read children.
         // If the value is a map, create a child.
         if (value is Map) {
-          findOrCreateChild(key)._parseJson(value);
+          findOrCreateChild(key)._parseJson(value, parseAllParamsDirectly);
         } else {
           // .................
           // Read staged child
@@ -1025,6 +1049,14 @@ class GgRouteTreeNode {
                 param(key)!.value = value;
               } else {
                 param(key)!.stringValue = value;
+              }
+            } else if (parseAllParamsDirectly) {
+              if (value is bool) {
+                findOrCreateParam<bool>(name: key, seed: value);
+              } else if (value is num) {
+                findOrCreateParam<num>(name: key, seed: value);
+              } else {
+                findOrCreateParam<String>(name: key, seed: value);
               }
             } else {
               uriParams[key] = value;

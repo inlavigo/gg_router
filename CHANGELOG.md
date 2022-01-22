@@ -1,5 +1,29 @@
 # Change Log
 
+## 2.0.0+dev.9 - December 21st, 2021
+
+* Fixed an issue in documentation
+
+## 2.0.0+dev.8 - July 14th, 2021
+
+* Background color of `NavigationBar` can be null to allow clicks going widgets beghind
+* Added `parseJson(...)`
+
+## 2.0.0+dev.5 - July 7th, 2021
+
+* Added `typedef GgNavigationPageBuilder`
+* Simplified widget structure
+
+## 2.0.0+dev.1 - June 30th, 2021
+
+* Use  `GgShowInForeground` to define which widgets should be shown in the
+  foreground: a) the widget animated in or b) the widget animated out.
+* Added `GgNavigationPage` to create deeply nested navigation pages similar
+  to `CupertinoPageScaffold` and `CupertinoNavigationBar`.
+
+* Breaking changes:
+  * Animation callbacks are provided with the size of the enclosing widget
+
 ## 1.2.0 - June 29th, 2021
 
 * Introduced `GgRouteChangeBuilder`

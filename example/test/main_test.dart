@@ -6,7 +6,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter/widgets.dart';
 import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
 import 'package:gg_router_example/main.dart';
@@ -384,7 +383,7 @@ main() {
       // Finally let's close the dialog
       // => dialog is removed from the URI
       final dialogCloseButton = GgEasyWidgetTest(
-        find.byKey(ValueKey('dialogCloseButton')),
+        find.byKey(ValueKey('GgNavigationPageCloseButton')),
         tester,
       );
       await dialogCloseButton.press();
@@ -393,6 +392,72 @@ main() {
       expect(currentUri, 'sports/basketball?visit=false');
 
       await tearDown(tester);
+    });
+
+    testWidgets(
+        'when clicking on basket ball page, a dialog should open. '
+        'Clicking on "Details" should open a detail page. '
+        'Clicking on "Even more Details" should open another detail page. '
+        'Clicking on the "back button" should navigate to the previous page. '
+        'Clicking on the "close button" should close the dialog. ',
+        (WidgetTester tester) async {
+      await setUp(tester);
+
+      // ................
+      // Open the popover
+      routerDelegate.root.navigateTo('/sports/basketball/popover');
+      await tester.pumpAndSettle();
+      expect(routerDelegate.root.stagedChildPath, 'sports/basketball/popover');
+
+      // ..................
+      // Click on "Details"
+      final detailsButtonFinder = find.byKey(ValueKey('Details Button'));
+      expect(detailsButtonFinder, findsOneWidget);
+      var gesture = await tester.press(detailsButtonFinder);
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      // Check if the details page was opened
+      expect(routerDelegate.root.stagedChildPath,
+          'sports/basketball/popover/details');
+
+      // .......................
+      // Click on "More details"
+      final moreDetailsButtonFinder =
+          find.byKey(ValueKey('More Details Button'));
+      expect(moreDetailsButtonFinder, findsOneWidget);
+      gesture = await tester.press(moreDetailsButtonFinder);
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      // Check if the details page was opened
+      expect(routerDelegate.root.stagedChildPath,
+          'sports/basketball/popover/details/more-details');
+
+      // ........................
+      // Click on the back button
+      final dialogBackButton = GgEasyWidgetTest(
+        find.byKey(ValueKey('GgNavigationPageBackButton')),
+        tester,
+      );
+      await dialogBackButton.press();
+      await tester.pumpAndSettle();
+
+      // Check if we have navigated back
+      expect(routerDelegate.root.stagedChildPath,
+          'sports/basketball/popover/details');
+
+      // ..............................
+      // Finally let's close the dialog
+      // => dialog is removed from the URI
+      final dialogCloseButton = GgEasyWidgetTest(
+        find.byKey(ValueKey('GgNavigationPageCloseButton')),
+        tester,
+      );
+      await dialogCloseButton.press();
+      await tester.pumpAndSettle();
+      update(tester);
+      expect(currentUri, 'sports/basketball?visit=false');
     });
 
     // .........................................................................

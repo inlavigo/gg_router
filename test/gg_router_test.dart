@@ -5,7 +5,6 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
@@ -21,8 +20,9 @@ class TestRouteInformationProvider extends RouteInformationProvider
   }
 
   @override
-  void routerReportsNewRouteInformation(RouteInformation routeInformation) {
-    super.routerReportsNewRouteInformation(routeInformation);
+  void routerReportsNewRouteInformation(RouteInformation routeInformation,
+      {required RouteInformationReportingType type}) {
+    super.routerReportsNewRouteInformation(routeInformation, type: type);
   }
 
   RouteInformation _routeInformation = RouteInformation();
@@ -556,6 +556,57 @@ main() {
     });
 
     // #########################################################################
+    group('GgRouter.from', () {
+      final other = GgRouter(
+        {},
+        key: GlobalKey(),
+        animationDuration: Duration(),
+        defaultRoute: 'default',
+        inAnimation: (c, a, child, size) => Container(),
+        outAnimation: (c, a, child, size) => Container(),
+        semanticLabels: {},
+      );
+
+      test('should a copy of the router by default', () {
+        final copy = GgRouter.from(other);
+        expect(other.animationDuration, copy.animationDuration);
+        expect(other.children, copy.children);
+        expect(other.defaultRoute, copy.defaultRoute);
+        expect(other.inAnimation, copy.inAnimation);
+        expect(other.outAnimation, copy.outAnimation);
+        expect(other.semanticLabels, copy.semanticLabels);
+        expect(other.key, copy.key);
+      });
+
+      test('should allow to overwrite properties', () {
+        final newKey = GlobalKey();
+        final newChildren = {'x': (_) => Container()};
+        final newAnimationDuration = Duration();
+        final newDefaultRoute = 'other';
+        final newInAnimation = (c, a, child, size) => Container();
+        final newOutAnimation = (c, a, child, size) => Container();
+        final newSemanticLabels = {'a': 'bla bla'};
+
+        final copy = GgRouter.from(
+          other,
+          key: newKey,
+          children: newChildren,
+          animationDuration: newAnimationDuration,
+          defaultRoute: newDefaultRoute,
+          inAnimation: newInAnimation,
+          outAnimation: newOutAnimation,
+          semanticLabels: newSemanticLabels,
+        );
+        expect(copy.animationDuration, newAnimationDuration);
+        expect(copy.children, newChildren);
+        expect(copy.defaultRoute, copy.defaultRoute);
+        expect(copy.inAnimation, copy.inAnimation);
+        expect(copy.outAnimation, copy.outAnimation);
+        expect(copy.semanticLabels, copy.semanticLabels);
+      });
+    });
+
+    // #########################################################################
     group('Default children', () {
       // .......................................................................
       testWidgets(
@@ -732,7 +783,7 @@ main() {
 
           // Wrap animated widgets into a stack showing a text with the
           // animation value
-          inAnimation: (context, animation, child) {
+          inAnimation: (context, animation, child, size) {
             updateAnimationDetails(context);
             return Stack(
               children: [
@@ -744,7 +795,7 @@ main() {
               ],
             );
           },
-          outAnimation: (context, animation, child) {
+          outAnimation: (context, animation, child, size) {
             updateAnimationDetails(context);
             return Stack(
               children: [
@@ -813,6 +864,134 @@ main() {
         await tester.pump(Duration(milliseconds: 1001));
         expect(find.byKey(routeAKey), findsNothing);
         expect(find.byKey(routeBKey), findsOneWidget);
+
+        // Finish everything
+        await tester.pumpAndSettle();
+      });
+
+      testWidgets(
+          'should animate widgets wrapped into "GgShowInForeground" in '
+          'front of other widgets', (tester) async {
+        // .........................................
+        // While animating switch GgShowInForeground
+
+        final routeOutKey = Key('routeOut');
+        final routeInKey = Key('routeIn');
+
+        // .........................................
+        // Create an animation deciding if routeA and/or routeB should be shown
+        // in front of the other
+        bool showOutRouteOnTheTopWhileAnimating = false;
+        bool showInRouteOnTheTopWhileAnimating = false;
+
+        final GgAnimationBuilder animation = (context, animation, child, size) {
+          final c = child as GgRouterCore;
+          expect(size.width, 800);
+          expect(size.height, 600);
+
+          return (c.routeName == 'routeOut' &&
+                      showOutRouteOnTheTopWhileAnimating) ||
+                  (c.routeName == 'routeIn' &&
+                      showInRouteOnTheTopWhileAnimating)
+              ? GgShowInForeground(child: child)
+              : child;
+        };
+
+        // .........................................
+        // Check if widget wrapped into "GgShowInForeground" is shown infront
+        // of the other widget
+
+        // ................................
+        // Create a route with two siblings
+        final router = GgRouter(
+          {
+            'routeOut': (context) => Container(key: routeOutKey),
+            'routeIn': (context) => Container(key: routeInKey),
+          },
+          key: ValueKey('mainRouter'),
+
+          // While animating wrap animated child into "GgShowInForeground"
+          // if the corresponding flag is set
+          inAnimation: animation,
+          outAnimation: animation,
+          animationDuration: Duration(milliseconds: 1000),
+        );
+
+        // ........................
+        // Create a router delegate
+        final routerDelegate = GgRouterDelegate(child: router);
+        final root = routerDelegate.root;
+        root.findOrCreateChild('routeOut').navigateTo('.');
+
+        // .............
+        // Create an app
+        await tester.pumpWidget(
+          MaterialApp.router(
+            routeInformationParser: GgRouteInformationParser(),
+            routerDelegate: routerDelegate,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // ......................................
+        // At the beginning routeA should be shown
+        expect(find.byKey(routeOutKey), findsOneWidget);
+        expect(find.byKey(routeInKey), findsNothing);
+
+        // .........................................................
+        // Which widget is shown background and which in foreground?
+        late Finder stackFinder;
+        late Stack stackWidget;
+        late GgRouterCore widgetInForeground;
+        late GgRouterCore widgetInBackground;
+
+        final update = () {
+          stackFinder = find.byType(Stack);
+          expect(stackFinder, findsOneWidget);
+          stackWidget = tester.widget(stackFinder);
+          expect(stackWidget.children.length, 2);
+
+          final last = stackWidget.children.last;
+          final first = stackWidget.children.first;
+
+          widgetInForeground = (last is GgShowInForeground)
+              ? last.child as GgRouterCore
+              : last as GgRouterCore;
+
+          widgetInBackground = (first is GgShowInForeground)
+              ? first.child as GgRouterCore
+              : first as GgRouterCore;
+        };
+
+        // ..........................
+        // Now let's switch to routeIn
+        root.findOrCreateChild('routeIn').navigateTo('.');
+        await tester.pump(Duration(microseconds: 0));
+        update();
+
+        // By default the widget animating in is shown in the foreground
+        expect(widgetInForeground.routeName, 'routeIn');
+        expect(widgetInBackground.routeName, 'routeOut');
+
+        // ........................................
+        // Now let's put routeOut to the foreground
+        showOutRouteOnTheTopWhileAnimating = true;
+        await tester.pump(Duration(microseconds: 100));
+        update();
+
+        expect(widgetInForeground.routeName, 'routeOut');
+        expect(widgetInBackground.routeName, 'routeIn');
+
+        // ........................................
+        // Now let's put routeIn to the foreground
+        showOutRouteOnTheTopWhileAnimating = false;
+        showInRouteOnTheTopWhileAnimating = true;
+
+        await tester.pump(Duration(microseconds: 100));
+        update();
+
+        expect(widgetInForeground.routeName, 'routeIn');
+        expect(widgetInBackground.routeName, 'routeOut');
 
         // Finish everything
         await tester.pumpAndSettle();
