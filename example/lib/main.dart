@@ -176,63 +176,64 @@ class GgRouterExample extends StatelessWidget {
         size: 18.0,
       ),
 
-      // Setup page content
-      pageContent: (ctx2) => Center(
-        child: Column(
-          children: [
-            Row(children: [
-              TextButton(
-                child: Text('Hello World'),
-                onPressed: () {},
-              ),
-              Spacer(),
-            ]),
-            Spacer(),
-            _checkBox(context),
-            Container(
-              height: 30,
-            ),
-            TextButton(
-              key: ValueKey('Details Button'),
-              onPressed: () => GgRouter.of(ctx2).navigateTo('details'),
-              child: Text('Details'),
-            ),
-            Spacer(),
-          ],
-        ),
-      ),
-      children: {
-        'details': GgNavigationPage(
-          pageContent: (ctx3) => Container(
-            color: Color(0xFF555555),
-            child: Center(
-                child: TextButton(
-                    key: ValueKey('More Details Button'),
-                    onPressed: () {
-                      GgRouter.of(ctx3).navigateTo('more-details');
-                    },
-                    child: Text('More details'))),
-          ),
-          children: {
-            'more-details': GgNavigationPage(
-              pageContent: (_) => Container(
-                color: Color(0xFF666666),
-                child: Center(
-                  child: Text('More details'),
-                ),
-              ),
-            )
-          },
-          semanticLabels: {
-            'more-details': 'More Details',
-          },
-        )
-      },
-      semanticLabels: {
-        'details': 'Details',
-      },
+      child: _navigationPage(context),
     );
   }
+
+  GgNavigationPage _navigationPage(BuildContext context) => GgNavigationPage(
+        // Setup page content
+        showBackButton: false,
+        pageContent: (ctx2) => Center(
+          child: Column(
+            children: [
+              Row(children: [
+                Spacer(),
+              ]),
+              Spacer(),
+              _checkBox(context),
+              Container(
+                height: 30,
+              ),
+              TextButton(
+                key: ValueKey('Details Button'),
+                onPressed: () => GgRouter.of(ctx2).navigateTo('details'),
+                child: Text('Details'),
+              ),
+              Spacer(),
+            ],
+          ),
+        ),
+        children: {
+          'details': GgNavigationPage(
+            pageContent: (ctx3) => Container(
+              color: Color(0xFF555555),
+              child: Center(
+                  child: TextButton(
+                      key: ValueKey('More Details Button'),
+                      onPressed: () {
+                        GgRouter.of(ctx3).navigateTo('more-details');
+                      },
+                      child: Text('More details'))),
+            ),
+            children: {
+              'more-details': GgNavigationPage(
+                pageContent: (_) => Container(
+                  color: Color(0xFF666666),
+                  child: Center(
+                    child: Text('More details'),
+                  ),
+                ),
+              )
+            },
+            semanticLabels: {
+              'more-details': 'More Details',
+            },
+          )
+        },
+        semanticLabels: {
+          'details': 'Details',
+        },
+      );
 
   // ...........................................................................
   Widget _dialog(BuildContext context) {

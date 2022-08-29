@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.0.0-dev.2 - August, 29th
+
+* Breaking change: `GgNavigationPageRoot` takes a `GgNavigationPage` instead of `pageContent`, `children` and `semanticLabels`.
+* Hand these parameters over to `GgNavigationPage` constructor.
+* Use `showBackButton` constructor parameter of `GgNavigation` to show or hide back button.
+
 ## 2.0.0 - January 22nd, 2022
 
 * Background color of `NavigationBar` can be null to allow clicks going widgets behind
@@ -10,7 +16,6 @@
   foreground: a) the widget animated in or b) the widget animated out.
 * Added `GgNavigationPage` to create deeply nested navigation pages similar
   to `CupertinoPageScaffold` and `CupertinoNavigationBar`.
-
 * Breaking changes:
   * Animation callbacks are provided with the size of the enclosing widget
 

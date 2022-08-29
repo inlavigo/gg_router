@@ -19,19 +19,8 @@ class GgNavigationPage extends StatefulWidget {
     required this.pageContent,
     this.children,
     this.semanticLabels = const {},
-  })  : _isRoot = false,
-        super(key: key) {
-    _checkChildren(children);
-  }
-
-  // ...........................................................................
-  GgNavigationPage._withRoot(
-      {Key? key,
-      required this.pageContent,
-      this.children,
-      this.semanticLabels = const {}})
-      : _isRoot = true,
-        super(key: key) {
+    this.showBackButton = true,
+  }) : super(key: key) {
     _checkChildren(children);
   }
 
@@ -43,6 +32,9 @@ class GgNavigationPage extends StatefulWidget {
 
   /// The semantic labels for each route
   final Map<String, String> semanticLabels;
+
+  /// Show back button
+  final showBackButton;
 
   // ...........................................................................
   static _checkChildren(Map<String, GgNavigationPage>? children) {
@@ -67,10 +59,6 @@ class GgNavigationPage extends StatefulWidget {
   static const noNavigationPageRootFound =
       'No ancestor of type GgNavigationPageRoot found. Please make sure to '
       'wrap your GgNavigationPage instance into a GgNavigationPageRoot instance';
-
-  // ...........................................................................
-  // Is written by GgNavigationPageRoot
-  final bool _isRoot;
 }
 
 // #############################################################################
@@ -109,9 +97,6 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
   }
 
   // ...........................................................................
-  bool get isRoot => widget._isRoot;
-
-  // ...........................................................................
   _indexPage(BuildContext context) {
     final content = widget.pageContent(context);
     if (content is GgNavigationPage) {
@@ -119,7 +104,7 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
     }
     final result = (_) => GgPageWithNavBar(
           content: content,
-          showBackButton: !isRoot,
+          showBackButton: widget.showBackButton,
         );
 
     return result;
@@ -144,9 +129,7 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
 class GgNavigationPageRoot extends StatefulWidget {
   GgNavigationPageRoot({
     Key? key,
-    required Widget Function(BuildContext) pageContent,
-    Map<String, GgNavigationPage>? children,
-    Map<String, String> semanticLabels = const {},
+    required this.child,
     this.inAnimation,
     this.outAnimation,
     this.animationDuration = const Duration(milliseconds: 500),
@@ -155,13 +138,9 @@ class GgNavigationPageRoot extends StatefulWidget {
     this.navigationBarBackButton,
     this.navigationBarCloseButton,
     this.navigationBarTitle,
-  })  : navigationPage = GgNavigationPage._withRoot(
-            pageContent: pageContent,
-            children: children,
-            semanticLabels: semanticLabels),
-        super(key: key);
+  });
 
-  final GgNavigationPage navigationPage;
+  final Widget child;
 
   @override
   GgNavigationPageRootState createState() => GgNavigationPageRootState();
@@ -200,7 +179,7 @@ class GgNavigationPageRoot extends StatefulWidget {
 
 class GgNavigationPageRootState extends State<GgNavigationPageRoot> {
   @override
-  Widget build(BuildContext context) => widget.navigationPage;
+  Widget build(BuildContext context) => widget.child;
 }
 
 // #############################################################################

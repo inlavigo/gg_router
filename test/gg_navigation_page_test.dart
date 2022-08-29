@@ -15,6 +15,7 @@ main() {
     // .........................................................................
     GgNavigationPage _otherNavigationPage() {
       final result = GgNavigationPage(
+        showBackButton: false,
         pageContent: (_) => Container(),
       );
 
@@ -27,7 +28,9 @@ main() {
         (WidgetTester tester) async {
       // Create a navigation page using that router
       final navPage = GgNavigationPageRoot(
-        pageContent: (_) => _otherNavigationPage(),
+        child: GgNavigationPage(
+          pageContent: (_) => _otherNavigationPage(),
+        ),
       );
 
       // An error should be thrown complaining about index child being
@@ -61,7 +64,9 @@ main() {
         (WidgetTester tester) async {
       // Create a navigation page using that router
       final navPage = GgNavigationPageRoot(
-        pageContent: (_) => Container(),
+        child: GgNavigationPage(
+          pageContent: (_) => Container(),
+        ),
       );
 
       // Expect the container to be decorated with a navigation bar
@@ -109,15 +114,17 @@ main() {
           child: GgRouter.root(
             node: rootNode,
             child: GgNavigationPageRoot(
-              pageContent: (_) => Container(),
+              child: GgNavigationPage(
+                pageContent: (_) => Container(),
+                children: {
+                  'childA': GgNavigationPage(
+                    pageContent: (_) => Container(key: contentKey),
+                  )
+                },
+              ),
               animationDuration: animationDuration,
               inAnimation: inAnimation,
               outAnimation: outAnimation,
-              children: {
-                'childA': GgNavigationPage(
-                  pageContent: (_) => Container(key: contentKey),
-                )
-              },
             ),
           ),
         ),
@@ -159,8 +166,11 @@ main() {
           child: GgRouter(
             {
               'child0': (_) => GgNavigationPageRoot(
-                    pageContent: (_) => Container(),
-                    children: {},
+                    child: GgNavigationPage(
+                      pageContent: (_) => Container(),
+                      children: {},
+                      showBackButton: false,
+                    ),
                     key: GlobalKey(),
                   ),
             },
@@ -205,7 +215,10 @@ main() {
           child: GgRouter(
             {
               'rootPage': (_) => GgNavigationPageRoot(
-                    pageContent: (_) => Container(),
+                    child: GgNavigationPage(
+                      pageContent: (_) => Container(),
+                      showBackButton: false,
+                    ),
                     key: GlobalKey(),
                     navigationBarBackButton: (_) => customizedBackButton,
                     navigationBarCloseButton: (_) => customizedCloseButton,
@@ -244,12 +257,14 @@ main() {
           child: GgRouter(
             {
               'child': (_) => GgNavigationPageRoot(
-                    pageContent: (_) => Container(),
-                    children: {
-                      'grandchild': GgNavigationPage(
-                        pageContent: (_) => Container(),
-                      )
-                    },
+                    child: GgNavigationPage(
+                      pageContent: (_) => Container(),
+                      children: {
+                        'grandchild': GgNavigationPage(
+                          pageContent: (_) => Container(),
+                        )
+                      },
+                    ),
                     key: GlobalKey(),
                     navigationBarBackButton: (_) => customizedBackButton,
                     navigationBarCloseButton: (_) => customizedCloseButton,
