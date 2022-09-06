@@ -362,11 +362,8 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // Get the responsible parent node
     final parentNode = GgRouter.of(context).node;
 
-    // ...............................
-    // For each child route, create a node
-    _createChildNodes(parentNode);
-    _setupDefaultChild(parentNode);
-    _setupSemanticLabels(parentNode);
+    // Update route tree
+    _updateTree(parentNode);
 
     // ........................
     // Observe the visible child
@@ -633,6 +630,13 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     _animation.addStatusListener(listner);
     _dispose.add(() => _animation.removeStatusListener(listner));
     _dispose.add(_animation.dispose);
+  }
+
+  // ...........................................................................
+  _updateTree(GgRouteTreeNode parentNode) {
+    _createChildNodes(parentNode);
+    _setupDefaultChild(parentNode);
+    _setupSemanticLabels(parentNode);
   }
 
   // ...........................................................................

@@ -28,7 +28,7 @@ class GgNavigationPage extends StatefulWidget {
   final Widget Function(BuildContext) pageContent;
 
   /// The children of the page. Must bee pages also
-  final Map<String, GgNavigationPage>? children;
+  final Map<String, Widget>? children;
 
   /// The semantic labels for each route
   final Map<String, String> semanticLabels;
@@ -37,7 +37,7 @@ class GgNavigationPage extends StatefulWidget {
   final showBackButton;
 
   // ...........................................................................
-  static _checkChildren(Map<String, GgNavigationPage>? children) {
+  static _checkChildren(Map<String, Widget>? children) {
     if (children != null && children.containsKey('_INDEX')) {
       throw ArgumentError(indexWidgetMustNotBeANavigationPage);
     }

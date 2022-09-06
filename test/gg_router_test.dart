@@ -556,6 +556,96 @@ main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets(
+      'should update tree when children or semantic labels change',
+      (tester) async {
+        // ..................................
+        // Create a GgRouter with a given key
+        // and a given set of routes and semantic labels.
+        final key = GlobalKey();
+
+        final routes = GgValue<Map<String, WidgetBuilder>>(
+          seed: {
+            '_INDEX_': (_) => SizedBox(),
+            'a': (_) => SizedBox(),
+            'b': (_) => SizedBox(),
+            'c': (_) => SizedBox(),
+          },
+        );
+
+        final semanticLabels = GgValue<Map<String, String>>(
+          seed: {
+            'a': 'Route A',
+            'b': 'Route B',
+            'c': 'Route C',
+          },
+        );
+
+        await setUp(
+          tester,
+
+          // Listen to route changes
+          child: StreamBuilder<Map<String, WidgetBuilder>>(
+            stream: routes.stream,
+            builder: (context, snapshot) {
+              // Listen to semantic label changes
+              return StreamBuilder<Map<String, String>>(
+                stream: semanticLabels.stream,
+                builder: (context, snapshot) {
+                  // Rebuild the router
+                  return GgRouter(
+                    routes.value,
+                    key: key,
+                    semanticLabels: semanticLabels.value,
+                  );
+                },
+              );
+            },
+          ),
+        );
+
+        // Check if the routes and labels were written into the node tree.
+        final node = routerDelegate.root;
+        expect(node.hasChild(name: 'a'), isTrue);
+        expect(node.hasChild(name: 'b'), isTrue);
+        expect(node.hasChild(name: 'c'), isTrue);
+
+        expect(node.child('a')!.semanticLabel, semanticLabels.value['a']);
+        expect(node.child('b')!.semanticLabel, semanticLabels.value['b']);
+        expect(node.child('c')!.semanticLabel, semanticLabels.value['c']);
+
+        // .......................................
+        // Rebuild the GgRouter with the same key,
+        // but with different semantic labels.
+
+        // Add another route
+        routes.value = {
+          ...routes.value,
+          'd': (context) => SizedBox(),
+        };
+
+        // Add another semantic label
+        semanticLabels.value = {
+          ...semanticLabels.value,
+          'd': 'Route d',
+        };
+
+        // Rebuild
+        await tester.pumpAndSettle();
+
+        // Check if the routes and labels were written into the node tree again.
+        expect(node.hasChild(name: 'a'), isTrue);
+        expect(node.hasChild(name: 'b'), isTrue);
+        expect(node.hasChild(name: 'c'), isTrue);
+        expect(node.hasChild(name: 'd'), isTrue);
+
+        expect(node.child('a')!.semanticLabel, semanticLabels.value['a']);
+        expect(node.child('b')!.semanticLabel, semanticLabels.value['b']);
+        expect(node.child('c')!.semanticLabel, semanticLabels.value['c']);
+        expect(node.child('d')!.semanticLabel, semanticLabels.value['d']);
+      },
+    );
+
     // #########################################################################
     group('GgRouter.from', () {
       final other = GgRouter(

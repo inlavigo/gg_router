@@ -1,6 +1,6 @@
 # Change Log
 
-## 3.0.0-dev.2 - August, 29th
+## 3.0.0-dev.3 - August, 29th
 
 * Breaking change: `GgNavigationPageRoot` takes a `GgNavigationPage` instead of `pageContent`, `children` and `semanticLabels`.
 * Hand these parameters over to `GgNavigationPage` constructor.
