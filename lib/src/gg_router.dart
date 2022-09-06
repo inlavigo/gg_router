@@ -322,6 +322,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   // ...........................................................................
   @override
   initState() {
+    _initParentNode();
     _initAnimation();
     _observeVisibleNode();
     _initRootRouterCore();
@@ -331,6 +332,8 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
+    _updateTree();
+
     final b = widget._isRoot ? _buildRoot : _buildNonRoot;
     return b(context);
   }
@@ -348,6 +351,13 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   GgRouteTreeNode? _nodeToBeFadedIn;
   GgRouteTreeNode? _nodeToBeFadedOut;
 
+  late GgRouteTreeNode _parentNode;
+  _initParentNode() {
+    if (!widget._isRoot) {
+      _parentNode = GgRouter.of(context).node;
+    }
+  }
+
   // ...........................................................................
   _observeVisibleNode() {
     // .........................................................................
@@ -358,16 +368,12 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
       return;
     }
 
-    // ...............................
-    // Get the responsible parent node
-    final parentNode = GgRouter.of(context).node;
-
     // Update route tree
-    _updateTree(parentNode);
+    _updateTree();
 
     // ........................
     // Observe the visible child
-    final s = parentNode.stagedChildDidChange.listen((_) {
+    final s = _parentNode.stagedChildDidChange.listen((_) {
       _updateStagedChild();
     });
 
@@ -378,16 +384,14 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
   // ...........................................................................
   _updateStagedChild({bool isFirstTime = false}) {
-    final parentNode = GgRouter.of(context).node;
-
     // Let's get the visible child
-    GgRouteTreeNode? newVisibleNode = parentNode.stagedChild;
+    GgRouteTreeNode? newVisibleNode = _parentNode.stagedChild;
 
     // ........................
     // Update the child indexes
     int i = 0;
     widget.children.keys.forEach((key) {
-      final child = parentNode.findOrCreateChild(key);
+      final child = _parentNode.findOrCreateChild(key);
       child.widgetIndex = i;
       i++;
     });
@@ -403,16 +407,16 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     if (!routeIsValid) {
       // Show an error message
       final invalidNode = newVisibleNode;
-      parentNode.setError(
+      _parentNode.setError(
         GgRouteTreeNodeError(
           id: 'GRC008448',
           message:
-              'Route "${parentNode.path}" has no child named "${invalidNode.name}" nor does your GgRouter define a "*" wild card route.',
+              'Route "${_parentNode.path}" has no child named "${invalidNode.name}" nor does your GgRouter define a "*" wild card route.',
         ),
       );
 
       // Remove the node from the node tree
-      parentNode.removeChild(invalidNode);
+      _parentNode.removeChild(invalidNode);
 
       // Show the previous visible node
       newVisibleNode = _previousVisibleNode;
@@ -424,7 +428,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // If no visible child is defined, take the index route
     if (newVisibleNode == null) {
       newVisibleNode = widget.children.containsKey('_INDEX_')
-          ? parentNode.findOrCreateChild('_INDEX_')
+          ? _parentNode.findOrCreateChild('_INDEX_')
           : null;
     }
 
@@ -432,7 +436,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // If no index child is defined, take the default route
     if (newVisibleNode == null && widget.defaultRoute != null) {
       newVisibleNode = widget.children.containsKey(widget.defaultRoute)
-          ? parentNode.findOrCreateChild(widget.defaultRoute!)
+          ? _parentNode.findOrCreateChild(widget.defaultRoute!)
           : null;
       newVisibleNode?.navigateTo('.');
     }
@@ -441,11 +445,11 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // If no visible child is defined and no index route is defined,
     // create an error and show the previous visible node.
     if (newVisibleNode == null) {
-      parentNode.setError(
+      _parentNode.setError(
         GgRouteTreeNodeError(
           id: 'GRC008505',
           message:
-              'Route "${parentNode.path}" has no "_INDEX_" route and also no defaultRoute set. It cannot be displayed.',
+              'Route "${_parentNode.path}" has no "_INDEX_" route and also no defaultRoute set. It cannot be displayed.',
         ),
       );
 
@@ -476,8 +480,8 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     setState(() {
       _previousVisibleNode = newVisibleNode;
       _stagedNode = newVisibleNode;
-      _nodeToBeFadedIn = parentNode.childToBeFadedIn;
-      _nodeToBeFadedOut = parentNode.childToBeFadedOut;
+      _nodeToBeFadedIn = _parentNode.childToBeFadedIn;
+      _nodeToBeFadedOut = _parentNode.childToBeFadedOut;
     });
   }
 
@@ -633,7 +637,11 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   }
 
   // ...........................................................................
-  _updateTree(GgRouteTreeNode parentNode) {
+  _updateTree() {
+    if (widget._isRoot) {
+      return;
+    }
+    final parentNode = _parentNode;
     _createChildNodes(parentNode);
     _setupDefaultChild(parentNode);
     _setupSemanticLabels(parentNode);

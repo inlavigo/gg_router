@@ -1,10 +1,11 @@
 # Change Log
 
-## 3.0.0-dev.3 - August, 29th
+## 3.0.0-dev.5 - August, 29th
 
 * Breaking change: `GgNavigationPageRoot` takes a `GgNavigationPage` instead of `pageContent`, `children` and `semanticLabels`.
 * Hand these parameters over to `GgNavigationPage` constructor.
 * Use `showBackButton` constructor parameter of `GgNavigation` to show or hide back button.
+* Fix an issue with updating the route tree
 
 ## 2.0.0 - January 22nd, 2022
 
