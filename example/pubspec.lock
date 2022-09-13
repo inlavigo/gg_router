@@ -99,7 +99,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "3.0.0-dev.5"
+    version: "3.0.0-dev.6"
   gg_value:
     dependency: "direct main"
     description:

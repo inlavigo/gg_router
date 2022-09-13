@@ -20,6 +20,9 @@ class GgNavigationPage extends StatefulWidget {
     this.children,
     this.semanticLabels = const {},
     this.showBackButton = true,
+    this.onShow,
+    this.onNavigateToParent,
+    this.onNavigateToChild,
   }) : super(key: key) {
     _checkChildren(children);
   }
@@ -35,6 +38,15 @@ class GgNavigationPage extends StatefulWidget {
 
   /// Show back button
   final showBackButton;
+
+  /// Called when the page becomes active
+  final VoidCallback? onShow;
+
+  /// Called when the page navigates to parent
+  final VoidCallback? onNavigateToParent;
+
+  /// Called when the page navigates to child page
+  final void Function(String childRoute)? onNavigateToChild;
 
   // ...........................................................................
   static _checkChildren(Map<String, Widget>? children) {
@@ -66,6 +78,23 @@ class GgNavigationPage extends StatefulWidget {
 class _GgNavigationPageState extends State<GgNavigationPage> {
   // ...........................................................................
   @override
+  void initState() {
+    _listenToRouteChanges();
+    super.initState();
+  }
+
+  // ...........................................................................
+  @override
+  void dispose() {
+    for (final d in _dispose.reversed) {
+      d();
+    }
+
+    super.dispose();
+  }
+
+  // ...........................................................................
+  @override
   Widget build(BuildContext context) {
     final root = _root(context);
 
@@ -82,6 +111,12 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
   }
 
   final key = GlobalKey(debugLabel: '_GgNavigationPageState');
+
+  // ######################
+  // Private
+  // ######################
+
+  final List<Function()> _dispose = [];
 
   // ...........................................................................
   GgNavigationPageRoot _root(BuildContext context) {
@@ -122,13 +157,83 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
 
     return result;
   }
+
+  // ...........................................................................
+  void _callOnNavigateToParent() {
+    if (!_didNavigateToParent) {
+      widget.onNavigateToParent?.call();
+      _didNavigateToParent = true;
+    }
+  }
+
+  // ...........................................................................
+  bool _didNavigateToParent = false;
+
+  void _onStagedChildDidChange(GgRouteTreeNode ownNode) {
+    // If stagedChild is true, and self is staged, call onNavigateToChild
+    if (ownNode.isStaged) {
+      _didNavigateToParent = false;
+      final stagedChild = ownNode.stagedChild;
+
+      if (stagedChild?.isIndexChild == true || stagedChild == null) {
+        widget.onShow?.call();
+      } else {
+        widget.onNavigateToChild?.call(stagedChild.name);
+      }
+    } else
+      _callOnNavigateToParent();
+  }
+
+  // ...........................................................................
+  void _onIsStaged(GgRouteTreeNode ownNode) {
+    // If stagedChild is null and isStaged is true, call onShow
+    if (ownNode.isStaged && ownNode.stagedChild == null) {
+      widget.onShow?.call();
+    }
+
+    // If self is not staged, call onNavigateToParent
+    if (!ownNode.isStaged) {
+      widget.onNavigateToParent?.call();
+    }
+  }
+
+  // ...........................................................................
+  void _listenToRouteChanges() {
+    final ownNode = GgRouter.of(context).node;
+
+    // ....................
+    // Observe "onIsStaged"
+    ownNode.parent?.onIsStaged.listen(
+      (isStaged) {
+        _onIsStaged(ownNode);
+      },
+    );
+    _onIsStaged(ownNode);
+
+    // ..............................
+    // Observe "stagedChildDidChange"
+    ownNode.stagedChildDidChange.listen(
+      (stagedChild) {
+        _onStagedChildDidChange(ownNode);
+      },
+    );
+
+    _onStagedChildDidChange(ownNode);
+
+    // On dispose, make sure "didNavigateToParent" is called.
+    _dispose.add(
+      () {
+        _callOnNavigateToParent();
+      },
+    );
+  }
 }
 
 // #############################################################################
 
 class GgNavigationPageRoot extends StatefulWidget {
   GgNavigationPageRoot({
-    Key? key,
+    super.key,
     required this.child,
     this.inAnimation,
     this.outAnimation,

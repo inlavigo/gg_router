@@ -4,6 +4,8 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -286,6 +288,146 @@ main() {
       expect(find.byWidget(customizedBackButton), findsOneWidget);
       expect(find.byWidget(customizedCloseButton), findsOneWidget);
       expect(find.byWidget(customizedTitle), findsOneWidget);
+    });
+
+    // .........................................................................
+    testWidgets(
+        'should call "onShow" if page is visited, '
+        'should call "onNavigateToParent" if page navigates to parent, '
+        'should call "onNavigateToChild" if page navigates to child, ',
+        (WidgetTester tester) async {
+      var onShowCalled = false;
+      var onNavigateToParentCalled = false;
+      String onNavigateToChildCalled = '';
+
+      // Create a child page
+      final childKey = Key('child');
+      GgNavigationPage child() {
+        final result = GgNavigationPage(
+          key: childKey,
+          showBackButton: true,
+          pageContent: (_) => Container(),
+        );
+
+        return result;
+      }
+
+      // Create a parent page
+      final selfKey = Key('self');
+      GgNavigationPage self() {
+        final result = GgNavigationPage(
+          key: selfKey,
+          showBackButton: true,
+          pageContent: (_) => Container(),
+          children: {
+            'child': child(),
+          },
+          onShow: () => onShowCalled = true,
+          onNavigateToChild: (c) => onNavigateToChildCalled = c,
+          onNavigateToParent: () => onNavigateToParentCalled = true,
+        );
+
+        return result;
+      }
+
+      // Create a parent page
+      final parentKey = Key('parent');
+      GgNavigationPage parent() {
+        final result = GgNavigationPage(
+          key: parentKey,
+          showBackButton: true,
+          pageContent: (_) => Container(),
+          children: {
+            'self': self(),
+          },
+        );
+
+        return result;
+      }
+
+      final root = GgNavigationPageRoot(
+        child: parent(),
+      );
+
+      // Crate a root node
+      final rootNode = GgRouteTreeNode.newRoot;
+
+      // Pump the widget
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: GgRouter.root(child: root, node: rootNode),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // ......................
+      // Navigate to the parent
+      expect(rootNode.stagedChildPath, '');
+
+      // Parent should be shown
+      // Self and child should not be shown
+      Finder parentFinder() => find.byKey(parentKey);
+      expect(parentFinder(), findsOneWidget);
+
+      Finder selfFinder() => find.byKey(selfKey);
+      expect(selfFinder(), findsNothing);
+
+      Finder childFinder() => find.byKey(childKey);
+      expect(childFinder(), findsNothing);
+
+      // ................
+      // Navigate to self
+      expect(onShowCalled, isFalse);
+      rootNode.navigateTo('self');
+      await tester.pumpAndSettle();
+      expect(selfFinder(), findsOneWidget);
+
+      // onShow should have been called
+      expect(onShowCalled, isTrue);
+
+      // .................
+      // Navigate to child
+      expect(onNavigateToChildCalled, isEmpty);
+      onShowCalled = false;
+      rootNode.navigateTo('self/child');
+      await tester.pumpAndSettle();
+      expect(selfFinder(), findsOneWidget);
+      expect(childFinder(), findsOneWidget);
+
+      // onNavigateToChild should have been called
+      expect(onShowCalled, isFalse);
+      expect(onNavigateToChildCalled, 'child');
+
+      // .....................
+      // Navigate back to self
+      onNavigateToChildCalled = '';
+      onShowCalled = false;
+      rootNode.navigateTo('self');
+      await tester.pumpAndSettle();
+      expect(selfFinder(), findsOneWidget);
+      expect(childFinder(), findsNothing);
+
+      // onShow should have been called
+      expect(onShowCalled, isTrue);
+      expect(onNavigateToChildCalled, isEmpty);
+
+      // .....................
+      // Navigate back to parent
+      onNavigateToChildCalled = '';
+      onShowCalled = false;
+      rootNode.navigateTo('/');
+      await tester.pumpAndSettle();
+
+      expect(parentFinder(), findsOneWidget);
+      expect(selfFinder(), findsNothing);
+      expect(childFinder(), findsNothing);
+
+      // onShow should have been called
+      expect(onShowCalled, false);
+      expect(onNavigateToChildCalled, isEmpty);
+      expect(onNavigateToParentCalled, isTrue);
     });
   });
 }
