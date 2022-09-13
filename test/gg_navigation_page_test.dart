@@ -4,8 +4,6 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -428,6 +426,59 @@ main() {
       expect(onShowCalled, false);
       expect(onNavigateToChildCalled, isEmpty);
       expect(onNavigateToParentCalled, isTrue);
+    });
+
+    // #########################################################################
+    group('should show (no) back button and (no) close button', () {
+      for (final show in [true, false]) {
+        testWidgets('if showBackButton and showCloseButton are true (false)',
+            (tester) async {
+          // Create a parent page
+          final parentKey = Key('parent');
+          GgNavigationPage parent() {
+            final result = GgNavigationPage(
+              key: parentKey,
+              showBackButton: show,
+              showCloseButton: show,
+              pageContent: (_) => Container(),
+              children: {
+                'self': Container(),
+              },
+            );
+
+            return result;
+          }
+
+          // Create a root page
+          final root = GgNavigationPageRoot(
+            child: parent(),
+          );
+
+          // Crate a root node
+          final rootNode = GgRouteTreeNode.newRoot;
+
+          // Pump the widget
+          await tester.pumpWidget(
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: GgRouter.root(child: root, node: rootNode),
+            ),
+          );
+
+          // Check buttons
+          await tester.pumpAndSettle();
+
+          final backButtonFinder = find.byKey(
+            ValueKey('GgNavigationPageBackButton'),
+          );
+          expect(backButtonFinder, show ? findsOneWidget : findsNothing);
+
+          final closeButtonFinder = find.byKey(
+            ValueKey('GgNavigationPageCloseButton'),
+          );
+          expect(closeButtonFinder, show ? findsOneWidget : findsNothing);
+        });
+      }
     });
   });
 }

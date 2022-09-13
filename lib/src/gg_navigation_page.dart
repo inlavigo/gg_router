@@ -20,6 +20,7 @@ class GgNavigationPage extends StatefulWidget {
     this.children,
     this.semanticLabels = const {},
     this.showBackButton = true,
+    this.showCloseButton = true,
     this.onShow,
     this.onNavigateToParent,
     this.onNavigateToChild,
@@ -38,6 +39,9 @@ class GgNavigationPage extends StatefulWidget {
 
   /// Show back button
   final showBackButton;
+
+  /// Show back button
+  final showCloseButton;
 
   /// Called when the page becomes active
   final VoidCallback? onShow;
@@ -140,6 +144,7 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
     final result = (_) => GgPageWithNavBar(
           content: content,
           showBackButton: widget.showBackButton,
+          showCloseButton: widget.showCloseButton,
         );
 
     return result;
@@ -293,10 +298,12 @@ class GgPageWithNavBar extends StatelessWidget {
     Key? key,
     required this.content,
     this.showBackButton = true,
+    this.showCloseButton = true,
   }) : super(key: key);
 
   final Widget content;
   final bool showBackButton;
+  final bool showCloseButton;
 
   @override
   Widget build(BuildContext context) {
@@ -348,15 +355,16 @@ class GgPageWithNavBar extends StatelessWidget {
                   ),
             ),
             Spacer(),
-            MouseRegion(
-              key: ValueKey('GgNavigationPageCloseButton'),
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTapUp: (_) => rootNode.navigateTo('../'),
-                child: rootPage.navigationBarCloseButton?.call(context) ??
-                    Text('Close'),
+            if (showCloseButton)
+              MouseRegion(
+                key: ValueKey('GgNavigationPageCloseButton'),
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTapUp: (_) => rootNode.navigateTo('../'),
+                  child: rootPage.navigationBarCloseButton?.call(context) ??
+                      Text('Close'),
+                ),
               ),
-            ),
           ],
         ),
       ),
