@@ -150,142 +150,142 @@ main() {
       expect(router2.inAnimation, inAnimation);
       expect(router2.outAnimation, outAnimation);
     });
-  });
 
-  testWidgets('should show the route\'s semantic label as title',
-      (WidgetTester tester) async {
-    final root = GgRouteTreeNode.newRoot;
+    testWidgets('should show the route\'s semantic label as title',
+        (WidgetTester tester) async {
+      final root = GgRouteTreeNode.newRoot;
 
-    // .........................................
-    // Create a widget showing a navigation page
-    await tester.pumpWidget(
-      Directionality(
-        textDirection: TextDirection.ltr,
-        child: GgRouter.root(
-          node: root,
-          child: GgRouter(
-            {
-              'child0': (_) => GgNavigationPageRoot(
-                    child: GgNavigationPage(
-                      pageContent: (_) => Container(),
-                      children: {},
-                      showBackButton: false,
+      // .........................................
+      // Create a widget showing a navigation page
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: GgRouter.root(
+            node: root,
+            child: GgRouter(
+              {
+                'child0': (_) => GgNavigationPageRoot(
+                      child: GgNavigationPage(
+                        pageContent: (_) => Container(),
+                        children: {},
+                        showBackButton: false,
+                      ),
+                      key: GlobalKey(),
                     ),
-                    key: GlobalKey(),
-                  ),
-            },
-            defaultRoute: 'child0',
-            semanticLabels: {'child0': 'Child 0 Page'},
-            key: GlobalKey(),
+              },
+              defaultRoute: 'child0',
+              semanticLabels: {'child0': 'Child 0 Page'},
+              key: GlobalKey(),
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    // ...........................
-    // Navigate to the child0 page
-    root.navigateTo('child0');
-    await tester.pumpAndSettle();
+      // ...........................
+      // Navigate to the child0 page
+      root.navigateTo('child0');
+      await tester.pumpAndSettle();
 
-    // ...............................................
-    // Check if the semantic label is shown on the top
-    final titleFinder = find.byKey(ValueKey('GgNavigationPageTitle'));
-    expect(titleFinder, findsOneWidget);
-    final textFinder =
-        find.descendant(of: titleFinder, matching: find.byType(Text));
-    expect(textFinder, findsOneWidget);
-    Text text = tester.widget(textFinder);
-    expect(text.data, 'Child 0 Page');
-  });
+      // ...............................................
+      // Check if the semantic label is shown on the top
+      final titleFinder = find.byKey(ValueKey('GgNavigationPageTitle'));
+      expect(titleFinder, findsOneWidget);
+      final textFinder =
+          find.descendant(of: titleFinder, matching: find.byType(Text));
+      expect(textFinder, findsOneWidget);
+      Text text = tester.widget(textFinder);
+      expect(text.data, 'Child 0 Page');
+    });
 
-  testWidgets('should not show a back button on root page', (tester) async {
-    final root = GgRouteTreeNode.newRoot;
+    testWidgets('should not show a back button on root page', (tester) async {
+      final root = GgRouteTreeNode.newRoot;
 
-    final customizedBackButton = Text('Back');
-    final customizedCloseButton = Text('Close');
-    final customizedTitle = Text('Title');
+      final customizedBackButton = Text('Back');
+      final customizedCloseButton = Text('Close');
+      final customizedTitle = Text('Title');
 
-    // .........................................
-    // Create a widget with customized app bar
-    await tester.pumpWidget(
-      Directionality(
-        textDirection: TextDirection.ltr,
-        child: GgRouter.root(
-          node: root,
-          child: GgRouter(
-            {
-              'rootPage': (_) => GgNavigationPageRoot(
-                    child: GgNavigationPage(
-                      pageContent: (_) => Container(),
-                      showBackButton: false,
+      // .........................................
+      // Create a widget with customized app bar
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: GgRouter.root(
+            node: root,
+            child: GgRouter(
+              {
+                'rootPage': (_) => GgNavigationPageRoot(
+                      child: GgNavigationPage(
+                        pageContent: (_) => Container(),
+                        showBackButton: false,
+                      ),
+                      key: GlobalKey(),
+                      navigationBarBackButton: (_) => customizedBackButton,
+                      navigationBarCloseButton: (_) => customizedCloseButton,
+                      navigationBarTitle: (_) => customizedTitle,
                     ),
-                    key: GlobalKey(),
-                    navigationBarBackButton: (_) => customizedBackButton,
-                    navigationBarCloseButton: (_) => customizedCloseButton,
-                    navigationBarTitle: (_) => customizedTitle,
-                  ),
-            },
-            defaultRoute: 'rootPage',
-            key: GlobalKey(),
+              },
+              defaultRoute: 'rootPage',
+              key: GlobalKey(),
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    // ...................................
-    // Test if customized buttons are used
-    expect(find.byWidget(customizedBackButton), findsNothing);
-    expect(find.byWidget(customizedCloseButton), findsOneWidget);
-    expect(find.byWidget(customizedTitle), findsOneWidget);
-  });
+      // ...................................
+      // Test if customized buttons are used
+      expect(find.byWidget(customizedBackButton), findsNothing);
+      expect(find.byWidget(customizedCloseButton), findsOneWidget);
+      expect(find.byWidget(customizedTitle), findsOneWidget);
+    });
 
-  testWidgets('should allow to customize back button, title and close button',
-      (tester) async {
-    final root = GgRouteTreeNode.newRoot;
+    testWidgets('should allow to customize back button, title and close button',
+        (tester) async {
+      final root = GgRouteTreeNode.newRoot;
 
-    final customizedBackButton = Text('Back');
-    final customizedCloseButton = Text('Close');
-    final customizedTitle = Text('Title');
+      final customizedBackButton = Text('Back');
+      final customizedCloseButton = Text('Close');
+      final customizedTitle = Text('Title');
 
-    // .........................................
-    // Create a widget with customized app bar
-    await tester.pumpWidget(
-      Directionality(
-        textDirection: TextDirection.ltr,
-        child: GgRouter.root(
-          node: root,
-          child: GgRouter(
-            {
-              'child': (_) => GgNavigationPageRoot(
-                    child: GgNavigationPage(
-                      pageContent: (_) => Container(),
-                      children: {
-                        'grandchild': GgNavigationPage(
-                          pageContent: (_) => Container(),
-                        )
-                      },
+      // .........................................
+      // Create a widget with customized app bar
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: GgRouter.root(
+            node: root,
+            child: GgRouter(
+              {
+                'child': (_) => GgNavigationPageRoot(
+                      child: GgNavigationPage(
+                        pageContent: (_) => Container(),
+                        children: {
+                          'grandchild': GgNavigationPage(
+                            pageContent: (_) => Container(),
+                          )
+                        },
+                      ),
+                      key: GlobalKey(),
+                      navigationBarBackButton: (_) => customizedBackButton,
+                      navigationBarCloseButton: (_) => customizedCloseButton,
+                      navigationBarTitle: (_) => customizedTitle,
                     ),
-                    key: GlobalKey(),
-                    navigationBarBackButton: (_) => customizedBackButton,
-                    navigationBarCloseButton: (_) => customizedCloseButton,
-                    navigationBarTitle: (_) => customizedTitle,
-                  ),
-            },
-            defaultRoute: 'child',
-            semanticLabels: {'child': 'Child Page'},
-            key: GlobalKey(),
+              },
+              defaultRoute: 'child',
+              semanticLabels: {'child': 'Child Page'},
+              key: GlobalKey(),
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    root.navigateTo('child/grandchild');
-    await tester.pumpAndSettle();
+      root.navigateTo('child/grandchild');
+      await tester.pumpAndSettle();
 
-    // ...................................
-    // Test if customized buttons are used
-    expect(find.byWidget(customizedBackButton), findsOneWidget);
-    expect(find.byWidget(customizedCloseButton), findsOneWidget);
-    expect(find.byWidget(customizedTitle), findsOneWidget);
+      // ...................................
+      // Test if customized buttons are used
+      expect(find.byWidget(customizedBackButton), findsOneWidget);
+      expect(find.byWidget(customizedCloseButton), findsOneWidget);
+      expect(find.byWidget(customizedTitle), findsOneWidget);
+    });
   });
 }
