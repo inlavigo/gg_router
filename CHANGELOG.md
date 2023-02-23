@@ -1,6 +1,6 @@
 # Change Log
 
-## 3.0.1 - February, 23rd, 2023
+## 3.0.2 - February, 23rd, 2023
 
 * Breaking change: `GgNavigationPageRoot` takes a `GgNavigationPage` instead of `pageContent`, `children` and `semanticLabels`.
 * Breaking change: Renamed `visibleRoute` -> `stagedDescendants`

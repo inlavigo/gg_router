@@ -590,51 +590,53 @@ class GgRouteTreeNode {
       node = node.child('_INDEX_')!;
     }
 
-    final newNodesFromRoot = node.ancestors.reversed;
+    final newStagedNodes = node.ancestors.reversed;
     final oldStagedNodes = root.stagedDescendantsInklSelf;
 
-    bool nodeIsFaded = false;
+    bool isFaded = false;
+    bool isUnstaged = false;
 
-    // For each element from root to node
-    var index = 0;
-    for (final node in newNodesFromRoot) {
-      final needsFade = !nodeIsFaded && (node.isStaged == false);
+    // Compare old and new staged nodes
+    int index = 0;
+    while (true) {
+      final newStagedNode = newStagedNodes.length > index
+          ? newStagedNodes.elementAt(index)
+          : null;
 
-      // Get new and old faded node
-      final newNode = node;
-      final oldNode = node.parent?._stagedChild.value;
-      final oldNode2 =
-          oldStagedNodes.isNotEmpty && oldStagedNodes.length > index
-              ? oldStagedNodes.elementAt(index)
-              : null;
+      final oldStagedNode = oldStagedNodes.length > index
+          ? oldStagedNodes.elementAt(index)
+          : null;
 
-      // Handle closed routes
-      final newNodeIsLastNode = newNodesFromRoot.last == newNode;
-      final oldNodeIsLastNode = oldStagedNodes.isNotEmpty &&
-          (oldStagedNodes.last == oldNode || oldStagedNodes.last == oldNode2);
+      index++;
 
-      if (newNodeIsLastNode && !oldNodeIsLastNode) {
-        oldNode?.stagedChild?.needsFade = true;
-        oldNode2?.stagedChild?.needsFade = true;
+      // Break, if no more nodes to be staged or unstaged are available
+      if (newStagedNode == null && oldStagedNode == null) {
+        break;
       }
 
-      // If staging has not changed, continue
-      if (newNode == oldNode) {
+      // If the new node was staged before, nothing needs to be done
+      bool stagedChildHasChanged = newStagedNode != oldStagedNode;
+      if (!stagedChildHasChanged) {
         continue;
       }
 
-      // Set needsFade flag if this node is the first changed node
-      if (needsFade) {
-        newNode.needsFade = true;
-        oldNode?.needsFade = true;
-        nodeIsFaded = true;
+      // Only the first staged or unstaged children in the tree are
+      // faded.
+      if (!isFaded) {
+        newStagedNode?.needsFade = true;
+        oldStagedNode?.needsFade = true;
       }
+      isFaded = true;
 
-      // Stage the node
-      newNode._setIsStaged(true);
+      // All new nodes are staged
+      newStagedNode?._setIsStaged(true);
 
-      // Unstage the previous node
-      oldNode?._setIsStaged(false);
+      // But only the first unstaged node is unstaged.
+      // Thus staging the old node again will restore the children
+      if (!isUnstaged) {
+        oldStagedNode?._setIsStaged(false);
+      }
+      isUnstaged = true;
     }
 
     // Reset staging for the node's children

@@ -309,7 +309,7 @@ main() {
         expect(childA1.isStaged, true);
       });
 
-      test('If isStaged is set to false, als all child remain staged as before',
+      test('If isStaged is set to false, all child remain staged as before',
           () {
         init();
 
