@@ -32,6 +32,7 @@ main() {
 
   dispose() {
     root.dispose();
+    expect(root.isDisposed, isTrue);
   }
 
   group('Param', () {

@@ -196,6 +196,24 @@ main() {
     }
 
     // .........................................................................
+    testWidgets('should throw if animations are not consistent',
+        (WidgetTester tester) async {
+      expect(
+          () => GgRouter(
+                {},
+                key: GlobalKey(),
+                inAnimation: null,
+                outAnimation: (context, animation, child, size) =>
+                    GgMoveInFromBottom(
+                  animation: animation,
+                  child: child,
+                  size: size,
+                ),
+              ),
+          throwsArgumentError);
+    });
+
+    // .........................................................................
     testWidgets('should allow to synchronize URI and widget hierarchy',
         (WidgetTester tester) async {
       // .................

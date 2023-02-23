@@ -11,6 +11,7 @@
 * Add `showCloseButton` to `GgNavigationPage`
 * Handle over size for popover routes
 * Fix `nameOfChildAnimatingOut` was null when popover was closed.
+* Add a bunch of animations
 
 ## 2.0.0 - January 22nd, 2022
 

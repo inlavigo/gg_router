@@ -284,7 +284,7 @@ class GgRouter extends StatefulWidget {
     final inAnimationIsDefined = inAnimation != null;
     final outAnimationIsDefined = outAnimation != null;
     if (inAnimationIsDefined != outAnimationIsDefined) {
-      throw ArgumentError('');
+      throw ArgumentError(''); // coverage:ignore-line
     }
   }
 
@@ -292,7 +292,9 @@ class GgRouter extends StatefulWidget {
   _checkChildren() {
     children.keys.forEach((name) {
       if (!GgRouteTreeNode.isValidName(name)) {
+        // coverage:ignore-start
         throw ArgumentError('The name "$name" is not a valid route name.');
+        // coverage:ignore-end
       }
     });
   }
