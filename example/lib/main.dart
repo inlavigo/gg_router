@@ -502,6 +502,9 @@ class GgRouterExample extends StatelessWidget {
     Widget child,
     Size size,
   ) {
+    // print(GgRouter.of(context).nameOfChildAnimatingIn);
+    // print(GgRouter.of(context).nameOfChildAnimatingOut);
+
     // In the first part of the animation the old widget is faded out
     final scale = animation.value < 0.5
         ? Curves.easeInOut.transform(1.0 - (animation.value * 2.0))
@@ -592,6 +595,8 @@ class GgRouterExample extends StatelessWidget {
     Widget child,
     Size size,
   ) {
+    // print(GgRouter.of(context).nameOfChildAnimatingIn);
+    // print(GgRouter.of(context).nameOfChildAnimatingOut);
     final scale = animation.value;
     final angle = 2 * pi * animation.value;
     final fade = animation.value;
@@ -615,6 +620,8 @@ class GgRouterExample extends StatelessWidget {
     Widget child,
     Size size,
   ) {
+    print(GgRouter.of(context).nameOfChildAnimatingOut);
+
     final scale = 1.0 - animation.value;
     final angle = -2 * pi * animation.value;
     final fade = 1.0 - animation.value;

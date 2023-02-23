@@ -702,7 +702,7 @@ main() {
         fakeAsync((fake) {
           init();
           // Initially no child is staged
-          expect(root.visibleRoute, []);
+          expect(root.stagedDescendants, []);
 
           // Now let's set childB to staged
           childB.navigateTo('.');
@@ -710,8 +710,12 @@ main() {
           fake.flushMicrotasks();
 
           // The complete path from root to childB should be staged
-          expect(root.visibleRoute.map((e) => e.name).toList(),
+          expect(root.stagedDescendants.map((e) => e.name).toList(),
               ['child-a0', 'child-b']);
+
+          // The complete path from root to childB should be staged
+          expect(root.stagedDescendantsInklSelf.map((e) => e.name).toList(),
+              ['_ROOT_', 'child-a0', 'child-b']);
         });
       });
     });
@@ -747,11 +751,27 @@ main() {
         expect(childC.needsFade, false);
 
         // Navigate from child C down to child B
-        // -> child B should be faded out
+        // -> child C should be faded out
         childC.navigateTo('.');
         childB.needsFade = false;
+        childC.needsFade = false;
         childC.navigateTo('..');
+        expect(childC.needsFade, isTrue);
         expect(childC.isStaged, false);
+
+        // Navigate from child a to root
+        // -> child A should be faded out
+        childA0.navigateTo('.');
+        childA0.needsFade = false;
+        childA0.navigateTo('..');
+        expect(childA0.needsFade, isTrue);
+
+        // Navigate from childA0 -> /
+        // -> child A should be faded out
+        childA0.navigateTo('.');
+        childA0.needsFade = false;
+        childA0.navigateTo('/');
+        expect(childA0.needsFade, isTrue);
       });
     });
 

@@ -3,12 +3,14 @@
 ## 3.0.1 - February, 23rd, 2023
 
 * Breaking change: `GgNavigationPageRoot` takes a `GgNavigationPage` instead of `pageContent`, `children` and `semanticLabels`.
+* Breaking change: Renamed `visibleRoute` -> `stagedDescendants`
 * Hand these parameters over to `GgNavigationPage` constructor.
 * Use `showBackButton` constructor parameter of `GgNavigation` to show or hide back button.
 * Fix an issue with updating the route tree
 * Add `onShow`, `onNavigateToParent`, `onNavigateToChild` to `GgNavigationPage`
 * Add `showCloseButton` to `GgNavigationPage`
 * Handle over size for popover routes
+* Fix `nameOfChildAnimatingOut` was null when popover was closed.
 
 ## 2.0.0 - January 22nd, 2022
 

@@ -6,9 +6,9 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'package:gg_value/gg_value.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
+import 'package:gg_value/gg_value.dart';
 
 // #############################################################################
 /// An error that is reported when a URI cannot be assigned to a route path
@@ -191,7 +191,6 @@ class GgRouteTreeNode {
     _initChildren();
     _initIsStaged();
     _initStagedChild();
-    _initStagedDescendants();
     _initOwnOrChildParamChange();
     _initSubscriptions();
   }
@@ -405,13 +404,30 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns a list containing all staged descendants.
-  List<GgRouteTreeNode> get visibleRoute {
+  List<GgRouteTreeNode> get stagedDescendants {
     GgRouteTreeNode? stagedChild = _stagedChild.value;
 
     final List<GgRouteTreeNode> result = [];
     while (stagedChild != null) {
       result.add(stagedChild);
       stagedChild = stagedChild.stagedChild;
+    }
+
+    return result;
+  }
+
+  // ...........................................................................
+  /// Returns a list containing all staged descendants inkl. the node itself.
+  List<GgRouteTreeNode> get stagedDescendantsInklSelf {
+    final result = <GgRouteTreeNode>[];
+    GgRouteTreeNode? node = this;
+    while (node != null) {
+      if (node.isStaged) {
+        result.add(node);
+        node = node.stagedChild;
+      } else {
+        break;
+      }
     }
 
     return result;
@@ -562,7 +578,7 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns the path of staged children as a list of path segments.
   List<String> get stagedChildPathSegments =>
-      visibleRoute.map((e) => e.name).toList();
+      stagedDescendants.map((e) => e.name).toList();
 
   // ...........................................................................
   /// Creates and activates children according to the segments in [path]
@@ -574,21 +590,37 @@ class GgRouteTreeNode {
       node = node.child('_INDEX_')!;
     }
 
-    final nodesFromRoot = node.ancestors.reversed;
+    final newNodesFromRoot = node.ancestors.reversed;
+    final oldStagedNodes = root.stagedDescendantsInklSelf;
 
     bool nodeIsFaded = false;
 
     // For each element from root to node
-    nodesFromRoot.forEach((node) {
+    var index = 0;
+    for (final node in newNodesFromRoot) {
       final needsFade = !nodeIsFaded && (node.isStaged == false);
 
       // Get new and old faded node
       final newNode = node;
       final oldNode = node.parent?._stagedChild.value;
+      final oldNode2 =
+          oldStagedNodes.isNotEmpty && oldStagedNodes.length > index
+              ? oldStagedNodes.elementAt(index)
+              : null;
 
-      // If staging has not changed, contine
+      // Handle closed routes
+      final newNodeIsLastNode = newNodesFromRoot.last == newNode;
+      final oldNodeIsLastNode = oldStagedNodes.isNotEmpty &&
+          (oldStagedNodes.last == oldNode || oldStagedNodes.last == oldNode2);
+
+      if (newNodeIsLastNode && !oldNodeIsLastNode) {
+        oldNode?.stagedChild?.needsFade = true;
+        oldNode2?.stagedChild?.needsFade = true;
+      }
+
+      // If staging has not changed, continue
       if (newNode == oldNode) {
-        return;
+        continue;
       }
 
       // Set needsFade flag if this node is the first changed node
@@ -603,7 +635,7 @@ class GgRouteTreeNode {
 
       // Unstage the previous node
       oldNode?._setIsStaged(false);
-    });
+    }
 
     // Reset staging for the node's children
     node.stagedChild?.resetStaging(recursive: false);
@@ -972,20 +1004,6 @@ class GgRouteTreeNode {
     _dispose.add(s.cancel);
   }
 
-  // #################
-  // stagedDescendants
-
-  // ...........................................................................
-  final _stagedDescendants = GgValue<List<GgRouteTreeNode>>(
-    seed: [],
-    compare: listEquals,
-    spam: false,
-  );
-
-  _initStagedDescendants() {
-    _dispose.add(() => _stagedDescendants.dispose());
-  }
-
   // ################
   // navigate
 
@@ -997,7 +1015,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   _navigateTo(String path) {
-    final pathComponents = path.split('/');
+    final pathComponents = path == '/' ? <String>[] : path.split('/');
 
     // route/_INDEX_ is treated as route/ when navigating
     if (this.isIndexChild) {
@@ -1111,7 +1129,6 @@ class GgRouteTreeNode {
   String? _semanticLabel;
 
   // ...........................................................................
-
 }
 
 // #############################################################################
