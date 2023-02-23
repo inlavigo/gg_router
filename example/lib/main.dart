@@ -275,7 +275,7 @@ class GgRouterExample extends StatelessWidget {
       key: ValueKey('indexPage'),
       child: Text(
         'GgRouter',
-        style: Theme.of(context).textTheme.headline2,
+        style: Theme.of(context).textTheme.displayMedium,
       ),
     );
   }
@@ -289,7 +289,7 @@ class GgRouterExample extends StatelessWidget {
       child: Text(
         'Wildcard: $routeName',
         key: ValueKey('WildCardText: $routeName'),
-        style: Theme.of(context).textTheme.headline2,
+        style: Theme.of(context).textTheme.displayMedium,
       ),
     );
   }

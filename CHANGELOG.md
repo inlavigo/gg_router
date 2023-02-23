@@ -1,6 +1,6 @@
 # Change Log
 
-## 3.0.0-dev.8 - September, 13th
+## 3.0.1 - February, 23rd, 2023
 
 * Breaking change: `GgNavigationPageRoot` takes a `GgNavigationPage` instead of `pageContent`, `children` and `semanticLabels`.
 * Hand these parameters over to `GgNavigationPage` constructor.
@@ -8,6 +8,7 @@
 * Fix an issue with updating the route tree
 * Add `onShow`, `onNavigateToParent`, `onNavigateToChild` to `GgNavigationPage`
 * Add `showCloseButton` to `GgNavigationPage`
+* Handle over size for popover routes
 
 ## 2.0.0 - January 22nd, 2022
 

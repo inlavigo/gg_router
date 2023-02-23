@@ -155,11 +155,22 @@ class _GgPopoverRouteState extends State<GgPopoverRoute>
       final animationCallback =
           (fadeIn ? widget.inAnimation : widget.outAnimation)!;
 
-      _popOver = (BuildContext context) => AnimatedBuilder(
-            animation: _animation,
-            builder: (context, child) {
-              return animationCallback(context, _animation, content(context),
-                  Size(0, 0)); //Todo: Estimate size using layout builder
+      _popOver = (BuildContext context) => LayoutBuilder(
+            builder: (context, layout) {
+              return AnimatedBuilder(
+                animation: _animation,
+                builder: (context, child) {
+                  return animationCallback(
+                    context,
+                    _animation,
+                    content(context),
+                    Size(
+                      layout.maxWidth,
+                      layout.maxHeight,
+                    ),
+                  );
+                },
+              );
             },
           );
 

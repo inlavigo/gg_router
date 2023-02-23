@@ -20,6 +20,8 @@ main() {
 
     final popoverKey = ValueKey('popover');
     final Widget popover = Text('Popover', key: popoverKey);
+    var lastSizeIn = Size.zero;
+    var lastSizeOut = Size.zero;
 
     late GgRouteTreeNode root;
 
@@ -32,24 +34,30 @@ main() {
         name: 'popover',
         base: base,
         popover: (_) => popover,
-        inAnimation: (context, animation, child, size) => Stack(
-          children: [
-            Text(
-              '${animation.value}',
-              key: ValueKey('inAnimation'),
-            ),
-            child
-          ],
-        ),
-        outAnimation: (context, animation, child, size) => Stack(
-          children: [
-            Text(
-              '${animation.value}',
-              key: ValueKey('outAnimation'),
-            ),
-            child
-          ],
-        ),
+        inAnimation: (context, animation, child, size) {
+          lastSizeIn = size;
+          return Stack(
+            children: [
+              Text(
+                '${animation.value}',
+                key: ValueKey('inAnimation'),
+              ),
+              child
+            ],
+          );
+        },
+        outAnimation: (context, animation, child, size) {
+          lastSizeOut = size;
+          return Stack(
+            children: [
+              Text(
+                '${animation.value}',
+                key: ValueKey('outAnimation'),
+              ),
+              child
+            ],
+          );
+        },
         animationDuration: Duration(milliseconds: 1000),
       );
       final routerDelegate = GgRouterDelegate(child: widget, defaultRoute: '/');
@@ -97,6 +105,8 @@ main() {
       // No animation is done
       expectAnimationValue('in', null);
       expectAnimationValue('out', null);
+      expect(lastSizeIn, Size.zero);
+      expect(lastSizeOut, Size.zero);
 
       // .........................
       // Now lets open the popover
@@ -122,6 +132,9 @@ main() {
       expect(find.byKey(baseKey), findsOneWidget);
       expect(find.byKey(popoverKey), findsOneWidget);
 
+      expect(lastSizeIn, Size(800, 600));
+      expect(lastSizeOut, Size.zero);
+
       // ...............................
       // Now lets route back to the base
       root.navigateTo('.');
@@ -145,6 +158,9 @@ main() {
       // No routeOnTop should be shown anymore
       expect(find.byKey(baseKey), findsOneWidget);
       expect(find.byKey(popoverKey), findsNothing);
+
+      expect(lastSizeIn, Size(800, 600));
+      expect(lastSizeOut, Size(800, 600));
 
       await tearDown(tester);
     });
