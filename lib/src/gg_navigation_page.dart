@@ -104,13 +104,15 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
 
     final routePath = GgRouter.of(context).routePath;
 
-    return GgRouter(
-      _generateChildren(context),
-      semanticLabels: widget.semanticLabels,
-      key: ValueKey(routePath),
-      animationDuration: root.animationDuration,
-      inAnimation: root.inAnimation,
-      outAnimation: root.outAnimation,
+    return GgNavigationPageOverridesProvider(
+      child: GgRouter(
+        _generateChildren(context),
+        semanticLabels: widget.semanticLabels,
+        key: ValueKey(routePath),
+        animationDuration: root.animationDuration,
+        inAnimation: root.inAnimation,
+        outAnimation: root.outAnimation,
+      ),
     );
   }
 
@@ -327,8 +329,7 @@ class GgPageWithNavBar extends StatelessWidget {
     assert(rootState?.context != null);
     final rootNode = GgRouter.of(rootState!.context).node;
     final ownNode = GgRouter.of(context).node;
-
-    // Use context of rootState to get the parent node
+    final npo = GgNavigationPageOverrides.of(context);
 
     return Container(
       color: rootPage.navigationBarBackgroundColor,
@@ -342,8 +343,8 @@ class GgPageWithNavBar extends StatelessWidget {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTapUp: (_) => ownNode.navigateTo('../'),
-                  child: rootPage.navigationBarBackButton?.call(context) ??
-                      Text('Back'),
+                  child: _backButton(
+                      context: context, rootPage: rootPage, npo: npo),
                 ),
               ),
             Spacer(),
@@ -361,13 +362,47 @@ class GgPageWithNavBar extends StatelessWidget {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTapUp: (_) => rootNode.navigateTo('../'),
-                  child: rootPage.navigationBarCloseButton?.call(context) ??
-                      Text('Close'),
+                  child: _closeButton(
+                      context: context, rootPage: rootPage, npo: npo),
                 ),
               ),
           ],
         ),
       ),
+    );
+  }
+
+  // ...........................................................................
+  Widget _backButton({
+    required BuildContext context,
+    required GgNavigationPageRoot rootPage,
+    required GgNavigationPageOverrides npo,
+  }) {
+    return StreamBuilder<WidgetBuilder?>(
+      stream: npo.backButton.stream,
+      builder: (context, snapshot) {
+        final overriddenButton = npo.backButton.value?.call(context);
+        return overriddenButton ??
+            rootPage.navigationBarBackButton?.call(context) ??
+            Text('Back');
+      },
+    );
+  }
+
+  // ...........................................................................
+  Widget _closeButton({
+    required BuildContext context,
+    required GgNavigationPageRoot rootPage,
+    required GgNavigationPageOverrides npo,
+  }) {
+    return StreamBuilder<WidgetBuilder?>(
+      stream: npo.closeButton.stream,
+      builder: (context, snapshot) {
+        final overriddenButton = npo.closeButton.value?.call(context);
+        return overriddenButton ??
+            rootPage.navigationBarCloseButton?.call(context) ??
+            Text('Close');
+      },
     );
   }
 }

@@ -6,6 +6,7 @@
 
 export 'src/gg_animations.dart';
 export 'src/gg_navigation_page.dart';
+export 'src/gg_navigation_page_overrides.dart';
 export 'src/gg_popover_route.dart';
 export 'src/gg_route_change_builder.dart';
 export 'src/gg_route_information_parser.dart';

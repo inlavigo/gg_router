@@ -34,6 +34,12 @@ class GgNavigationPageOverrides
   // ...........................................................................
   final closeButton = GgValue<WidgetBuilder?>(seed: null);
   final backButton = GgValue<WidgetBuilder?>(seed: null);
+  void _initButtons() {
+    _dispose.add(closeButton.dispose);
+    _dispose.add(backButton.dispose);
+  }
+
+  // ...........................................................................
   Stream<void> get onBackgroundTapped => _backgroundTapped.stream;
 
   // ...........................................................................
@@ -51,8 +57,8 @@ class GgNavigationPageOverrides
   // ...........................................................................
   @override
   void initState() {
+    _initButtons();
     _initBackgroundTapped();
-    _resetOverridesOnRouteChanges();
     super.initState();
   }
 
@@ -93,17 +99,6 @@ class GgNavigationPageOverrides
       d();
     }
     super.dispose();
-  }
-
-  // ...........................................................................
-  void _resetOverridesOnRouteChanges() {
-    final s = GgRouter.of(context).node.stagedChildDidChange.listen(
-      (event) {
-        _resetOverrides();
-      },
-    );
-
-    _dispose.add(s.cancel);
   }
 
   // ...........................................................................

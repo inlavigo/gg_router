@@ -21,7 +21,98 @@ void main() {
 
 const debugShowCheckedModeBanner = false;
 
-// .............................................................................
+// #############################################################################
+class MyNavigationPage extends StatelessWidget {
+  const MyNavigationPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GgNavigationPage(
+      // Setup page content
+      showBackButton: false,
+      pageContent: (ctx2) => Center(
+        child: Column(
+          children: [
+            Row(children: [
+              Spacer(),
+            ]),
+            Spacer(),
+            _checkBox(context),
+            Container(
+              height: 30,
+            ),
+            TextButton(
+              key: ValueKey('Details Button'),
+              onPressed: () => GgRouter.of(ctx2).navigateTo('details'),
+              child: Text('Details'),
+            ),
+            Spacer(),
+          ],
+        ),
+      ),
+      children: {
+        'details': GgNavigationPage(
+          pageContent: (ctx3) => Container(
+            color: Color(0xFF555555),
+            child: Center(
+                child: TextButton(
+                    key: ValueKey('More Details Button'),
+                    onPressed: () {
+                      GgRouter.of(ctx3).navigateTo('more-details');
+                    },
+                    child: Text('More details'))),
+          ),
+          children: {
+            'more-details': GgNavigationPage(
+              pageContent: (_) => Container(
+                color: Color(0xFF666666),
+                child: Center(
+                  child: Text('More details'),
+                ),
+              ),
+            )
+          },
+          semanticLabels: {
+            'more-details': 'More Details',
+          },
+        )
+      },
+      semanticLabels: {
+        'details': 'Details',
+      },
+    );
+  }
+
+  // ...........................................................................
+  // ...........................................................................
+  Widget _checkBox(BuildContext context) {
+    final GgValue param = GgRouter.of(context).param('visit')!;
+
+    return Row(children: [
+      Expanded(child: Container()),
+      SizedBox(
+        width: 200,
+        height: 50,
+        child: Container(
+          color: Color(0x11FFFFFF),
+          child: StreamBuilder(
+            stream: param.stream,
+            builder: (context, snapshot) {
+              return CheckboxListTile(
+                title: Text("Visit Event"),
+                value: param.value,
+                onChanged: (newValue) => param.value = newValue as bool,
+              );
+            },
+          ),
+        ),
+      ),
+      Expanded(child: Container()),
+    ]);
+  }
+}
+
+// #############################################################################
 class GgRouterExample extends StatelessWidget {
   GgRouterExample({Key? key}) : super(key: key);
 
@@ -176,97 +267,15 @@ class GgRouterExample extends StatelessWidget {
         size: 18.0,
       ),
 
-      child: _navigationPage(context),
+      child: MyNavigationPage(),
     );
   }
-
-  GgNavigationPage _navigationPage(BuildContext context) => GgNavigationPage(
-        // Setup page content
-        showBackButton: false,
-        pageContent: (ctx2) => Center(
-          child: Column(
-            children: [
-              Row(children: [
-                Spacer(),
-              ]),
-              Spacer(),
-              _checkBox(context),
-              Container(
-                height: 30,
-              ),
-              TextButton(
-                key: ValueKey('Details Button'),
-                onPressed: () => GgRouter.of(ctx2).navigateTo('details'),
-                child: Text('Details'),
-              ),
-              Spacer(),
-            ],
-          ),
-        ),
-        children: {
-          'details': GgNavigationPage(
-            pageContent: (ctx3) => Container(
-              color: Color(0xFF555555),
-              child: Center(
-                  child: TextButton(
-                      key: ValueKey('More Details Button'),
-                      onPressed: () {
-                        GgRouter.of(ctx3).navigateTo('more-details');
-                      },
-                      child: Text('More details'))),
-            ),
-            children: {
-              'more-details': GgNavigationPage(
-                pageContent: (_) => Container(
-                  color: Color(0xFF666666),
-                  child: Center(
-                    child: Text('More details'),
-                  ),
-                ),
-              )
-            },
-            semanticLabels: {
-              'more-details': 'More Details',
-            },
-          )
-        },
-        semanticLabels: {
-          'details': 'Details',
-        },
-      );
 
   // ...........................................................................
   Widget _dialog(BuildContext context) {
     return Dialog(
       child: _dialogContent(context),
     );
-  }
-
-  // ...........................................................................
-  Widget _checkBox(BuildContext context) {
-    final GgValue param = GgRouter.of(context).param('visit')!;
-
-    return Row(children: [
-      Expanded(child: Container()),
-      SizedBox(
-        width: 200,
-        height: 50,
-        child: Container(
-          color: Color(0x11FFFFFF),
-          child: StreamBuilder(
-            stream: param.stream,
-            builder: (context, snapshot) {
-              return CheckboxListTile(
-                title: Text("Visit Event"),
-                value: param.value,
-                onChanged: (newValue) => param.value = newValue as bool,
-              );
-            },
-          ),
-        ),
-      ),
-      Expanded(child: Container()),
-    ]);
   }
 
   // ...........................................................................
@@ -620,8 +629,6 @@ class GgRouterExample extends StatelessWidget {
     Widget child,
     Size size,
   ) {
-    print(GgRouter.of(context).nameOfChildAnimatingOut);
-
     final scale = 1.0 - animation.value;
     final angle = -2 * pi * animation.value;
     final fade = 1.0 - animation.value;
