@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
 import 'package:gg_value/gg_value.dart';
 
+const defaultAnimationDuration = Duration(milliseconds: 500);
+
 // #############################################################################
 /// A callback GgRouter uses to animate appearing and disappearing widgets.
 /// - [animation] The ongoing animation.
@@ -168,7 +170,7 @@ class GgRouter extends StatefulWidget {
     this.defaultRoute,
     this.inAnimation,
     this.outAnimation,
-    this.animationDuration = const Duration(milliseconds: 500),
+    this.animationDuration = defaultAnimationDuration,
   })  : _rootChild = null,
         _rootNode = null,
         super(key: key) {
@@ -188,7 +190,7 @@ class GgRouter extends StatefulWidget {
         defaultRoute = null,
         inAnimation = null,
         outAnimation = null,
-        animationDuration = const Duration(milliseconds: 500),
+        animationDuration = defaultAnimationDuration,
         super(key: key);
 
   // ...........................................................................

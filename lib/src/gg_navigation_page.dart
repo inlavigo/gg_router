@@ -244,7 +244,7 @@ class GgNavigationPageRoot extends StatefulWidget {
     required this.child,
     this.inAnimation,
     this.outAnimation,
-    this.animationDuration = const Duration(milliseconds: 500),
+    this.animationDuration = defaultAnimationDuration,
     this.navigationBarBackgroundColor,
     this.navigationBarPadding = 0,
     this.navigationBarBackButton,
@@ -343,8 +343,12 @@ class GgPageWithNavBar extends StatelessWidget {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTapUp: (_) => ownNode.navigateTo('../'),
-                  child: _backButton(
-                      context: context, rootPage: rootPage, npo: npo),
+                  child: _navigationButton(
+                    isBackButton: true,
+                    context: context,
+                    rootPage: rootPage,
+                    npo: npo,
+                  ),
                 ),
               ),
             Spacer(),
@@ -362,8 +366,12 @@ class GgPageWithNavBar extends StatelessWidget {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTapUp: (_) => rootNode.navigateTo('../'),
-                  child: _closeButton(
-                      context: context, rootPage: rootPage, npo: npo),
+                  child: _navigationButton(
+                    isBackButton: false,
+                    context: context,
+                    rootPage: rootPage,
+                    npo: npo,
+                  ),
                 ),
               ),
           ],
@@ -373,35 +381,37 @@ class GgPageWithNavBar extends StatelessWidget {
   }
 
   // ...........................................................................
-  Widget _backButton({
+  Widget _navigationButton({
+    required bool isBackButton,
     required BuildContext context,
     required GgNavigationPageRoot rootPage,
     required GgNavigationPageOverrides npo,
   }) {
-    return StreamBuilder<WidgetBuilder?>(
-      stream: npo.backButton.stream,
-      builder: (context, snapshot) {
-        final overriddenButton = npo.backButton.value?.call(context);
-        return overriddenButton ??
-            rootPage.navigationBarBackButton?.call(context) ??
-            Text('Back');
-      },
-    );
-  }
+    final overwrittenButton = isBackButton ? npo.backButton : npo.closeButton;
 
-  // ...........................................................................
-  Widget _closeButton({
-    required BuildContext context,
-    required GgNavigationPageRoot rootPage,
-    required GgNavigationPageOverrides npo,
-  }) {
     return StreamBuilder<WidgetBuilder?>(
-      stream: npo.closeButton.stream,
+      stream: overwrittenButton.stream,
       builder: (context, snapshot) {
-        final overriddenButton = npo.closeButton.value?.call(context);
-        return overriddenButton ??
-            rootPage.navigationBarCloseButton?.call(context) ??
-            Text('Close');
+        final overriddenButton = overwrittenButton.value?.call(context);
+        final defaultButton = isBackButton
+            ? rootPage.navigationBarBackButton?.call(context) ?? Text('Back')
+            : rootPage.navigationBarCloseButton?.call(context) ?? Text('Close');
+
+        final usedButton = overriddenButton ?? defaultButton;
+        final usedButtonWithKey = SizedBox(
+          child: usedButton,
+          key: ValueKey(overriddenButton ?? defaultButton),
+        );
+
+        return AnimatedSwitcher(
+          switchInCurve: Curves.easeInOut,
+          switchOutCurve: Curves.easeInOut,
+          duration: Duration(milliseconds: 300),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          child: usedButtonWithKey,
+        );
       },
     );
   }

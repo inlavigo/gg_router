@@ -23,7 +23,7 @@ class GgPopoverRoute extends StatefulWidget {
     required this.popover,
     this.inAnimation,
     this.outAnimation,
-    this.animationDuration = const Duration(milliseconds: 500),
+    this.animationDuration = defaultAnimationDuration,
   }) : super(key: key);
 
   /// The base widget. It is shown when the popover is not opened.

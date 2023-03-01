@@ -100,12 +100,4 @@ class GgNavigationPageOverrides
     }
     super.dispose();
   }
-
-  // ...........................................................................
-  void _resetOverrides() {
-    closeButton.value = null;
-    backButton.value = null;
-  }
-
-  // ...........................................................................
 }
