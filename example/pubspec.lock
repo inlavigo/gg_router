@@ -110,7 +110,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "3.0.2"
+    version: "4.0.0-dev.1"
   gg_value:
     dependency: "direct main"
     description:

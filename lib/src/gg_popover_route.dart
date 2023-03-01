@@ -15,7 +15,7 @@ class GgPopoverRoute extends StatefulWidget {
   // ...........................................................................
 
   /// Constructor.
-  GgPopoverRoute({
+  const GgPopoverRoute({
     required Key key,
     required this.name,
     this.semanticLabel,
@@ -155,6 +155,8 @@ class _GgPopoverRouteState extends State<GgPopoverRoute>
       final animationCallback =
           (fadeIn ? widget.inAnimation : widget.outAnimation)!;
 
+      final cnt = content(context);
+
       _popOver = (BuildContext context) => LayoutBuilder(
             builder: (context, layout) {
               return AnimatedBuilder(
@@ -163,7 +165,7 @@ class _GgPopoverRouteState extends State<GgPopoverRoute>
                   return animationCallback(
                     context,
                     _animation,
-                    content(context),
+                    cnt,
                     Size(
                       layout.maxWidth,
                       layout.maxHeight,
