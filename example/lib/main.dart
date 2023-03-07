@@ -5,6 +5,7 @@
 // found in the LICENSE file in the root of this package.
 
 import 'dart:async';
+import 'dart:developer';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -304,7 +305,7 @@ class GgRouterExample extends StatelessWidget {
           stream: router.onActiveChildChange,
           builder: (context, snapshot) {
             final index = router.indexOfActiveChild ?? 0;
-
+            router.indexOfActiveChild;
             return BottomNavigationBar(
               currentIndex: index,
               items: [
@@ -379,7 +380,6 @@ class GgRouterExample extends StatelessWidget {
           stream: router.onActiveChildChange,
           builder: (context, snapshot) {
             final index = router.indexOfActiveChild ?? 0;
-
             return BottomNavigationBar(
               currentIndex: index,
               items: [
@@ -620,8 +620,6 @@ class GgRouterExample extends StatelessWidget {
     Widget child,
     Size size,
   ) {
-    print(GgRouter.of(context).nameOfChildAnimatingOut);
-
     final scale = 1.0 - animation.value;
     final angle = -2 * pi * animation.value;
     final fade = 1.0 - animation.value;
