@@ -305,9 +305,9 @@ class GgRouterExample extends StatelessWidget {
           stream: router.onActiveChildChange,
           builder: (context, snapshot) {
             final index = router.indexOfActiveChild ?? 0;
-            router.indexOfActiveChild;
+
             return BottomNavigationBar(
-              currentIndex: index,
+              currentIndex: max(index - 1, 0),
               items: [
                 BottomNavigationBarItem(
                   label: 'Basketball',
@@ -380,8 +380,9 @@ class GgRouterExample extends StatelessWidget {
           stream: router.onActiveChildChange,
           builder: (context, snapshot) {
             final index = router.indexOfActiveChild ?? 0;
+
             return BottomNavigationBar(
-              currentIndex: index,
+              currentIndex: max(index - 1, 0),
               items: [
                 BottomNavigationBarItem(
                   label: 'Bus',
@@ -438,7 +439,7 @@ class GgRouterExample extends StatelessWidget {
             final index = router.indexOfActiveChild ?? 0;
 
             return BottomNavigationBar(
-              currentIndex: index,
+              currentIndex: max(index - 1, 0),
               items: [
                 BottomNavigationBarItem(
                   label: 'Airpot',

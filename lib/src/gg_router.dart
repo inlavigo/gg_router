@@ -394,10 +394,8 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     int i = 0;
     widget.children.keys.forEach((key) {
       final child = _parentNode.findOrCreateChild(key);
-      if (child.name != '_INDEX_') {
-        child.widgetIndex = i;
-        i++;
-      }
+      child.widgetIndex = i;
+      i++;
     });
 
     // .......................................................
