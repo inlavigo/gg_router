@@ -1017,6 +1017,8 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   _navigateTo(String path) {
+    path = path.replaceAll('_INDEX_/', '').replaceAll('/_INDEX_', '');
+
     final pathComponents = path == '/' ? <String>[] : path.split('/');
 
     // route/_INDEX_ is treated as route/ when navigating

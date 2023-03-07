@@ -1182,6 +1182,18 @@ main() {
         childA2Index.navigateTo('../');
         expect(root.stagedChildPath, '');
       });
+
+      test('Should remove "_INDEX_" routes in path', () {
+        init();
+        childA2Index.navigateTo('../_INDEX_');
+        expect(root.stagedChildPath, '');
+
+        childB.navigateTo('./child-c/_INDEX_');
+        expect(root.stagedChildPath, 'child-a0/child-b/child-c');
+
+        childA2Index.navigateTo('_INDEX_/../');
+        expect(root.stagedChildPath, '');
+      });
     });
 
     // #########################################################################
