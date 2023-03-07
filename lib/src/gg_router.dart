@@ -566,27 +566,41 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
                 node: _stagedNode!,
               );
 
-      final inWidget = childToFadeIn == null
+      // .............
+      // Animation in
+
+      final childIn = childToFadeOut == null
+          ? null
+          : GgRouterCore(
+              child: childToFadeIn!(context),
+              node: _nodeToBeFadedIn!,
+            );
+
+      final inWidget = childIn == null
           ? null
           : () => widget.inAnimation!.call(
                 context,
                 _animation,
-                GgRouterCore(
-                  child: Builder(builder: (context) => childToFadeIn(context)),
-                  node: _nodeToBeFadedIn!,
-                ),
+                childIn,
                 size,
               );
 
-      final outWidget = childToFadeOut == null
+      // .............
+      // Animation out
+
+      final childOut = childToFadeOut == null
+          ? null
+          : GgRouterCore(
+              child: childToFadeOut(context),
+              node: _nodeToBeFadedOut!,
+            );
+
+      final outWidget = childOut == null
           ? null
           : () => widget.outAnimation!.call(
                 context,
                 _animation,
-                GgRouterCore(
-                  child: Builder(builder: (context) => childToFadeOut(context)),
-                  node: _nodeToBeFadedOut!,
-                ),
+                childOut,
                 size,
               );
 

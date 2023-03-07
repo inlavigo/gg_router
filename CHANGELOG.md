@@ -1,5 +1,10 @@
 # Change Log
 
+## 4.0.0 - March, 1st, 2023
+
+* Performance improvements for animations
+* `GgNavigationPage`: Allow to overwrite back and close button
+
 ## 3.0.2 - February, 23rd, 2023
 
 * Breaking change: `GgNavigationPageRoot` takes a `GgNavigationPage` instead of `pageContent`, `children` and `semanticLabels`.
