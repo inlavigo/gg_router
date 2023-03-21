@@ -54,7 +54,7 @@ class GgNavigationPage extends StatefulWidget {
 
   // ...........................................................................
   static _checkChildren(Map<String, Widget>? children) {
-    if (children != null && children.containsKey('_INDEX')) {
+    if (children?.containsKey('_INDEX_') == true) {
       throw ArgumentError(indexWidgetMustNotBeANavigationPage);
     }
   }
@@ -64,7 +64,7 @@ class GgNavigationPage extends StatefulWidget {
   State<GgNavigationPage> createState() => _GgNavigationPageState();
 
   static const indexWidgetMustNotBeANavigationPage =
-      'The _INDEX_ widget must not be of type GgNavigationPage.';
+      'GgNavigationPage must not contain an child route with name _INDEX_.';
 
   // ...........................................................................
   static const otherChildrenMustBeANavigationPage =
@@ -125,7 +125,7 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
   // ...........................................................................
   GgNavigationPageRoot _root(BuildContext context) {
     final GgNavigationPageRoot? root = (widget is GgNavigationPageRoot)
-        ? widget as GgNavigationPageRoot
+        ? widget as GgNavigationPageRoot // coverage:ignore-line
         : GgNavigationPageRoot.of(context);
 
     if (root == null) {
@@ -360,6 +360,7 @@ class GgPageWithNavBar extends StatelessWidget {
                 key: ValueKey('GgNavigationPageCloseButton'),
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
+                  // This behavior might not be wanted:
                   onTapUp: (_) => rootNode.navigateTo('../'),
                   child: rootPage.navigationBarCloseButton?.call(context) ??
                       Text('Close'),

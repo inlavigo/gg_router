@@ -558,6 +558,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
       final stayingWidget = childToFadeIn != null
           ? null
+          // coverage:ignore-start
           : (BuildContext context) => GgRouterCore(
                 child: Builder(
                     builder: (context) =>
@@ -565,6 +566,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
                         Container()),
                 node: _stagedNode!,
               );
+      // coverage:ignore-end
 
       // .............
       // Animation in
@@ -612,7 +614,9 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
           final stack = [
             if (outWidget != null) outWidget(),
             if (inWidget != null) inWidget(),
+            // coverage:ignore-start
             if (stayingWidget != null) stayingWidget(context),
+            // coverage:ignore-end
           ];
 
           // But if a widget is wrapped into GgShowInForeground

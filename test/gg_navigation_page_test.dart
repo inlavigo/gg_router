@@ -429,56 +429,151 @@ main() {
     });
 
     // #########################################################################
-    group('should show (no) back button and (no) close button', () {
-      for (final show in [true, false]) {
-        testWidgets('if showBackButton and showCloseButton are true (false)',
-            (tester) async {
-          // Create a parent page
-          final parentKey = Key('parent');
-          GgNavigationPage parent() {
-            final result = GgNavigationPage(
-              key: parentKey,
-              showBackButton: show,
-              showCloseButton: show,
-              pageContent: (_) => Container(),
-              children: {
-                'self': Container(),
-              },
-            );
-
-            return result;
-          }
-
-          // Create a root page
-          final root = GgNavigationPageRoot(
-            child: parent(),
+    group('should show no back button and no close button when', () {
+      testWidgets('if showBackButton and showCloseButton are false',
+          (tester) async {
+        // Create a parent page
+        final parentKey = Key('parent');
+        GgNavigationPage parent() {
+          final result = GgNavigationPage(
+            key: parentKey,
+            showBackButton: false,
+            showCloseButton: false,
+            pageContent: (_) => Container(),
+            children: {
+              'self': Container(),
+            },
           );
 
-          // Crate a root node
-          final rootNode = GgRouteTreeNode.newRoot;
+          return result;
+        }
 
-          // Pump the widget
-          await tester.pumpWidget(
-            Directionality(
-              textDirection: TextDirection.ltr,
-              child: GgRouter.root(child: root, node: rootNode),
-            ),
-          );
+        // Create a root page
+        final root = GgNavigationPageRoot(
+          child: parent(),
+        );
 
-          // Check buttons
-          await tester.pumpAndSettle();
+        // Crate a root node
+        final rootNode = GgRouteTreeNode.newRoot;
 
-          final backButtonFinder = find.byKey(
-            ValueKey('GgNavigationPageBackButton'),
-          );
-          expect(backButtonFinder, show ? findsOneWidget : findsNothing);
+        // Pump the widget
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: GgRouter.root(child: root, node: rootNode),
+          ),
+        );
 
-          final closeButtonFinder = find.byKey(
-            ValueKey('GgNavigationPageCloseButton'),
-          );
-          expect(closeButtonFinder, show ? findsOneWidget : findsNothing);
-        });
-      }
+        // Check buttons
+        await tester.pumpAndSettle();
+
+        final backButtonFinder = find.byKey(
+          ValueKey('GgNavigationPageBackButton'),
+        );
+        expect(backButtonFinder, findsNothing);
+
+        final closeButtonFinder = find.byKey(
+          ValueKey('GgNavigationPageCloseButton'),
+        );
+        expect(closeButtonFinder, findsNothing);
+      });
     });
+
+    // #########################################################################
+    group('should show a back button and a close button when', () {
+      testWidgets('if showBackButton and showCloseButton are true',
+          (tester) async {
+        // Create a parent page
+        final parentKey = Key('parent');
+        GgNavigationPage parent() {
+          final result = GgNavigationPage(
+            key: parentKey,
+            showBackButton: true,
+            showCloseButton: true,
+            pageContent: (_) => Container(),
+            children: {
+              'self': Container(),
+            },
+          );
+
+          return result;
+        }
+
+        // Create a root page
+        final root = GgNavigationPageRoot(
+          child: parent(),
+        );
+
+        // Crate a root node
+        final rootNode = GgRouteTreeNode.newRoot;
+        final childNode = rootNode.findOrCreateChild('child');
+        final grandChildNode = childNode.findOrCreateChild('grandChild');
+        grandChildNode.navigateTo('.');
+
+        // Pump the widget
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: GgRouter.root(child: root, node: grandChildNode),
+          ),
+        );
+
+        // Check buttons
+        await tester.pumpAndSettle();
+
+        final backButtonFinder = find.byKey(
+          ValueKey('GgNavigationPageBackButton'),
+        );
+        expect(backButtonFinder, findsOneWidget);
+
+        final closeButtonFinder = find.byKey(
+          ValueKey('GgNavigationPageCloseButton'),
+        );
+        expect(closeButtonFinder, findsOneWidget);
+
+        // Back button should navigate back?
+        expect(rootNode.stagedChildPath, 'child/grandChild');
+        await tester.tap(backButtonFinder);
+        await tester.pumpAndSettle();
+        expect(rootNode.stagedChildPath, 'child');
+
+        // Close button should navigate to the root?
+        grandChildNode.navigateTo('.');
+        expect(rootNode.stagedChildPath, 'child/grandChild');
+        await tester.tap(closeButtonFinder);
+        await tester.pumpAndSettle();
+        expect(rootNode.stagedChildPath,
+            'child'); // This behavior might not be wanted
+      });
+    });
+
+    // .........................................................................
+    testWidgets(
+      'should throw if children contain an _INDEX_route',
+      (WidgetTester tester) async {
+        final node = GgRouteTreeNode.newRoot.findOrCreateChild('node');
+
+        expect(
+            () async => await tester.pumpWidget(
+                  Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: GgRouter.root(
+                      node: node,
+                      child: GgNavigationPageRoot(
+                        child: GgNavigationPage(
+                          pageContent: (_) => Container(),
+                          children: {
+                            '_INDEX_': GgNavigationPage(
+                              pageContent: (_) => SizedBox(),
+                            )
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            throwsArgumentError);
+      },
+    );
   });
 }

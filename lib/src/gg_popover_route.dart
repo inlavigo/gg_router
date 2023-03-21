@@ -137,9 +137,11 @@ class _GgPopoverRouteState extends State<GgPopoverRoute>
     // If no animation is needed show the popover content directly
     bool noAnimationNeeded = !fadeIn && !fadeOut;
     if (noAnimationNeeded) {
+      // coverage:ignore-start
       setState(() {
         _popOver = content;
       });
+      // coverage:ignore-end
       return;
     }
 

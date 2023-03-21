@@ -99,10 +99,6 @@ class _Params {
   }
 
   // ...........................................................................
-  /// Returns true, once dispose was called
-  bool get isDisposed => _dispose.isEmpty;
-
-  // ...........................................................................
   /// Returns own param
   GgValue<T>? param<T>(String name) {
     final result = _params[name];

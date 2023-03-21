@@ -40,6 +40,7 @@ main() {
     group('constructor', () {
       test('should create a parameter', () {
         init();
+        dispose();
       });
     });
   });

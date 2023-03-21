@@ -5,7 +5,6 @@
 // found in the LICENSE file in the root of this package.
 
 import 'dart:async';
-import 'dart:developer';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
