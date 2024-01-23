@@ -8,11 +8,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/src/gg_animations.dart';
 
-typedef GgAnimation NewGgAnimation(
+typedef NewGgAnimation = GgAnimation Function(
     {required Animation<dynamic> animation,
     required Widget child,
     Key? key,
-    required Size size});
+    required Size size,});
 
 void main() {
   late WidgetTester tester;
@@ -37,7 +37,7 @@ void main() {
               return ggAnimation(
                 animation: animationController,
                 child: Container(
-                  key: ValueKey('Animated Object'),
+                  key: const ValueKey('Animated Object'),
                   width: layout.maxWidth,
                   height: layout.maxHeight,
                 ),
@@ -60,7 +60,7 @@ void main() {
     // .........................................................................
     Future<void> expectOffset(Offset initial, Offset finalOffset) async {
       // Initially the animated object is positioned outside the window
-      final animatedObject = find.byKey(ValueKey('Animated Object'));
+      final animatedObject = find.byKey(const ValueKey('Animated Object'));
       expect(tester.getTopLeft(animatedObject), initial);
 
       // After animation, the object is positioned within the window
@@ -71,22 +71,22 @@ void main() {
 
     // .........................................................................
     Future<void> expectInitialOffset(double x, double y) async {
-      await expectOffset(Offset(x, y), Offset(0, 0));
+      await expectOffset(Offset(x, y), const Offset(0, 0));
     }
 
     // .........................................................................
     Future<void> expectFinalOffset(double x, double y) async {
-      await expectOffset(Offset(0, 0), Offset(x, y));
+      await expectOffset(const Offset(0, 0), Offset(x, y));
     }
 
     // .........................................................................
     Future<void> expectOpacity(
-        {required double initial, required double finalOpacity}) async {
+        {required double initial, required double finalOpacity,}) async {
       // Initially the animated object is positioned outside the window
       double opacity() => tester
           .widget<Opacity>(find.ancestor(
-              of: find.byKey(ValueKey('Animated Object')),
-              matching: find.byType(Opacity)))
+              of: find.byKey(const ValueKey('Animated Object')),
+              matching: find.byType(Opacity),),)
           .opacity;
 
       expect(opacity(), initial);

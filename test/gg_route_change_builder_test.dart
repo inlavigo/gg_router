@@ -20,16 +20,19 @@ main() {
     // .........................................................................
     setUp(WidgetTester tester) async {
       buildNumber = 0;
-      rootNode = GgRouteTreeNode.newRoot;
+      rootNode = GgRouteTreeNode.newRoot();
 
       final widget = GgRouter.root(
         child: GgRouteChangeBuilder(
-            key: key, builder: (_) => Text('${buildNumber++}')),
+          key: key,
+          builder: (_) => Text('${buildNumber++}'),
+        ),
         node: rootNode,
       );
 
       await tester.pumpWidget(
-          Directionality(textDirection: TextDirection.ltr, child: widget));
+        Directionality(textDirection: TextDirection.ltr, child: widget),
+      );
 
       // ...........
       // Get widgets

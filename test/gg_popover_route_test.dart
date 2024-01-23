@@ -15,11 +15,11 @@ main() {
     late GgEasyWidgetTest<GgPopoverRoute, dynamic> ggOverlayRouter;
     final key = GlobalKey(debugLabel: 'GgPopoverRoute');
 
-    final baseKey = ValueKey('base');
-    final Widget base = Text('Base', key: baseKey);
+    const baseKey = ValueKey('base');
+    const Widget base = Text('Base', key: baseKey);
 
-    final popoverKey = ValueKey('popover');
-    final Widget popover = Text('Popover', key: popoverKey);
+    const popoverKey = ValueKey('popover');
+    const Widget popover = Text('Popover', key: popoverKey);
     var lastSizeIn = Size.zero;
     var lastSizeOut = Size.zero;
 
@@ -40,9 +40,9 @@ main() {
             children: [
               Text(
                 '${animation.value}',
-                key: ValueKey('inAnimation'),
+                key: const ValueKey('inAnimation'),
               ),
-              child
+              child,
             ],
           );
         },
@@ -52,13 +52,13 @@ main() {
             children: [
               Text(
                 '${animation.value}',
-                key: ValueKey('outAnimation'),
+                key: const ValueKey('outAnimation'),
               ),
-              child
+              child,
             ],
           );
         },
-        animationDuration: Duration(milliseconds: 1000),
+        animationDuration: const Duration(milliseconds: 1000),
       );
       final routerDelegate = GgRouterDelegate(child: widget, defaultRoute: '/');
       root = routerDelegate.root;
@@ -111,7 +111,7 @@ main() {
       // .........................
       // Now lets open the popover
       root.navigateTo('./popover');
-      await tester.pump(Duration(microseconds: 1));
+      await tester.pump(const Duration(microseconds: 1));
 
       // .............................
       // The in animation should start
@@ -119,7 +119,7 @@ main() {
       expectAnimationValue('out', null);
 
       // Go to the middle of the animation
-      await tester.pump(Duration(milliseconds: 500));
+      await tester.pump(const Duration(milliseconds: 500));
       expectAnimationValue('in', '0.5');
       expectAnimationValue('out', null);
 
@@ -132,13 +132,13 @@ main() {
       expect(find.byKey(baseKey), findsOneWidget);
       expect(find.byKey(popoverKey), findsOneWidget);
 
-      expect(lastSizeIn, Size(800, 600));
+      expect(lastSizeIn, const Size(800, 600));
       expect(lastSizeOut, Size.zero);
 
       // ...............................
       // Now lets route back to the base
       root.navigateTo('.');
-      await tester.pump(Duration(microseconds: 1));
+      await tester.pump(const Duration(microseconds: 1));
 
       // .............................
       // The out animation should start
@@ -146,7 +146,7 @@ main() {
       expectAnimationValue('out', '0.0');
 
       // Go to the middle of the animation
-      await tester.pump(Duration(milliseconds: 500));
+      await tester.pump(const Duration(milliseconds: 500));
       expectAnimationValue('in', null);
       expectAnimationValue('out', '0.5');
 
@@ -159,8 +159,8 @@ main() {
       expect(find.byKey(baseKey), findsOneWidget);
       expect(find.byKey(popoverKey), findsNothing);
 
-      expect(lastSizeIn, Size(800, 600));
-      expect(lastSizeOut, Size(800, 600));
+      expect(lastSizeIn, const Size(800, 600));
+      expect(lastSizeOut, const Size(800, 600));
 
       await tearDown(tester);
     });

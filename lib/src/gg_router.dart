@@ -5,7 +5,7 @@
 // found in the LICENSE file in the root of this repository.
 
 import 'package:flutter/material.dart';
-import 'package:gg_router/gg_router.dart';
+import '../gg_router.dart';
 import 'package:gg_value/gg_value.dart';
 
 // #############################################################################
@@ -14,13 +14,17 @@ import 'package:gg_value/gg_value.dart';
 /// - [child] The child to appear or disappear.
 /// - [size] The size of the enclosing widget.
 typedef GgAnimationBuilder = Widget Function(
-    BuildContext context, Animation animation, Widget child, Size size);
+  BuildContext context,
+  Animation animation,
+  Widget child,
+  Size size,
+);
 
 // #############################################################################
 /// During animation, wrap widgets into GgShowInForeground to have a widget
 /// shown on the top
 class GgShowInForeground extends StatelessWidget {
-  const GgShowInForeground({Key? key, required this.child}) : super(key: key);
+  const GgShowInForeground({super.key, required this.child});
 
   final Widget child;
 
@@ -34,8 +38,7 @@ class GgShowInForeground extends StatelessWidget {
 
 // #############################################################################
 class GgRouterCore extends StatelessWidget {
-  const GgRouterCore({Key? key, required this.child, required this.node})
-      : super(key: key);
+  const GgRouterCore({super.key, required this.child, required this.node});
   // ...........................................................................
   final Widget child;
   final GgRouteTreeNode node;
@@ -179,17 +182,18 @@ class GgRouter extends StatefulWidget {
 
   // ...........................................................................
   /// This method is called by [GgRouterDelegate] to create the root instance.
-  const GgRouter.root(
-      {Key? key, required Widget child, required GgRouteTreeNode node})
-      : _rootChild = child,
+  const GgRouter.root({
+    super.key,
+    required Widget child,
+    required GgRouteTreeNode node,
+  })  : _rootChild = child,
         _rootNode = node,
         children = const {},
         semanticLabels = const {},
         defaultRoute = null,
         inAnimation = null,
         outAnimation = null,
-        animationDuration = const Duration(milliseconds: 500),
-        super(key: key);
+        animationDuration = const Duration(milliseconds: 500);
 
   // ...........................................................................
   /// Copies a router object and allows to replace single properties.
@@ -243,7 +247,7 @@ class GgRouter extends StatefulWidget {
       'Did not find an instance of GgRouterDelegate.\n'
       'Please wrap your GgRouter into a MaterialApp.router(...) and '
       'assign an instance of GgRouterDelegate to "routerDelegate".\n'
-      'When testing, it is sufficient to wrap the GgRouter under test into'
+      'When testing, it is sufficient to wrap the GgRouter under test into '
       'another GgRouter.root instance.\n'
       'For more details look into "gg_router/example/main.dart".';
 
@@ -280,7 +284,7 @@ class GgRouter extends StatefulWidget {
   final Widget? _rootChild;
   final GgRouteTreeNode? _rootNode;
 
-  _checkAnimations() {
+  void _checkAnimations() {
     final inAnimationIsDefined = inAnimation != null;
     final outAnimationIsDefined = outAnimation != null;
     if (inAnimationIsDefined != outAnimationIsDefined) {
@@ -289,24 +293,25 @@ class GgRouter extends StatefulWidget {
   }
 
   // ...........................................................................
-  _checkChildren() {
-    children.keys.forEach((name) {
+  void _checkChildren() {
+    for (var name in children.keys) {
       if (!GgRouteTreeNode.isValidName(name)) {
         // coverage:ignore-start
         throw ArgumentError('The name "$name" is not a valid route name.');
         // coverage:ignore-end
       }
-    });
+    }
   }
 
   // ...........................................................................
-  _checkSemanticLabels() {
-    semanticLabels.keys.forEach((key) {
+  void _checkSemanticLabels() {
+    for (var key in semanticLabels.keys) {
       if (!children.containsKey(key)) {
         throw ArgumentError(
-            'You specified a semantic label for route "$key", but you did not setup a route with name "$key".');
+          'You specified a semantic label for route "$key", but you did not setup a route with name "$key".',
+        );
       }
-    });
+    }
   }
 
   // ...........................................................................
@@ -317,7 +322,9 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   // ...........................................................................
   @override
   dispose() {
-    _dispose.reversed.forEach((d) => d());
+    for (var d in _dispose.reversed) {
+      d();
+    }
     super.dispose();
   }
 
@@ -361,7 +368,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   }
 
   // ...........................................................................
-  _observeVisibleNode() {
+  void _observeVisibleNode() {
     // .........................................................................
     // If widget is a root widget, the root node will always be the visible node.
     if (widget._isRoot) {
@@ -392,11 +399,11 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // ........................
     // Update the child indexes
     int i = 0;
-    widget.children.keys.forEach((key) {
+    for (var key in widget.children.keys) {
       final child = _parentNode.findOrCreateChild(key);
       child.widgetIndex = i;
       i++;
-    });
+    }
 
     // .......................................................
     // Check if a widget is available for the new visible node
@@ -428,11 +435,9 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
     // ...................................................
     // If no visible child is defined, take the index route
-    if (newVisibleNode == null) {
-      newVisibleNode = widget.children.containsKey('_INDEX_')
-          ? _parentNode.findOrCreateChild('_INDEX_')
-          : null;
-    }
+    newVisibleNode ??= widget.children.containsKey('_INDEX_')
+        ? _parentNode.findOrCreateChild('_INDEX_')
+        : null;
 
     // ...................................................
     // If no index child is defined, take the default route
@@ -528,7 +533,8 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
                   return child?.call(ctx) ?? Container();
                 },
               ),
-              node: _stagedNode!)
+              node: _stagedNode!,
+            )
           : Container();
     }
   }
@@ -548,99 +554,102 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
   // ...........................................................................
   Widget _animate() {
-    return LayoutBuilder(builder: (context, layout) {
-      final size = Size(layout.maxWidth, layout.maxHeight);
+    return LayoutBuilder(
+      builder: (context, layout) {
+        final size = Size(layout.maxWidth, layout.maxHeight);
 
-      // .....................................
-      // Show the widget belonging to the node
-      final childToFadeIn = _content(_nodeToBeFadedIn);
-      final childToFadeOut = _content(_nodeToBeFadedOut);
+        // .....................................
+        // Show the widget belonging to the node
+        final childToFadeIn = _content(_nodeToBeFadedIn);
+        final childToFadeOut = _content(_nodeToBeFadedOut);
 
-      final stayingWidget = childToFadeIn != null
-          ? null
-          // coverage:ignore-start
-          : (BuildContext context) => GgRouterCore(
-                child: Builder(
+        final stayingWidget = childToFadeIn != null
+            ? null
+            // coverage:ignore-start
+            : (BuildContext context) => GgRouterCore(
+                  child: Builder(
                     builder: (context) =>
                         widget.children[_stagedNode!.name]?.call(context) ??
-                        Container()),
-                node: _stagedNode!,
+                        Container(),
+                  ),
+                  node: _stagedNode!,
+                );
+        // coverage:ignore-end
+
+        // .............
+        // Animation in
+
+        final childIn = childToFadeOut == null
+            ? null
+            : GgRouterCore(
+                child: childToFadeIn!(context),
+                node: _nodeToBeFadedIn!,
               );
-      // coverage:ignore-end
 
-      // .............
-      // Animation in
+        final inWidget = childIn == null
+            ? null
+            : () => widget.inAnimation!.call(
+                  context,
+                  _animation,
+                  childIn,
+                  size,
+                );
 
-      final childIn = childToFadeOut == null
-          ? null
-          : GgRouterCore(
-              child: childToFadeIn!(context),
-              node: _nodeToBeFadedIn!,
+        // .............
+        // Animation out
+
+        final childOut = childToFadeOut == null
+            ? null
+            : GgRouterCore(
+                child: childToFadeOut(context),
+                node: _nodeToBeFadedOut!,
+              );
+
+        final outWidget = childOut == null
+            ? null
+            : () => widget.outAnimation!.call(
+                  context,
+                  _animation,
+                  childOut,
+                  size,
+                );
+
+        return AnimatedBuilder(
+          animation: _animation,
+          builder: (context, widget) {
+            // By default outWidget is shown in the background
+            // In widget is shown in the foreground
+            final stack = [
+              if (outWidget != null) outWidget(),
+              if (inWidget != null) inWidget(),
+              // coverage:ignore-start
+              if (stayingWidget != null) stayingWidget(context),
+              // coverage:ignore-end
+            ];
+
+            // But if a widget is wrapped into GgShowInForeground
+            // the widget is always put to foreground
+            stack.sort((a, b) {
+              final showAOnTop = a is GgShowInForeground;
+              final showBOnTop = b is GgShowInForeground;
+
+              if (showAOnTop == showBOnTop) {
+                return 0;
+              } else if (showAOnTop) {
+                return 1;
+              } else {
+                return -1;
+              }
+            });
+
+            return ClipRect(
+              clipBehavior: Clip.hardEdge,
+              child: Stack(children: stack),
             );
-
-      final inWidget = childIn == null
-          ? null
-          : () => widget.inAnimation!.call(
-                context,
-                _animation,
-                childIn,
-                size,
-              );
-
-      // .............
-      // Animation out
-
-      final childOut = childToFadeOut == null
-          ? null
-          : GgRouterCore(
-              child: childToFadeOut(context),
-              node: _nodeToBeFadedOut!,
-            );
-
-      final outWidget = childOut == null
-          ? null
-          : () => widget.outAnimation!.call(
-                context,
-                _animation,
-                childOut,
-                size,
-              );
-
-      return AnimatedBuilder(
-        animation: _animation,
-        builder: (context, widget) {
-          // By default outWidget is shown in the background
-          // In widget is shown in the foreground
-          final stack = [
-            if (outWidget != null) outWidget(),
-            if (inWidget != null) inWidget(),
-            // coverage:ignore-start
-            if (stayingWidget != null) stayingWidget(context),
-            // coverage:ignore-end
-          ];
-
-          // But if a widget is wrapped into GgShowInForeground
-          // the widget is always put to foreground
-          stack.sort((a, b) {
-            final showAOnTop = a is GgShowInForeground;
-            final showBOnTop = b is GgShowInForeground;
-
-            if (showAOnTop == showBOnTop) {
-              return 0;
-            } else if (showAOnTop) {
-              return 1;
-            } else {
-              return -1;
-            }
-          });
-
-          return ClipRect(
-            clipBehavior: Clip.hardEdge,
-            child: Stack(children: stack),
-          );
-        },
-      );
-    });
+          },
+        );
+      },
+    );
   }
 
   // ...........................................................................
@@ -648,16 +657,17 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     _animation =
         AnimationController(vsync: this, duration: widget.animationDuration);
 
-    final listner = (status) {
+    listner(status) {
       setState(() {});
-    };
+    }
+
     _animation.addStatusListener(listner);
     _dispose.add(() => _animation.removeStatusListener(listner));
     _dispose.add(_animation.dispose);
   }
 
   // ...........................................................................
-  _updateTree() {
+  void _updateTree() {
     if (widget._isRoot) {
       return;
     }
@@ -669,9 +679,9 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
   // ...........................................................................
   _createChildNodes(GgRouteTreeNode parentNode) {
-    widget.children.keys.forEach((routeName) {
+    for (var routeName in widget.children.keys) {
       parentNode.findOrCreateChild(routeName);
-    });
+    }
   }
 
   // ...........................................................................
@@ -679,7 +689,8 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     if (widget.defaultRoute != null) {
       if (!widget.children.containsKey(widget.defaultRoute)) {
         throw ArgumentError(
-            'Error GRC008506: The defaultChild "${widget.defaultRoute}" does not exist.');
+          'Error GRC008506: The defaultChild "${widget.defaultRoute}" does not exist.',
+        );
       }
     }
 

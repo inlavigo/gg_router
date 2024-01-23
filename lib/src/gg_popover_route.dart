@@ -5,7 +5,7 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
-import 'package:gg_router/gg_router.dart';
+import '../gg_router.dart';
 
 import 'gg_router.dart';
 
@@ -48,16 +48,18 @@ class GgPopoverRoute extends StatefulWidget {
   final Duration animationDuration;
 
   @override
-  _GgPopoverRouteState createState() => _GgPopoverRouteState();
+  GgPopoverRouteState createState() => GgPopoverRouteState();
 }
 
 // #############################################################################
-class _GgPopoverRouteState extends State<GgPopoverRoute>
+class GgPopoverRouteState extends State<GgPopoverRoute>
     with TickerProviderStateMixin {
   // ...........................................................................
   @override
   dispose() {
-    _dispose.reversed.forEach((d) => d());
+    for (var d in _dispose.reversed) {
+      d();
+    }
     super.dispose();
   }
 
@@ -107,7 +109,7 @@ class _GgPopoverRouteState extends State<GgPopoverRoute>
   WidgetBuilder? _popOver;
 
   // ...........................................................................
-  _update() {
+  void _update() {
     final node = GgRouter.of(context).node;
     final popoverChild = node.findOrCreateChild(widget.name);
     final popoverIsShown = popoverChild.isStaged;
@@ -129,9 +131,10 @@ class _GgPopoverRouteState extends State<GgPopoverRoute>
 
     // ..............................
     // Wrap content into GgRouterCore
-    final WidgetBuilder content = (BuildContext context) => GgRouterCore(
-        child: Builder(builder: (context) => widget.popover(context)),
-        node: popoverChild);
+    GgRouterCore content(BuildContext context) => GgRouterCore(
+          child: Builder(builder: (context) => widget.popover(context)),
+          node: popoverChild,
+        );
 
     // ...........................................................
     // If no animation is needed show the popover content directly

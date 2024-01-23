@@ -6,7 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:gg_router/gg_router.dart';
+import '../gg_router.dart';
 
 typedef GgNavigationPageBuilder = GgNavigationPage Function(BuildContext);
 
@@ -15,7 +15,7 @@ typedef GgNavigationPageBuilder = GgNavigationPage Function(BuildContext);
 class GgNavigationPage extends StatefulWidget {
   // ...........................................................................
   GgNavigationPage({
-    Key? key,
+    super.key,
     required this.pageContent,
     this.children,
     this.semanticLabels = const {},
@@ -24,7 +24,7 @@ class GgNavigationPage extends StatefulWidget {
     this.onShow,
     this.onNavigateToParent,
     this.onNavigateToChild,
-  }) : super(key: key) {
+  }) {
     _checkChildren(children);
   }
 
@@ -38,10 +38,10 @@ class GgNavigationPage extends StatefulWidget {
   final Map<String, String> semanticLabels;
 
   /// Show back button
-  final showBackButton;
+  final bool showBackButton;
 
   /// Show back button
-  final showCloseButton;
+  final bool showCloseButton;
 
   /// Called when the page becomes active
   final VoidCallback? onShow;
@@ -136,12 +136,12 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
   }
 
   // ...........................................................................
-  _indexPage(BuildContext context) {
+  GgPageWithNavBar Function(dynamic _) _indexPage(BuildContext context) {
     final content = widget.pageContent(context);
     if (content is GgNavigationPage) {
       throw ArgumentError(GgNavigationPage.indexWidgetMustNotBeANavigationPage);
     }
-    final result = (_) => GgPageWithNavBar(
+    GgPageWithNavBar result(_) => GgPageWithNavBar(
           content: content,
           showBackButton: widget.showBackButton,
           showCloseButton: widget.showCloseButton,
@@ -151,7 +151,7 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
   }
 
   // ...........................................................................
-  _generateChildren(BuildContext context) {
+  Map<String, WidgetBuilder> _generateChildren(BuildContext context) {
     final Map<String, WidgetBuilder> result = {
       '_INDEX_': _indexPage(context),
     };
@@ -185,8 +185,9 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
       } else {
         widget.onNavigateToChild?.call(stagedChild.name);
       }
-    } else
+    } else {
       _callOnNavigateToParent();
+    }
   }
 
   // ...........................................................................
@@ -237,7 +238,7 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
 // #############################################################################
 
 class GgNavigationPageRoot extends StatefulWidget {
-  GgNavigationPageRoot({
+  const GgNavigationPageRoot({
     super.key,
     required this.child,
     this.inAnimation,
@@ -295,11 +296,11 @@ class GgNavigationPageRootState extends State<GgNavigationPageRoot> {
 // #############################################################################
 class GgPageWithNavBar extends StatelessWidget {
   const GgPageWithNavBar({
-    Key? key,
+    super.key,
     required this.content,
     this.showBackButton = true,
     this.showCloseButton = true,
-  }) : super(key: key);
+  });
 
   final Widget content;
   final bool showBackButton;
@@ -338,32 +339,32 @@ class GgPageWithNavBar extends StatelessWidget {
           children: [
             if (showBackButton)
               MouseRegion(
-                key: ValueKey('GgNavigationPageBackButton'),
+                key: const ValueKey('GgNavigationPageBackButton'),
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTapUp: (_) => ownNode.navigateTo('../'),
                   child: rootPage.navigationBarBackButton?.call(context) ??
-                      Text('Back'),
+                      const Text('Back'),
                 ),
               ),
-            Spacer(),
+            const Spacer(),
             Container(
-              key: ValueKey('GgNavigationPageTitle'),
+              key: const ValueKey('GgNavigationPageTitle'),
               child: rootPage.navigationBarTitle?.call(context) ??
                   Text(
                     ownNode.semanticLabel,
                   ),
             ),
-            Spacer(),
+            const Spacer(),
             if (showCloseButton)
               MouseRegion(
-                key: ValueKey('GgNavigationPageCloseButton'),
+                key: const ValueKey('GgNavigationPageCloseButton'),
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   // This behavior might not be wanted:
                   onTapUp: (_) => rootNode.navigateTo('../'),
                   child: rootPage.navigationBarCloseButton?.call(context) ??
-                      Text('Close'),
+                      const Text('Close'),
                 ),
               ),
           ],

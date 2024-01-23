@@ -21,7 +21,7 @@ main() {
   late GgRouteTreeNode childC;
 
   init() {
-    root = GgRouteTreeNode.newRoot;
+    root = GgRouteTreeNode.newRoot();
     childA0 = exampleRouteNode(name: 'child-a0', parent: root);
     childA1 = exampleRouteNode(name: 'child-a1', parent: root);
     childA2 = exampleRouteNode(name: 'child-a2', parent: root);
@@ -131,36 +131,52 @@ main() {
       test('should throw an exception if name of an root node is not "_ROOT_"',
           () {
         init();
-        expect(() => GgRouteTreeNode(name: 'root', parent: null),
-            throwsA(predicate((GgRouteTreeNodeError error) {
-          expect(error.id, 'GRC008501');
-          expect(error.message, 'Root nodes must have name "_ROOT_".');
-          return true;
-        })));
+        expect(
+          () => GgRouteTreeNode(name: 'root', parent: null),
+          throwsA(
+            predicate((GgRouteTreeNodeError error) {
+              expect(error.id, 'GRC008501');
+              expect(error.message, 'Root nodes must have name "_ROOT_".');
+              return true;
+            }),
+          ),
+        );
       });
 
       test('should throw an exception if name contains invalid chars', () {
         init();
-        expect(() => GgRouteTreeNode(name: 'root#3%', parent: root),
-            throwsA(predicate((GgRouteTreeNodeError error) {
-          expect(error.id, 'GRC008502');
-          expect(error.message,
-              'The name "root#3%" is not a valid node name. Node names must only contain letters, numbers, underscore or minus.');
-          return true;
-        })));
+        expect(
+          () => GgRouteTreeNode(name: 'root#3%', parent: root),
+          throwsA(
+            predicate((GgRouteTreeNodeError error) {
+              expect(error.id, 'GRC008502');
+              expect(
+                error.message,
+                'The name "root#3%" is not a valid node name. Node names must only contain letters, numbers, underscore or minus.',
+              );
+              return true;
+            }),
+          ),
+        );
       });
 
       test(
           'should throw an exception if name is "_ROOT_" and a parent is given',
           () {
         init();
-        expect(() => GgRouteTreeNode(name: '_ROOT_', parent: root),
-            throwsA(predicate((GgRouteTreeNodeError error) {
-          expect(error.id, 'GRC008503');
-          expect(error.message,
-              'Nodes with name "_ROOT_" are root nodes and must not have a parent.');
-          return true;
-        })));
+        expect(
+          () => GgRouteTreeNode(name: '_ROOT_', parent: root),
+          throwsA(
+            predicate((GgRouteTreeNodeError error) {
+              expect(error.id, 'GRC008503');
+              expect(
+                error.message,
+                'Nodes with name "_ROOT_" are root nodes and must not have a parent.',
+              );
+              return true;
+            }),
+          ),
+        );
       });
 
       test('should allow wildcard "*"', () {
@@ -230,11 +246,11 @@ main() {
           // Listen to onChange
           int counter = 0;
           final s = root.onChange.listen((event) => counter++);
-          final checkCounter = ([int? expected]) {
+          checkCounter([int? expected]) {
             fake.flushMicrotasks();
             expect(counter, expected ?? 1);
             counter = 0;
-          };
+          }
 
           // ...............
           // Add a parameter
@@ -451,12 +467,18 @@ main() {
       test('Should throw an exception, if node is an index route', () {
         init();
         final indexNode = childA0.findOrCreateChild('_INDEX_');
-        expect(() => indexNode.findOrCreateChild('xyz'),
-            throwsA(predicate((ArgumentError f) {
-          expect(f.message,
-              'The route "${indexNode.path}" is an index routes and must not have children.');
-          return true;
-        })));
+        expect(
+          () => indexNode.findOrCreateChild('xyz'),
+          throwsA(
+            predicate((ArgumentError f) {
+              expect(
+                f.message,
+                'The route "${indexNode.path}" is an index routes and must not have children.',
+              );
+              return true;
+            }),
+          ),
+        );
       });
     });
 
@@ -712,12 +734,16 @@ main() {
           fake.flushMicrotasks();
 
           // The complete path from root to childB should be staged
-          expect(root.stagedDescendants.map((e) => e.name).toList(),
-              ['child-a0', 'child-b']);
+          expect(
+            root.stagedDescendants.map((e) => e.name).toList(),
+            ['child-a0', 'child-b'],
+          );
 
           // The complete path from root to childB should be staged
-          expect(root.stagedDescendantsInklSelf.map((e) => e.name).toList(),
-              ['_ROOT_', 'child-a0', 'child-b']);
+          expect(
+            root.stagedDescendantsInklSelf.map((e) => e.name).toList(),
+            ['_ROOT_', 'child-a0', 'child-b'],
+          );
         });
       });
     });
@@ -794,8 +820,10 @@ main() {
           throwsA(
             predicate(
               (ArgumentError e) {
-                expect(e.message,
-                    'Error while retrieving param with name "a". The existing param has type "int" and not "String".');
+                expect(
+                  e.message,
+                  'Error while retrieving param with name "a". The existing param has type "int" and not "String".',
+                );
                 return true;
               },
             ),
@@ -815,8 +843,10 @@ main() {
           throwsA(
             predicate(
               (ArgumentError e) {
-                expect(e.message,
-                    'Error while retrieving param with name "a". The existing param has type "int" and not "String".');
+                expect(
+                  e.message,
+                  'Error while retrieving param with name "a". The existing param has type "int" and not "String".',
+                );
                 return true;
               },
             ),
@@ -831,8 +861,10 @@ main() {
           throwsA(
             predicate(
               (GgRouteTreeNodeError e) {
-                expect(e.message,
-                    'Error: Cannot create param with name "child-a0". There is already a child node with the same name.');
+                expect(
+                  e.message,
+                  'Error: Cannot create param with name "child-a0". There is already a child node with the same name.',
+                );
                 return true;
               },
             ),
@@ -863,14 +895,14 @@ main() {
         init();
 
         // Lets define some vars
-        final a0Name = 'a0';
-        final a0Value = 1;
+        const a0Name = 'a0';
+        const a0Value = 1;
 
-        final a1Name = 'a1';
-        final a1Value = 2;
+        const a1Name = 'a1';
+        const a1Value = 2;
 
-        final cName = 'c';
-        final cValue = 3;
+        const cName = 'c';
+        const cValue = 3;
 
         // Initally no params should be staged
         expect(root.stagedParams, {});
@@ -910,10 +942,11 @@ main() {
           // Initally the listener should not be called.
           int calls0 = 0;
           int calls1 = 0;
-          final resetCalls = () {
+          resetCalls() {
             calls0 = 0;
             calls1 = 0;
-          };
+          }
+
           final s0 = root.onOwnParamChange.listen((event) => calls0++);
           final s1 = root.onOwnParamChange.listen((event) => calls1++);
           fake.flushMicrotasks();
@@ -955,10 +988,10 @@ main() {
 
           int calls0 = 0;
           int calls1 = 0;
-          final resetCalls = () {
+          resetCalls() {
             calls0 = 0;
             calls1 = 0;
-          };
+          }
 
           // Initally the listener should not be called.
           final s0 = root.onOwnOrChildParamChange.listen((event) => calls0++);
@@ -1055,7 +1088,9 @@ main() {
         childC.navigateTo('.');
         expect(childC.isStaged, true);
         expect(
-            root.stagedChildPathSegments, ['child-a0', 'child-b', 'child-c']);
+          root.stagedChildPathSegments,
+          ['child-a0', 'child-b', 'child-c'],
+        );
         expect(childA0.stagedChildPathSegments, ['child-b', 'child-c']);
         expect(childB.stagedChildPathSegments, ['child-c']);
         expect(childC.stagedChildPathSegments, []);
@@ -1128,7 +1163,9 @@ main() {
         childC.navigateTo('.');
         expect(childC.isStaged, true);
         expect(
-            root.stagedChildPathSegments.join('/'), 'child-a0/child-b/child-c');
+          root.stagedChildPathSegments.join('/'),
+          'child-a0/child-b/child-c',
+        );
         root.stagedChildPathSegments = ['child-a0', 'child-b'];
         expect(root.stagedChildPathSegments.join('/'), 'child-a0/child-b');
       });
@@ -1209,28 +1246,32 @@ main() {
 
         // The seed should be avalable on all nodes of the tree
         expect(
-            childC.uriParamForName(
-              'a',
-            ),
-            '10');
+          childC.uriParamForName(
+            'a',
+          ),
+          '10',
+        );
 
         expect(
-            childB.uriParamForName(
-              'a',
-            ),
-            '10');
+          childB.uriParamForName(
+            'a',
+          ),
+          '10',
+        );
 
         expect(
-            root.uriParamForName(
-              'a',
-            ),
-            '10');
+          root.uriParamForName(
+            'a',
+          ),
+          '10',
+        );
 
         expect(
-            childC.uriParamForName(
-              'b',
-            ),
-            '20invalid');
+          childC.uriParamForName(
+            'b',
+          ),
+          '20invalid',
+        );
 
         // Now lets create a paramter a
         childB.findOrCreateParam(name: 'a', seed: 11);
@@ -1257,7 +1298,7 @@ main() {
         // ......................................
         // Let's set an error handler on the root
         GgRouteTreeNodeError? lastErrorReceivedOnRoot;
-        final errorHandler = (error) => lastErrorReceivedOnRoot = error;
+        dynamic errorHandler(error) => lastErrorReceivedOnRoot = error;
         root.errorHandler = errorHandler;
         expect(root.errorHandler, errorHandler);
 
@@ -1322,34 +1363,50 @@ main() {
       });
 
       test('should throw an exception if json string is invalid', () {
-        expect(() => root.json = 'a#39f',
-            throwsA(predicate((GgRouteTreeNodeError e) {
-          expect(e.message, startsWith('Error while decoding JSON:'));
-          return true;
-        })));
+        expect(
+          () => root.json = 'a#39f',
+          throwsA(
+            predicate((GgRouteTreeNodeError e) {
+              expect(e.message, startsWith('Error while decoding JSON:'));
+              return true;
+            }),
+          ),
+        );
       });
 
       test('should throw an exception if JSON contains an invalid object type',
           () {
-        expect(() => root.json = '[]',
-            throwsA(predicate((GgRouteTreeNodeError error) {
-          expect(error.message,
-              'Error while reading JSON path "/". Expected object of type Map, but got List<dynamic>.');
-          return true;
-        })));
+        expect(
+          () => root.json = '[]',
+          throwsA(
+            predicate((GgRouteTreeNodeError error) {
+              expect(
+                error.message,
+                'Error while reading JSON path "/". Expected object of type Map, but got List<dynamic>.',
+              );
+              return true;
+            }),
+          ),
+        );
       });
 
       test('should throw an exception when a param has a wrong format', () {
         root.findOrCreateParam(name: 'int', seed: 10);
 
-        expect(() => root.json = '{"int": "hello"}',
-            throwsA(predicate((GgRouteTreeNodeError error) {
-          expect(
-              error.message,
-              startsWith(
-                  'Error while parsing value "hello" for attribute with name "int" on path "/":'));
-          return true;
-        })));
+        expect(
+          () => root.json = '{"int": "hello"}',
+          throwsA(
+            predicate((GgRouteTreeNodeError error) {
+              expect(
+                error.message,
+                startsWith(
+                  'Error while parsing value "hello" for attribute with name "int" on path "/":',
+                ),
+              );
+              return true;
+            }),
+          ),
+        );
       });
 
       test('should create routes contained in the JSON string', () {
@@ -1397,15 +1454,21 @@ main() {
       test('should directly parse json params if parseAllParamsDirectly = true',
           () {
         root.parseJson(
-            json: '{"unknownNum": 123}', parseAllParamsDirectly: true);
+          json: '{"unknownNum": 123}',
+          parseAllParamsDirectly: true,
+        );
         expect(root.param('unknownNum')?.value, 123);
 
         root.parseJson(
-            json: '{"unknownBool": true}', parseAllParamsDirectly: true);
+          json: '{"unknownBool": true}',
+          parseAllParamsDirectly: true,
+        );
         expect(root.param('unknownBool')?.value, true);
 
         root.parseJson(
-            json: '{"unknownString": "string"}', parseAllParamsDirectly: true);
+          json: '{"unknownString": "string"}',
+          parseAllParamsDirectly: true,
+        );
         expect(root.param('unknownString')?.value, 'string');
       });
 
@@ -1440,7 +1503,7 @@ main() {
           parse: (_) => parsedFoo,
         );
 
-        final expectedJson =
+        const expectedJson =
             '{"int":5,"child":{"double":5.5,"grand":{"bool":false,"string":"hello","foo":"Foo"}}}';
         expect(root.json, expectedJson);
 

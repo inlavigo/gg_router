@@ -5,14 +5,14 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter/widgets.dart';
-import 'package:gg_router/gg_router.dart';
+import '../gg_router.dart';
 
 class GgRouteChangeBuilder extends StatelessWidget {
   /// Creates a widget rebuilding its child on child route changes
   const GgRouteChangeBuilder({
-    Key? key,
+    super.key,
     required this.builder,
-  }) : super(key: key);
+  });
 
   final WidgetBuilder builder;
 
@@ -22,9 +22,10 @@ class GgRouteChangeBuilder extends StatelessWidget {
     final router = GgRouter.of(context);
 
     return StreamBuilder(
-        stream: router.node.onChange,
-        builder: (context, _) {
-          return builder(context);
-        });
+      stream: router.node.onChange,
+      builder: (context, _) {
+        return builder(context);
+      },
+    );
   }
 }

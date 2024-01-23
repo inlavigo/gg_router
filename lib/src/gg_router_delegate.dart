@@ -9,7 +9,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
-import 'package:gg_router/gg_router.dart';
+import '../gg_router.dart';
 
 /// This [RouterDelegate] applies changes of the route tree to the application's
 /// URI and applies the application's URI to the route tree. Assign an instance
@@ -43,12 +43,15 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   /// Call this function if the delegate is not needed anymore.
   @override
   void dispose() {
-    _dispose.reversed.forEach((element) => element());
+    for (var element in _dispose.reversed) {
+      element();
+    }
     super.dispose();
   }
 
   // ...........................................................................
   /// The navigator key needed by [PopNavigatorRouterDelegateMixin].
+  @override
   final GlobalKey<NavigatorState> navigatorKey;
 
   // ...........................................................................
@@ -81,7 +84,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
       future: _restoreIsDone.future,
       builder: (context, _) {
         if (!_restoreIsDone.isCompleted) {
-          return Container(key: ValueKey('RouterDelegateLoadingScreen'));
+          return Container(key: const ValueKey('RouterDelegateLoadingScreen'));
         }
 
         return Semantics(
@@ -90,9 +93,11 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
           child: GgRouter.root(
             child: Overlay(
               initialEntries: [
-                OverlayEntry(builder: (context) {
-                  return child;
-                }),
+                OverlayEntry(
+                  builder: (context) {
+                    return child;
+                  },
+                ),
               ],
             ),
             node: _root,
@@ -106,18 +111,18 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   @override
   RouteInformation get currentConfiguration {
     Map<String, dynamic> queryParameters = {};
-    _root.stagedParams.values.forEach((param) {
+    for (var param in _root.stagedParams.values) {
       queryParameters[param.name!] = param.value.toString();
-    });
+    }
 
     final uri = Uri(
       pathSegments: _root.stagedChildPathSegments
           .where((element) => element != '_INDEX_'),
-      queryParameters: queryParameters.length > 0 ? queryParameters : null,
+      queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
     );
 
     return RouteInformation(
-      location: uri.toString(),
+      uri: uri,
     );
   }
 
@@ -128,9 +133,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
     await _restoreIsDone.future;
 
     // Check if URI needs navigation
-    bool needsNavigate = configuration.location != null
-        ? Uri.parse(configuration.location!).pathSegments.length > 0
-        : false;
+    bool needsNavigate = configuration.uri.pathSegments.isNotEmpty;
 
     // If yes, navigate
     if (needsNavigate) {
@@ -140,31 +143,29 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
   // ...........................................................................
   @override
-  Future<void> setNewRoutePath(RouteInformation route) {
-    if (route.location != null) {
-      late Uri uri;
-      try {
-        uri = Uri.parse(route.location!);
-      } catch (e) {
-        return SynchronousFuture(null);
-      }
-
-      _root.stagedChildPathSegments = uri.pathSegments;
-      final Map<String, String> uriParams = {};
-
-      if (uri.hasQuery) {
-        final stagedParams = _root.stagedParams;
-        uri.queryParameters.forEach((key, value) {
-          if (stagedParams.containsKey(key)) {
-            stagedParams[key]!.stringValue = value;
-          } else {
-            uriParams[key] = value;
-          }
-        });
-      }
-
-      _root.uriParams = uriParams;
+  Future<void> setNewRoutePath(RouteInformation configuration) {
+    late Uri uri;
+    try {
+      uri = configuration.uri;
+    } catch (e) {
+      return SynchronousFuture(null); // coverage:ignore-line
     }
+
+    _root.stagedChildPathSegments = uri.pathSegments;
+    final Map<String, String> uriParams = {};
+
+    if (uri.hasQuery) {
+      final stagedParams = _root.stagedParams;
+      uri.queryParameters.forEach((key, value) {
+        if (stagedParams.containsKey(key)) {
+          stagedParams[key]!.stringValue = value;
+        } else {
+          uriParams[key] = value;
+        }
+      });
+    }
+
+    _root.uriParams = uriParams;
 
     return SynchronousFuture(null);
   }
@@ -179,8 +180,8 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   _initRoot(GgRouteTreeNode? root) {
     _root = root ?? GgRouteTreeNode(name: '_ROOT_');
 
-    if (_root.stagedChild == null && this.defaultRoute != null) {
-      _root.navigateTo(this.defaultRoute!);
+    if (_root.stagedChild == null && defaultRoute != null) {
+      _root.navigateTo(defaultRoute!);
     }
   }
 
@@ -198,7 +199,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   final _restoreIsDone = Completer();
 
   // ...........................................................................
-  _restoreState() {
+  void _restoreState() {
     if (restoreState == null) {
       _restoreIsDone.complete();
       return;
@@ -215,9 +216,11 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   // ...........................................................................
   late GgOncePerCycle _saveStateTrigger;
   _initSaveStateTrigger() {
-    _saveStateTrigger = GgOncePerCycle(task: () {
-      final json = _root.json;
-      saveState?.call(json);
-    });
+    _saveStateTrigger = GgOncePerCycle(
+      task: () {
+        final json = _root.json;
+        saveState?.call(json);
+      },
+    );
   }
 }

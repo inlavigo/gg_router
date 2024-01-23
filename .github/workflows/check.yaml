@@ -1,0 +1,48 @@
+name: Dart Script Execution
+
+on: [push]
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check for Flutter Project
+        run: |
+          if [ -f pubspec.yaml ] && grep -q "sdk: flutter" pubspec.yaml; then
+            echo "is_flutter=true" >> "$GITHUB_ENV"
+          else
+            echo "is_flutter=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Set up Flutter
+        if: env.is_flutter == 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "master"
+
+      - name: Set up Dart SDK
+        if: env.is_flutter == 'false'
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: "dev"
+
+      - name: Install dependencies
+        run: |
+          if [ ${{ env.is_flutter }} == 'true' ]; then
+            flutter pub get
+          else
+            dart pub get
+          fi
+
+      - name: Install lcov
+        run: sudo apt-get install lcov
+
+      - name: Make Script Executable
+        run: chmod +x ./check.dart
+
+      - name: Run Script
+        run: ./check.dart

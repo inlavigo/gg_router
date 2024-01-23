@@ -27,7 +27,7 @@ abstract class GgAnimation extends StatelessWidget {
 
 /// Move widget out from right
 class GgMoveInFromRight extends GgAnimation {
-  GgMoveInFromRight({
+  const GgMoveInFromRight({
     super.key,
     required super.animation,
     required super.child,
@@ -37,17 +37,19 @@ class GgMoveInFromRight extends GgAnimation {
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
-        offset: Offset(
-            (1.0 - Curves.easeInOut.transform(animation.value)) * size.width,
-            0),
-        child: child);
+      offset: Offset(
+        (1.0 - Curves.easeInOut.transform(animation.value)) * size.width,
+        0,
+      ),
+      child: child,
+    );
   }
 }
 
 // .............................................................................
 /// Move widget out from right
 class GgMoveOutToRight extends GgAnimation {
-  GgMoveOutToRight({
+  const GgMoveOutToRight({
     super.key,
     required super.animation,
     required super.child,
@@ -69,7 +71,7 @@ class GgMoveOutToRight extends GgAnimation {
 // .............................................................................
 /// Move widget in from left
 class GgMoveInFromLeft extends GgAnimation {
-  GgMoveInFromLeft({
+  const GgMoveInFromLeft({
     super.key,
     required super.animation,
     required super.child,
@@ -79,17 +81,19 @@ class GgMoveInFromLeft extends GgAnimation {
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
-        offset: Offset(
-            (-1.0 + Curves.easeInOut.transform(animation.value)) * size.width,
-            0),
-        child: child);
+      offset: Offset(
+        (-1.0 + Curves.easeInOut.transform(animation.value)) * size.width,
+        0,
+      ),
+      child: child,
+    );
   }
 }
 
 // .............................................................................
 /// Move widget out to left
 class GgMoveOutToLeft extends GgAnimation {
-  GgMoveOutToLeft({
+  const GgMoveOutToLeft({
     super.key,
     required super.animation,
     required super.child,
@@ -115,7 +119,7 @@ class GgMoveOutToLeft extends GgAnimation {
 // .............................................................................
 /// Move widget in from top
 class GgMoveInFromTop extends GgAnimation {
-  GgMoveInFromTop({
+  const GgMoveInFromTop({
     super.key,
     required super.animation,
     required super.child,
@@ -125,16 +129,19 @@ class GgMoveInFromTop extends GgAnimation {
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
-        offset: Offset(0,
-            (-1.0 + Curves.easeInOut.transform(animation.value)) * size.height),
-        child: child);
+      offset: Offset(
+        0,
+        (-1.0 + Curves.easeInOut.transform(animation.value)) * size.height,
+      ),
+      child: child,
+    );
   }
 }
 
 // .............................................................................
 /// Move widget out to top
 class GgMoveOutToTop extends GgAnimation {
-  GgMoveOutToTop({
+  const GgMoveOutToTop({
     super.key,
     required super.animation,
     required super.child,
@@ -156,7 +163,7 @@ class GgMoveOutToTop extends GgAnimation {
 // .............................................................................
 /// Move widget in from bottom
 class GgMoveInFromBottom extends GgAnimation {
-  GgMoveInFromBottom({
+  const GgMoveInFromBottom({
     super.key,
     required super.animation,
     required super.child,
@@ -166,16 +173,19 @@ class GgMoveInFromBottom extends GgAnimation {
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
-        offset: Offset(0,
-            (1.0 - Curves.easeInOut.transform(animation.value)) * size.height),
-        child: child);
+      offset: Offset(
+        0,
+        (1.0 - Curves.easeInOut.transform(animation.value)) * size.height,
+      ),
+      child: child,
+    );
   }
 }
 
 // .............................................................................
 /// Move widget out to bottom
 class GgMoveOutToBottom extends GgAnimation {
-  GgMoveOutToBottom({
+  const GgMoveOutToBottom({
     super.key,
     required super.animation,
     required super.child,
@@ -201,7 +211,7 @@ class GgMoveOutToBottom extends GgAnimation {
 // .............................................................................
 /// Move widget in from bottom right
 class GgMoveInFromBottomRight extends GgAnimation {
-  GgMoveInFromBottomRight({
+  const GgMoveInFromBottomRight({
     super.key,
     required super.animation,
     required super.child,
@@ -221,7 +231,7 @@ class GgMoveInFromBottomRight extends GgAnimation {
 // .............................................................................
 /// Move widget out to bottom right
 class GgMoveOutToBottomRight extends GgAnimation {
-  GgMoveOutToBottomRight({
+  const GgMoveOutToBottomRight({
     super.key,
     required super.animation,
     required super.child,
@@ -231,9 +241,10 @@ class GgMoveOutToBottomRight extends GgAnimation {
   @override
   Widget build(BuildContext context) {
     return GgMoveOutToBottom(
-        animation: animation,
-        child: GgMoveOutToRight(animation: animation, child: child, size: size),
-        size: size);
+      animation: animation,
+      child: GgMoveOutToRight(animation: animation, child: child, size: size),
+      size: size,
+    );
   }
 }
 
@@ -242,7 +253,7 @@ class GgMoveOutToBottomRight extends GgAnimation {
 // .............................................................................
 /// Move widget in from bottom left
 class GgMoveInFromBottomLeft extends GgAnimation {
-  GgMoveInFromBottomLeft({
+  const GgMoveInFromBottomLeft({
     super.key,
     required super.animation,
     required super.child,
@@ -262,7 +273,7 @@ class GgMoveInFromBottomLeft extends GgAnimation {
 // .............................................................................
 /// Move widget out to bottom left
 class GgMoveOutToBottomLeft extends GgAnimation {
-  GgMoveOutToBottomLeft({
+  const GgMoveOutToBottomLeft({
     super.key,
     required super.animation,
     required super.child,
@@ -284,7 +295,7 @@ class GgMoveOutToBottomLeft extends GgAnimation {
 // .............................................................................
 /// Move widget in from top right
 class GgMoveInFromTopRight extends GgAnimation {
-  GgMoveInFromTopRight({
+  const GgMoveInFromTopRight({
     super.key,
     required super.animation,
     required super.child,
@@ -304,7 +315,7 @@ class GgMoveInFromTopRight extends GgAnimation {
 // .............................................................................
 /// Move widget out to top right
 class GgMoveOutToTopRight extends GgAnimation {
-  GgMoveOutToTopRight({
+  const GgMoveOutToTopRight({
     super.key,
     required super.animation,
     required super.child,
@@ -326,7 +337,7 @@ class GgMoveOutToTopRight extends GgAnimation {
 // .............................................................................
 /// Move widget in from top left
 class GgMoveInFromTopLeft extends GgAnimation {
-  GgMoveInFromTopLeft({
+  const GgMoveInFromTopLeft({
     super.key,
     required super.animation,
     required super.child,
@@ -346,7 +357,7 @@ class GgMoveInFromTopLeft extends GgAnimation {
 // .............................................................................
 /// Move widget out to top left
 class GgMoveOutToTopLeft extends GgAnimation {
-  GgMoveOutToTopLeft({
+  const GgMoveOutToTopLeft({
     super.key,
     required super.animation,
     required super.child,
@@ -370,7 +381,7 @@ class GgMoveOutToTopLeft extends GgAnimation {
 // .............................................................................
 /// Fade widget in
 class GgFadeIn extends GgAnimation {
-  GgFadeIn({
+  const GgFadeIn({
     super.key,
     required super.animation,
     required super.child,
@@ -389,7 +400,7 @@ class GgFadeIn extends GgAnimation {
 // .............................................................................
 /// Fade widget out
 class GgFadeOut extends GgAnimation {
-  GgFadeOut({
+  const GgFadeOut({
     super.key,
     required super.animation,
     required super.child,

@@ -23,7 +23,8 @@ class GgRouteInformationParser
   // ...........................................................................
   @override
   Future<RouteInformation> parseRouteInformation(
-      RouteInformation routeInformation) {
+    RouteInformation routeInformation,
+  ) {
     return SynchronousFuture(routeInformation);
   }
 

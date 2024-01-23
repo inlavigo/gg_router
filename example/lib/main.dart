@@ -16,20 +16,20 @@ import 'configure_nonweb.dart' if (dart.library.html) 'configure_web.dart';
 
 void main() {
   configureApp();
-  runApp(GgRouterExample());
+  runApp(const GgRouterExample());
 }
 
 const debugShowCheckedModeBanner = false;
 
 // .............................................................................
 class GgRouterExample extends StatelessWidget {
-  GgRouterExample({Key? key}) : super(key: key);
+  const GgRouterExample({Key? key}) : super(key: key);
 
   // ...........................................................................
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: "GgRouterExample",
+      title: 'GgRouterExample',
       routerDelegate: GgRouterDelegate(
         child: _appContent,
         saveState: _saveState,
@@ -49,7 +49,7 @@ class GgRouterExample extends StatelessWidget {
   Widget get _appContent {
     return Scaffold(
       appBar: AppBar(
-        title: Text('GgRouter'),
+        title: const Text('GgRouter'),
         actions: <Widget>[
           _routeButton('Sports', 'sports'),
           _routeButton('Transportation', 'transportation'),
@@ -70,10 +70,10 @@ class GgRouterExample extends StatelessWidget {
               'places': _placesPage,
               '*': _wildCardPage,
             },
-            key: ValueKey('mainRouter'),
+            key: const ValueKey('mainRouter'),
             inAnimation: _zoomIn,
             outAnimation: _zoomOut,
-            semanticLabels: {
+            semanticLabels: const {
               '_INDEX_': 'Navigate to Index Page',
               'sports': 'Navigate to Sports Page',
               'transportation': 'Navigate to Transportation Page',
@@ -93,12 +93,12 @@ class GgRouterExample extends StatelessWidget {
     node.errorHandler = (error) {
       final snackBar = SnackBar(
         content: Text(error.message),
-        duration: Duration(seconds: 6),
+        duration: const Duration(seconds: 6),
         backgroundColor: Colors.red,
       );
 
       scheduleMicrotask(
-          () => ScaffoldMessenger.of(context).showSnackBar(snackBar));
+          () => ScaffoldMessenger.of(context).showSnackBar(snackBar),);
     };
   }
 
@@ -108,7 +108,7 @@ class GgRouterExample extends StatelessWidget {
     final onPrimary = theme.colorScheme.onPrimary;
     final onPrimaryInactive = onPrimary.withAlpha(120);
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Text(
         text,
         style: TextStyle(color: isStaged ? onPrimary : onPrimaryInactive),
@@ -122,7 +122,7 @@ class GgRouterExample extends StatelessWidget {
       child: Icon(
         icon,
         size: 200,
-        color: Color(0x33FFFFFF),
+        color: const Color(0x33FFFFFF),
       ),
     );
   }
@@ -150,7 +150,7 @@ class GgRouterExample extends StatelessWidget {
           );
         },
       );
-    });
+    },);
   }
 
   // ...........................................................................
@@ -165,13 +165,13 @@ class GgRouterExample extends StatelessWidget {
       navigationBarPadding: 10,
 
       // Customize back button
-      navigationBarBackButton: (_) => Icon(
+      navigationBarBackButton: (_) => const Icon(
         Icons.arrow_back_ios_new,
         size: 18.0,
       ),
 
       // Customize close button
-      navigationBarCloseButton: (_) => Icon(
+      navigationBarCloseButton: (_) => const Icon(
         Icons.close,
         size: 18.0,
       ),
@@ -186,51 +186,51 @@ class GgRouterExample extends StatelessWidget {
         pageContent: (ctx2) => Center(
           child: Column(
             children: [
-              Row(children: [
+              const Row(children: [
                 Spacer(),
-              ]),
-              Spacer(),
+              ],),
+              const Spacer(),
               _checkBox(context),
               Container(
                 height: 30,
               ),
               TextButton(
-                key: ValueKey('Details Button'),
+                key: const ValueKey('Details Button'),
                 onPressed: () => GgRouter.of(ctx2).navigateTo('details'),
-                child: Text('Details'),
+                child: const Text('Details'),
               ),
-              Spacer(),
+              const Spacer(),
             ],
           ),
         ),
         children: {
           'details': GgNavigationPage(
             pageContent: (ctx3) => Container(
-              color: Color(0xFF555555),
+              color: const Color(0xFF555555),
               child: Center(
                   child: TextButton(
-                      key: ValueKey('More Details Button'),
+                      key: const ValueKey('More Details Button'),
                       onPressed: () {
                         GgRouter.of(ctx3).navigateTo('more-details');
                       },
-                      child: Text('More details'))),
+                      child: const Text('More details'),),),
             ),
             children: {
               'more-details': GgNavigationPage(
                 pageContent: (_) => Container(
-                  color: Color(0xFF666666),
-                  child: Center(
+                  color: const Color(0xFF666666),
+                  child: const Center(
                     child: Text('More details'),
                   ),
                 ),
-              )
+              ),
             },
-            semanticLabels: {
+            semanticLabels: const {
               'more-details': 'More Details',
             },
-          )
+          ),
         },
-        semanticLabels: {
+        semanticLabels: const {
           'details': 'Details',
         },
       );
@@ -252,12 +252,12 @@ class GgRouterExample extends StatelessWidget {
         width: 200,
         height: 50,
         child: Container(
-          color: Color(0x11FFFFFF),
+          color: const Color(0x11FFFFFF),
           child: StreamBuilder(
             stream: param.stream,
             builder: (context, snapshot) {
               return CheckboxListTile(
-                title: Text("Visit Event"),
+                title: const Text('Visit Event'),
                 value: param.value,
                 onChanged: (newValue) => param.value = newValue as bool,
               );
@@ -266,13 +266,13 @@ class GgRouterExample extends StatelessWidget {
         ),
       ),
       Expanded(child: Container()),
-    ]);
+    ],);
   }
 
   // ...........................................................................
   Widget _indexPage(BuildContext context) {
     return Center(
-      key: ValueKey('indexPage'),
+      key: const ValueKey('indexPage'),
       child: Text(
         'GgRouter',
         style: Theme.of(context).textTheme.displayMedium,
@@ -285,7 +285,7 @@ class GgRouterExample extends StatelessWidget {
     final routeName = GgRouter.of(context).routeName;
 
     return Center(
-      key: ValueKey('wildCardPage'),
+      key: const ValueKey('wildCardPage'),
       child: Text(
         'Wildcard: $routeName',
         key: ValueKey('WildCardText: $routeName'),
@@ -299,7 +299,7 @@ class GgRouterExample extends StatelessWidget {
     final router = GgRouter.of(context);
 
     return Scaffold(
-      key: ValueKey('sportsPage'),
+      key: const ValueKey('sportsPage'),
       bottomNavigationBar: StreamBuilder(
           stream: router.onActiveChildChange,
           builder: (context, snapshot) {
@@ -307,7 +307,7 @@ class GgRouterExample extends StatelessWidget {
 
             return BottomNavigationBar(
               currentIndex: max(index - 1, 0),
-              items: [
+              items: const [
                 BottomNavigationBarItem(
                   label: 'Basketball',
                   icon: Icon(Icons.sports_basketball),
@@ -335,7 +335,7 @@ class GgRouterExample extends StatelessWidget {
                 }
               },
             );
-          }),
+          },),
       body: GgRouter(
         {
           'basketball': (context) {
@@ -344,7 +344,7 @@ class GgRouterExample extends StatelessWidget {
                 'visit': GgRouteParam<bool>(seed: false),
               },
               child: GgPopoverRoute(
-                key: ValueKey('dialog'),
+                key: const ValueKey('dialog'),
                 name: 'popover',
                 semanticLabel: 'Popover Dialog Example',
                 base: Listener(
@@ -361,7 +361,7 @@ class GgRouterExample extends StatelessWidget {
           'football': (c) => _bigIcon(c, Icons.sports_football),
           'handball': (c) => _bigIcon(c, Icons.sports_handball),
         },
-        key: ValueKey('sportsRouter'),
+        key: const ValueKey('sportsRouter'),
         defaultRoute: 'basketball',
         inAnimation: _moveIn,
         outAnimation: _moveOut,
@@ -374,7 +374,7 @@ class GgRouterExample extends StatelessWidget {
     final router = GgRouter.of(context);
 
     return Scaffold(
-      key: ValueKey('transportationPage'),
+      key: const ValueKey('transportationPage'),
       bottomNavigationBar: StreamBuilder(
           stream: router.onActiveChildChange,
           builder: (context, snapshot) {
@@ -382,7 +382,7 @@ class GgRouterExample extends StatelessWidget {
 
             return BottomNavigationBar(
               currentIndex: max(index - 1, 0),
-              items: [
+              items: const [
                 BottomNavigationBarItem(
                   label: 'Bus',
                   icon: Icon(Icons.directions_bus),
@@ -410,14 +410,14 @@ class GgRouterExample extends StatelessWidget {
                 }
               },
             );
-          }),
+          },),
       body: GgRouter(
         {
           'bus': (c) => _bigIcon(c, Icons.directions_bus),
           'bike': (c) => _bigIcon(c, Icons.directions_bike),
           'car': (c) => _bigIcon(c, Icons.directions_car),
         },
-        key: ValueKey('/transportation'),
+        key: const ValueKey('/transportation'),
         defaultRoute: 'bus',
         inAnimation: _moveIn,
         outAnimation: _moveOut,
@@ -432,14 +432,14 @@ class GgRouterExample extends StatelessWidget {
 
     return Scaffold(
       bottomNavigationBar: StreamBuilder(
-          key: ValueKey('placesPage'),
+          key: const ValueKey('placesPage'),
           stream: router.onActiveChildChange,
           builder: (context, snapshot) {
             final index = router.indexOfActiveChild ?? 0;
 
             return BottomNavigationBar(
               currentIndex: max(index - 1, 0),
-              items: [
+              items: const [
                 BottomNavigationBarItem(
                   label: 'Airpot',
                   icon: Icon(Icons.airplanemode_active),
@@ -467,14 +467,14 @@ class GgRouterExample extends StatelessWidget {
                 }
               },
             );
-          }),
+          },),
       body: GgRouter(
         {
           'airport': (c) => _bigIcon(c, Icons.airplanemode_active),
           'park': (c) => _bigIcon(c, Icons.park),
           'hospital': (c) => _bigIcon(c, Icons.local_hospital),
         },
-        key: ValueKey('/places'),
+        key: const ValueKey('/places'),
         defaultRoute: 'airport',
         inAnimation: _moveIn,
         outAnimation: _moveOut,
@@ -640,8 +640,8 @@ class GgRouterExample extends StatelessWidget {
   Widget _moveInFromRight(Animation animation, Widget child, double width) {
     return Transform.translate(
         offset: Offset(
-            (1.0 - Curves.easeInOut.transform(animation.value)) * width, 0),
-        child: child);
+            (1.0 - Curves.easeInOut.transform(animation.value)) * width, 0,),
+        child: child,);
   }
 
   // ...........................................................................
@@ -655,12 +655,12 @@ class GgRouterExample extends StatelessWidget {
   // ...........................................................................
   GgAnimationBuilder _navigateIn(BuildContext context) {
     return (BuildContext context, Animation animation, Widget child,
-        Size size) {
+        Size size,) {
       final currentRoute = GgRouter.of(context).nameOfChildAnimatingIn;
 
       return currentRoute != '_INDEX_'
           ? GgShowInForeground(
-              child: _moveInFromRight(animation, child, size.width))
+              child: _moveInFromRight(animation, child, size.width),)
           : child;
     };
   }
@@ -668,12 +668,12 @@ class GgRouterExample extends StatelessWidget {
   // ...........................................................................
   GgAnimationBuilder _navigateOut(BuildContext context) {
     return (BuildContext context, Animation animation, Widget child,
-        Size size) {
+        Size size,) {
       final currentRoute = GgRouter.of(context).nameOfChildAnimatingOut;
 
       return currentRoute != '_INDEX_'
           ? GgShowInForeground(
-              child: _moveOutToRight(animation, child, size.width))
+              child: _moveOutToRight(animation, child, size.width),)
           : child;
     };
   }

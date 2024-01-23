@@ -32,9 +32,9 @@ class GgNavigationBar extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (showBackButton) Text('Back'),
+        if (showBackButton) const Text('Back'),
         _spacer,
-        if (showCloseButton) Text('Close'),
+        if (showCloseButton) const Text('Close'),
       ],
     );
   }

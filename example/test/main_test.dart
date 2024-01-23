@@ -40,7 +40,8 @@ main() {
       // .......................................
       // Put the lastState to shared preferences
       SharedPreferences.setMockInitialValues(
-          {'lastApplicationState': lastState});
+        {'lastApplicationState': lastState},
+      );
     }
 
     // .........................................................................
@@ -59,21 +60,21 @@ main() {
       sportsPage = page('sportsPage', tester);
       transportationPage = page('transportationPage', tester);
       placesPage = page('placesPage', tester);
-      currentUri = routerDelegate.currentConfiguration.location!;
+      currentUri = routerDelegate.currentConfiguration.uri.toString();
     }
 
     // .........................................................................
     updateHeaderBar(WidgetTester tester) {
       sportsButton = GgEasyWidgetTest(
-        find.byKey(ValueKey('sports')),
+        find.byKey(const ValueKey('sports')),
         tester,
       );
       transportationButton = GgEasyWidgetTest(
-        find.byKey(ValueKey('transportation')),
+        find.byKey(const ValueKey('transportation')),
         tester,
       );
       placesButton = GgEasyWidgetTest(
-        find.byKey(ValueKey('places')),
+        find.byKey(const ValueKey('places')),
         tester,
       );
     }
@@ -323,7 +324,7 @@ main() {
 
     // .........................................................................
     testWidgets(
-        'when clicking on basket ball page, a dialog should open.'
+        'when clicking on basket ball page, a dialog should open. '
         'The dialog should show a check box. '
         'Checking the checkbox should change the visit param in the URI. '
         'Changing the visit param in the URI should change the checkbox. '
@@ -372,7 +373,9 @@ main() {
       // Change the URI
       // => checkbox should change also
       routerDelegate.setNewRoutePath(
-        RouteInformation(location: 'sports/basketball/popover?visit=false'),
+        RouteInformation(
+          uri: Uri.parse('sports/basketball/popover?visit=false'),
+        ),
       );
       await tester.pumpAndSettle();
       update(tester);
@@ -384,7 +387,7 @@ main() {
       // Finally let's close the dialog
       // => dialog is removed from the URI
       final dialogCloseButton = GgEasyWidgetTest(
-        find.byKey(ValueKey('GgNavigationPageCloseButton')),
+        find.byKey(const ValueKey('GgNavigationPageCloseButton')),
         tester,
       );
       await dialogCloseButton.press();
@@ -412,47 +415,53 @@ main() {
 
       // ..................
       // Click on "Details"
-      final detailsButtonFinder = find.byKey(ValueKey('Details Button'));
+      final detailsButtonFinder = find.byKey(const ValueKey('Details Button'));
       expect(detailsButtonFinder, findsOneWidget);
       var gesture = await tester.press(detailsButtonFinder);
       await gesture.up();
       await tester.pumpAndSettle();
 
       // Check if the details page was opened
-      expect(routerDelegate.root.stagedChildPath,
-          'sports/basketball/popover/details');
+      expect(
+        routerDelegate.root.stagedChildPath,
+        'sports/basketball/popover/details',
+      );
 
       // .......................
       // Click on "More details"
       final moreDetailsButtonFinder =
-          find.byKey(ValueKey('More Details Button'));
+          find.byKey(const ValueKey('More Details Button'));
       expect(moreDetailsButtonFinder, findsOneWidget);
       gesture = await tester.press(moreDetailsButtonFinder);
       await gesture.up();
       await tester.pumpAndSettle();
 
       // Check if the details page was opened
-      expect(routerDelegate.root.stagedChildPath,
-          'sports/basketball/popover/details/more-details');
+      expect(
+        routerDelegate.root.stagedChildPath,
+        'sports/basketball/popover/details/more-details',
+      );
 
       // ........................
       // Click on the back button
       final dialogBackButton = GgEasyWidgetTest(
-        find.byKey(ValueKey('GgNavigationPageBackButton')),
+        find.byKey(const ValueKey('GgNavigationPageBackButton')),
         tester,
       );
       await dialogBackButton.press();
       await tester.pumpAndSettle();
 
       // Check if we have navigated back
-      expect(routerDelegate.root.stagedChildPath,
-          'sports/basketball/popover/details');
+      expect(
+        routerDelegate.root.stagedChildPath,
+        'sports/basketball/popover/details',
+      );
 
       // ..............................
       // Finally let's close the dialog
       // => dialog is removed from the URI
       final dialogCloseButton = GgEasyWidgetTest(
-        find.byKey(ValueKey('GgNavigationPageCloseButton')),
+        find.byKey(const ValueKey('GgNavigationPageCloseButton')),
         tester,
       );
       await dialogCloseButton.press();
@@ -466,15 +475,18 @@ main() {
         (WidgetTester tester) async {
       await setUp(tester);
 
-      routerDelegate
-          .setNewRoutePath(RouteInformation(location: 'sports/superhero'));
+      routerDelegate.setNewRoutePath(
+        RouteInformation(uri: Uri.parse('sports/superhero')),
+      );
       await tester.pumpAndSettle();
       final snackBar =
           GgEasyWidgetTest(find.byType(SnackBar), tester).widget as SnackBar;
-      expect((snackBar.content as Text).data,
-          'Route "/sports" has no child named "superhero" nor does your GgRouter define a "*" wild card route.');
+      expect(
+        (snackBar.content as Text).data,
+        'Route "/sports" has no child named "superhero" nor does your GgRouter define a "*" wild card route.',
+      );
 
-      await tester.pumpAndSettle(Duration(seconds: 5));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       await tearDown(tester);
     });
@@ -484,7 +496,7 @@ main() {
         (WidgetTester tester) async {
       await setUp(tester);
 
-      routerDelegate.setNewRoutePath(RouteInformation(location: '/xyz'));
+      routerDelegate.setNewRoutePath(RouteInformation(uri: Uri.parse('/xyz')));
       await tester.pumpAndSettle();
 
       // Check if /xyz is the path of the staged child
@@ -492,7 +504,7 @@ main() {
 
       // Check if the name of the wild card route could be accessed
       // using the context.
-      expect(find.byKey(ValueKey('WildCardText: xyz')), findsOneWidget);
+      expect(find.byKey(const ValueKey('WildCardText: xyz')), findsOneWidget);
 
       await tearDown(tester);
     });
@@ -504,8 +516,8 @@ main() {
       // Define an application state which makes transportion/bus visible
       // by default.
 
-      final stagedChildKey = GgRouteTreeNode.stagedChildJsonKey;
-      final lastState = '''
+      const stagedChildKey = GgRouteTreeNode.stagedChildJsonKey;
+      const lastState = '''
       {
         "$stagedChildKey":"transportation",
         "transportation":{
@@ -531,7 +543,7 @@ main() {
         (WidgetTester tester) async {
       initSharedPreferences();
 
-      final stagedChildKey = GgRouteTreeNode.stagedChildJsonKey;
+      const stagedChildKey = GgRouteTreeNode.stagedChildJsonKey;
       // .......................................
       // Start the application, and expect that it is on transportation/bus
       await setUp(tester);
@@ -543,8 +555,10 @@ main() {
       expect(transportationPage, isNull);
       expect(placesPage, isNotNull);
       final preferences = await SharedPreferences.getInstance();
-      expect(preferences.getString('lastApplicationState'),
-          contains('"$stagedChildKey":"hospital"'));
+      expect(
+        preferences.getString('lastApplicationState'),
+        contains('"$stagedChildKey":"hospital"'),
+      );
     });
 
     // .........................................................................
@@ -552,8 +566,10 @@ main() {
         (WidgetTester tester) async {
       await setUp(tester);
       expect(find.bySemanticsLabel('Navigate to Sports Page'), findsOneWidget);
-      expect(find.bySemanticsLabel('Navigate to Transportation Page'),
-          findsOneWidget);
+      expect(
+        find.bySemanticsLabel('Navigate to Transportation Page'),
+        findsOneWidget,
+      );
       expect(find.bySemanticsLabel('Navigate to Places Page'), findsOneWidget);
     });
   });

@@ -32,7 +32,7 @@ class GgRouteTreeNodeError extends Error {
 
   // ...........................................................................
   @override
-  toString() => 'Error $id: $message';
+  String toString() => 'Error $id: $message';
 }
 
 // #############################################################################
@@ -94,7 +94,9 @@ class _Params {
   // ...........................................................................
   /// Returns true, once dispose was called
   dispose() {
-    _dispose.reversed.forEach((element) => element());
+    for (var element in _dispose.reversed) {
+      element();
+    }
     _dispose.clear();
   }
 
@@ -121,18 +123,16 @@ class _Params {
   final List<Function()> _dispose = [];
   _initParams() {
     _dispose.add(() {
-      _params.values.forEach(
-        (element) {
-          element.dispose();
-        },
-      );
+      for (var element in _params.values) {
+        element.dispose();
+      }
       _params.clear();
     });
   }
 
   // ...........................................................................
   _checkType<T>(GgValue param) {
-    if (!(param is GgValue<T>)) {
+    if (param is! GgValue<T>) {
       throw ArgumentError(
         'Error while retrieving param with name "${param.name}". '
         'The existing param has type "${param.value.runtimeType.toString()}" and not "${T.toString()}".',
@@ -141,7 +141,7 @@ class _Params {
   }
 
   // ...........................................................................
-  final _params = Map<String, GgValue>();
+  final _params = <String, GgValue>{};
 
   // ...........................................................................
   final _onChange = StreamController<void>.broadcast();
@@ -158,11 +158,13 @@ class _Params {
   // ...........................................................................
   late GgOncePerCycle _onChangeTrigger;
   _initOnChangeTrigger() {
-    _onChangeTrigger = GgOncePerCycle(task: () {
-      if (!_onChange.isClosed && _onChange.hasListener) {
-        _onChange.add(null);
-      }
-    });
+    _onChangeTrigger = GgOncePerCycle(
+      task: () {
+        if (!_onChange.isClosed && _onChange.hasListener) {
+          _onChange.add(null);
+        }
+      },
+    );
     _dispose.add(_onChangeTrigger.dispose);
   }
 }
@@ -192,12 +194,14 @@ class GgRouteTreeNode {
   }
 
   /// Create a root node
-  static GgRouteTreeNode get newRoot => GgRouteTreeNode(name: '_ROOT_');
+  factory GgRouteTreeNode.newRoot() => GgRouteTreeNode(name: '_ROOT_');
 
   // ...........................................................................
   /// Call this function when the node is about to be disposed.
   dispose() {
-    _dispose.reversed.forEach((d) => d());
+    for (var d in _dispose.reversed) {
+      d();
+    }
     _dispose.clear();
   }
 
@@ -223,7 +227,7 @@ class GgRouteTreeNode {
   /// ..........................................................................
   /// Returns true if name only contains letters, numbers, minus and underscore
   static bool isValidName(String name) {
-    return name == '*' || _nameRegEx.allMatches(name).length > 0;
+    return name == '*' || _nameRegEx.allMatches(name).isNotEmpty;
   }
 
   // ...........................................................................
@@ -269,7 +273,9 @@ class GgRouteTreeNode {
   void resetStaging({bool recursive = false}) {
     _setIsStaged(false);
     if (recursive) {
-      children.forEach((child) => child.resetStaging(recursive: recursive));
+      for (var child in children) {
+        child.resetStaging(recursive: recursive);
+      }
     }
   }
 
@@ -286,7 +292,8 @@ class GgRouteTreeNode {
   GgRouteTreeNode findOrCreateChild(String name) {
     if (isIndexChild) {
       throw ArgumentError(
-          'The route "$path" is an index routes and must not have children.');
+        'The route "$path" is an index routes and must not have children.',
+      );
     }
 
     var child = _children[name];
@@ -327,7 +334,8 @@ class GgRouteTreeNode {
       _reportChange();
     } else {
       throw ArgumentError(
-          'The child to be remove is not a child of this node.');
+        'The child to be remove is not a child of this node.',
+      );
     }
   }
 
@@ -340,9 +348,9 @@ class GgRouteTreeNode {
   /// - `..` addresses parent node
   /// - '_LAST_' - addresses child that was last staged or the defaultChild
   GgRouteTreeNode descendants({required List<String> path}) {
-    var result = (this.isIndexChild ? this.parent : this)!;
+    var result = (isIndexChild ? parent : this)!;
 
-    path.forEach((element) {
+    for (var element in path) {
       if (element == '.' || element == '') {
         result = result;
       } else if (element == '..') {
@@ -361,7 +369,7 @@ class GgRouteTreeNode {
       } else {
         result = result.findOrCreateChild(element);
       }
-    });
+    }
 
     return result;
   }
@@ -443,11 +451,11 @@ class GgRouteTreeNode {
   /// Returns the child that needs to be faded in
   GgRouteTreeNode? get childToBeFadedIn {
     GgRouteTreeNode? result;
-    children.forEach((child) {
+    for (var child in children) {
       if (child.needsFade && child.isStaged) {
         result = child;
       }
-    });
+    }
 
     return result;
   }
@@ -456,11 +464,11 @@ class GgRouteTreeNode {
   /// Returns the child that needs to be faded out
   GgRouteTreeNode? get childToBeFadedOut {
     GgRouteTreeNode? result;
-    children.forEach((child) {
+    for (var child in children) {
       if (child.needsFade && !child.isStaged) {
         result = child;
       }
-    });
+    }
 
     return result;
   }
@@ -488,9 +496,10 @@ class GgRouteTreeNode {
 
     if (hasChild(name: name)) {
       throw GgRouteTreeNodeError(
-          id: 'GRC008478',
-          message: 'Error: Cannot create param with name "$name". '
-              'There is already a child node with the same name.');
+        id: 'GRC008478',
+        message: 'Error: Cannot create param with name "$name". '
+            'There is already a child node with the same name.',
+      );
     }
 
     if (es != null) {
@@ -668,9 +677,9 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns the URI parameter for a given parameter [name].
   /// Returns null, if no URI parameter exists for that name.
-  uriParamForName(String name) {
+  dynamic uriParamForName(String name) {
     GgRouteTreeNode? node = this;
-    var seed;
+    dynamic seed;
     while (node != null && seed == null) {
       seed = node.uriParams[name];
       node = node.parent;
@@ -707,7 +716,8 @@ class GgRouteTreeNode {
   set errorHandler(void Function(GgRouteTreeNodeError)? errorHandler) {
     if (errorHandler != null && _errorHandler != null) {
       throw ArgumentError(
-          'This node already has an error handler. Please remove previous error handler.');
+        'This node already has an error handler. Please remove previous error handler.',
+      );
     }
 
     _errorHandler = errorHandler;
@@ -744,7 +754,9 @@ class GgRouteTreeNode {
       object = jsonDecode(json);
     } catch (e) {
       throw GgRouteTreeNodeError(
-          id: 'GRC008475', message: 'Error while decoding JSON: $e');
+        id: 'GRC008475',
+        message: 'Error while decoding JSON: $e',
+      );
     }
 
     _parseJson(object, parseAllParamsDirectly);
@@ -781,7 +793,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  setSemanticLabelForPath({required String path, required String label}) {
+  void setSemanticLabelForPath({required String path, required String label}) {
     final node = nodeForPath(path);
     node.semanticLabel = label;
   }
@@ -793,7 +805,7 @@ class GgRouteTreeNode {
   final List<Function()> _dispose = [];
 
   static final _nameRegEx = RegExp(
-    r"^[\w\d_-]+$",
+    r'^[\w\d_-]+$',
     caseSensitive: false,
     multiLine: false,
   );
@@ -803,21 +815,25 @@ class GgRouteTreeNode {
   _checkConsistency() {
     if (isRoot && name != '_ROOT_') {
       throw GgRouteTreeNodeError(
-          id: 'GRC008501', message: 'Root nodes must have name "_ROOT_".');
+        id: 'GRC008501',
+        message: 'Root nodes must have name "_ROOT_".',
+      );
     }
 
     if (name == '_ROOT_' && parent != null) {
       throw GgRouteTreeNodeError(
-          id: 'GRC008503',
-          message:
-              'Nodes with name "_ROOT_" are root nodes and must not have a parent.');
+        id: 'GRC008503',
+        message:
+            'Nodes with name "_ROOT_" are root nodes and must not have a parent.',
+      );
     }
 
     if (!isValidName(name)) {
       throw GgRouteTreeNodeError(
-          id: 'GRC008502',
-          message:
-              'The name "$name" is not a valid node name. Node names must only contain letters, numbers, underscore or minus.');
+        id: 'GRC008502',
+        message:
+            'The name "$name" is not a valid node name. Node names must only contain letters, numbers, underscore or minus.',
+      );
     }
   }
 
@@ -836,7 +852,7 @@ class GgRouteTreeNode {
             ...parent!.pathSegments,
             if (name.isNotEmpty) name,
           ];
-    path = '/' + pathSegments.join('/');
+    path = '/${pathSegments.join('/')}';
     pathHashCode = path.hashCode;
   }
 
@@ -845,12 +861,12 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns a list with the node's children.
-  final _children = Map<String, GgRouteTreeNode>();
+  final _children = <String, GgRouteTreeNode>{};
   _initChildren() {
     _dispose.add(() {
-      List.from(_children.values).forEach((child) {
+      for (var child in List.from(_children.values)) {
         child.dispose();
-      });
+      }
       parent?._removeChild(this);
     });
   }
@@ -882,12 +898,14 @@ class GgRouteTreeNode {
   _initOwnOrChildParamChange() {
     _dispose.add(() => _ownOrChildParamChange.close());
 
-    _triggerOwnOrChildParamChange = GgOncePerCycle(task: () {
-      if (!_ownOrChildParamChange.isClosed &&
-          _ownOrChildParamChange.hasListener) {
-        _ownOrChildParamChange.add(null);
-      }
-    });
+    _triggerOwnOrChildParamChange = GgOncePerCycle(
+      task: () {
+        if (!_ownOrChildParamChange.isClosed &&
+            _ownOrChildParamChange.hasListener) {
+          _ownOrChildParamChange.add(null);
+        }
+      },
+    );
 
     final s =
         onOwnParamChange.listen((_) => _triggerOwnOrChildParamChange.trigger());
@@ -895,9 +913,15 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  Map<GgRouteTreeNode, StreamSubscription> _subscriptions = {};
+  final Map<GgRouteTreeNode, StreamSubscription> _subscriptions = {};
   _initSubscriptions() {
-    _subscriptions.values.forEach((element) => element.cancel);
+    _dispose.add(
+      () {
+        for (var element in _subscriptions.values) {
+          element.cancel();
+        }
+      },
+    );
   }
 
   // ...........................................................................
@@ -940,12 +964,14 @@ class GgRouteTreeNode {
   // ...........................................................................
   _initOnChange() {
     _dispose.add(_onChange.close);
-    _onChangeTrigger = GgOncePerCycle(task: () {
-      if (_onChange.hasListener) {
-        _onChange.add(null);
-        parent?._reportChange();
-      }
-    });
+    _onChangeTrigger = GgOncePerCycle(
+      task: () {
+        if (_onChange.hasListener) {
+          _onChange.add(null);
+          parent?._reportChange();
+        }
+      },
+    );
     _dispose.add(_onChangeTrigger.dispose);
   }
 
@@ -1018,7 +1044,7 @@ class GgRouteTreeNode {
     final pathComponents = path == '/' ? <String>[] : path.split('/');
 
     // route/_INDEX_ is treated as route/ when navigating
-    if (this.isIndexChild) {
+    if (isIndexChild) {
       parent!._navigateTo(path);
     } else {
       _startElement(path).stagedChildPathSegments = pathComponents;
@@ -1081,9 +1107,10 @@ class GgRouteTreeNode {
             }
           } catch (e) {
             throw GgRouteTreeNodeError(
-                id: 'GRC008477',
-                message:
-                    'Error while parsing value "$value" for attribute with name "$key" on path "$path": $e');
+              id: 'GRC008477',
+              message:
+                  'Error while parsing value "$value" for attribute with name "$key" on path "$path": $e',
+            );
           }
         }
       });
@@ -1099,7 +1126,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   Object _generateJson() {
-    final result = Map();
+    final result = {};
 
     // Write staged child
     if (_stagedChild.value != null) {
@@ -1133,7 +1160,7 @@ class GgRouteTreeNode {
 
 // #############################################################################
 /// Creates an lite route sample node.
-final exampleRouteNode = ({
+GgRouteTreeNode exampleRouteNode({
   String? name,
   GgRouteTreeNode? parent,
 }) =>

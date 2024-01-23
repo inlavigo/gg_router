@@ -13,20 +13,15 @@ import 'package:gg_value/gg_value.dart';
 // #############################################################################
 class TestRouteInformationProvider extends RouteInformationProvider
     with ChangeNotifier {
+  @override
   RouteInformation get value => _routeInformation;
   set routeInformation(RouteInformation routeInformation) {
     _routeInformation = routeInformation;
     notifyListeners();
   }
 
-  @override
-  void routerReportsNewRouteInformation(RouteInformation routeInformation,
-      {RouteInformationReportingType type =
-          RouteInformationReportingType.none}) {
-    super.routerReportsNewRouteInformation(routeInformation, type: type);
-  }
-
-  RouteInformation _routeInformation = RouteInformation();
+  RouteInformation _routeInformation =
+      RouteInformation(uri: Uri.parse('https://example.com'));
 }
 
 // #############################################################################
@@ -50,14 +45,14 @@ main() {
   late GgEasyWidgetTest b0Button;
 
   // ..............................
-  final subBuilder = (BuildContext context) {
+  Container subBuilder(BuildContext context) {
     final router = GgRouter.of(context);
     lastBuiltNode = router.node;
     routeSegment = GgRouter.of(context).routeName;
     childRouteSegment = GgRouter.of(context).routeNameOfActiveChild;
     routePath = GgRouter.of(context).routePath;
     return Container();
-  };
+  }
 
   // ..............................
   // Create a widget hierarchy /a/b
@@ -66,72 +61,76 @@ main() {
       final router = GgRouter.of(context);
       router.node.root.errorHandler = null;
       router.node.root.errorHandler = (_) {};
-      return Column(children: [
-        // ...............................
-        // A button selecting route a0/a11
-        TextButton(
-          key: ValueKey('a0/a11 Button'),
-          onPressed: () => GgRouter.of(context).navigateTo('a0/a11'),
-          child: Container(),
-        ),
+      return Column(
+        children: [
+          // ...............................
+          // A button selecting route a0/a11
+          TextButton(
+            key: const ValueKey('a0/a11 Button'),
+            onPressed: () => GgRouter.of(context).navigateTo('a0/a11'),
+            child: Container(),
+          ),
 
-        // ...............................
-        // A button selecting route b0/b11
-        TextButton(
-          key: ValueKey('b0/b10 Button'),
-          onPressed: () => GgRouter.of(context).navigateTo('b0/b10'),
-          child: Container(),
-        ),
+          // ...............................
+          // A button selecting route b0/b11
+          TextButton(
+            key: const ValueKey('b0/b10 Button'),
+            onPressed: () => GgRouter.of(context).navigateTo('b0/b10'),
+            child: Container(),
+          ),
 
-        // ...............................
-        // A button selecting route a0
-        TextButton(
-          key: ValueKey('a0/ Button'),
-          onPressed: () => router.navigateTo('a0/'),
-          child: Container(),
-        ),
+          // ...............................
+          // A button selecting route a0
+          TextButton(
+            key: const ValueKey('a0/ Button'),
+            onPressed: () => router.navigateTo('a0/'),
+            child: Container(),
+          ),
 
-        // ..........
-        // The routes
-        GgRouter(
-          {
-            '_INDEX_': subBuilder,
-            'a0': (context) {
-              return Column(
-                children: [
-                  Builder(builder: (context) {
-                    return TextButton(
-                      key: ValueKey('backButton'),
-                      onPressed: () {
-                        GgRouter.of(context).navigateTo('.');
+          // ..........
+          // The routes
+          GgRouter(
+            {
+              '_INDEX_': subBuilder,
+              'a0': (context) {
+                return Column(
+                  children: [
+                    Builder(
+                      builder: (context) {
+                        return TextButton(
+                          key: const ValueKey('backButton'),
+                          onPressed: () {
+                            GgRouter.of(context).navigateTo('.');
+                          },
+                          child: Container(),
+                        );
                       },
-                      child: Container(),
-                    );
-                  }),
-                  GgRouter(
-                    {
-                      '_INDEX_': subBuilder,
-                      'a10': subBuilder,
-                      'a11': subBuilder,
-                    },
-                    key: ValueKey('a0SubRouter'),
-                  ),
-                ],
-              );
+                    ),
+                    GgRouter(
+                      {
+                        '_INDEX_': subBuilder,
+                        'a10': subBuilder,
+                        'a11': subBuilder,
+                      },
+                      key: const ValueKey('a0SubRouter'),
+                    ),
+                  ],
+                );
+              },
+              'b0': (context) {
+                return GgRouter(
+                  {
+                    'b10': subBuilder,
+                    'b11': subBuilder,
+                  },
+                  key: const ValueKey('b0SubRouter'),
+                );
+              },
             },
-            'b0': (context) {
-              return GgRouter(
-                {
-                  'b10': subBuilder,
-                  'b11': subBuilder,
-                },
-                key: ValueKey('b0SubRouter'),
-              );
-            },
-          },
-          key: ValueKey('mainRouter'),
-        ),
-      ]);
+            key: const ValueKey('mainRouter'),
+          ),
+        ],
+      );
     },
   );
 
@@ -139,14 +138,20 @@ main() {
   updateAAndBButtons(WidgetTester tester) {
     // ........................
     // Get reference to buttons
-    a0Button = GgEasyWidgetTest(find.byKey(ValueKey('a0/a11 Button')), tester);
-    a0OnlyButton = GgEasyWidgetTest(find.byKey(ValueKey('a0/ Button')), tester);
-    b0Button = GgEasyWidgetTest(find.byKey(ValueKey('b0/b10 Button')), tester);
+    a0Button =
+        GgEasyWidgetTest(find.byKey(const ValueKey('a0/a11 Button')), tester);
+    a0OnlyButton =
+        GgEasyWidgetTest(find.byKey(const ValueKey('a0/ Button')), tester);
+    b0Button =
+        GgEasyWidgetTest(find.byKey(const ValueKey('b0/b10 Button')), tester);
   }
 
   // .........................................................................
-  setUp(WidgetTester tester,
-      {Widget? child, String initialRoute = '/_INDEX_'}) async {
+  setUp(
+    WidgetTester tester, {
+    Widget? child,
+    String initialRoute = '/_INDEX_',
+  }) async {
     // Create routeInformationProvider
     routeInformationProvider = TestRouteInformationProvider();
 
@@ -199,18 +204,18 @@ main() {
     testWidgets('should throw if animations are not consistent',
         (WidgetTester tester) async {
       expect(
-          () => GgRouter(
-                {},
-                key: GlobalKey(),
-                inAnimation: null,
-                outAnimation: (context, animation, child, size) =>
-                    GgMoveInFromBottom(
-                  animation: animation,
-                  child: child,
-                  size: size,
-                ),
-              ),
-          throwsArgumentError);
+        () => GgRouter(
+          const {},
+          key: GlobalKey(),
+          inAnimation: null,
+          outAnimation: (context, animation, child, size) => GgMoveInFromBottom(
+            animation: animation,
+            child: child,
+            size: size,
+          ),
+        ),
+        throwsArgumentError,
+      );
     });
 
     // .........................................................................
@@ -275,7 +280,7 @@ main() {
       // Test if the url is updated correctly from the widget hierarchy
       String? lastUpdateUrl;
       routerDelegate.addListener(() {
-        lastUpdateUrl = routerDelegate.currentConfiguration.location;
+        lastUpdateUrl = routerDelegate.currentConfiguration.uri.toFilePath();
       });
 
       lastBuiltNode.parent!.parent!.stagedChildPathSegments = ['a0', 'a11'];
@@ -289,7 +294,7 @@ main() {
       // .................................................................
       // Test if url changes are applied to the widget hierarchy correctly
       routeInformationProvider.routeInformation =
-          RouteInformation(location: 'a0/a10');
+          RouteInformation(uri: Uri.parse('a0/a10'));
 
       await tester.pumpAndSettle();
       expect(lastBuiltNode.path, '/a0/a10');
@@ -302,12 +307,14 @@ main() {
       lastBuiltNode.root.errorHandler = (error) => receivedError = error;
 
       routeInformationProvider.routeInformation =
-          RouteInformation(location: 'a0/invalidRoute');
+          RouteInformation(uri: Uri.parse('a0/invalidRoute'));
       await tester.pumpAndSettle();
       expect(lastBuiltNode.path, '/a0/a10');
       expect(receivedError!.id, 'GRC008448');
-      expect(receivedError!.message,
-          'Route "/a0" has no child named "invalidRoute" nor does your GgRouter define a "*" wild card route.');
+      expect(
+        receivedError!.message,
+        'Route "/a0" has no child named "invalidRoute" nor does your GgRouter define a "*" wild card route.',
+      );
 
       // ..................................................
       // Invalid URLs should be removed from the route tree
@@ -326,12 +333,14 @@ main() {
       lastBuiltNode.root.errorHandler = (error) => receivedError = error;
 
       routeInformationProvider.routeInformation =
-          RouteInformation(location: 'b0/');
+          RouteInformation(uri: Uri.parse('b0/'));
       await tester.pumpAndSettle();
       expect(lastBuiltNode.path, '/a0/a10');
       expect(receivedError!.id, 'GRC008505');
-      expect(receivedError!.message,
-          'Route "/b0" has no "_INDEX_" route and also no defaultRoute set. It cannot be displayed.');
+      expect(
+        receivedError!.message,
+        'Route "/b0" has no "_INDEX_" route and also no defaultRoute set. It cannot be displayed.',
+      );
 
       await tearDown(tester);
     });
@@ -351,7 +360,7 @@ main() {
 
       // Press back button -> should activate '/a0/_INDEX_'
       final backButton =
-          GgEasyWidgetTest(find.byKey(ValueKey('backButton')), tester);
+          GgEasyWidgetTest(find.byKey(const ValueKey('backButton')), tester);
       await backButton.press();
       expect(lastBuiltNode.path, '/a0/_INDEX_');
 
@@ -378,46 +387,52 @@ main() {
         late String? lastBuiltParam;
 
         // .............................................................................
-        await setUp(tester, child: Builder(builder: (c0) {
-          rootRouter = GgRouter.of(c0);
-          rootRouter.node.navigateTo('routeA/childRouteA');
+        await setUp(
+          tester,
+          child: Builder(
+            builder: (c0) {
+              rootRouter = GgRouter.of(c0);
+              rootRouter.node.navigateTo('routeA/childRouteA');
 
-          final builder = (BuildContext c1, String x) {
-            context = c1;
-            router = GgRouter.of(c1);
+              GgRouter builder(BuildContext c1, String x) {
+                context = c1;
+                router = GgRouter.of(c1);
 
-            final childName = 'childRoute$x';
-            router.node.findOrCreateChild(childName).navigateTo('.');
+                final childName = 'childRoute$x';
+                router.node.findOrCreateChild(childName).navigateTo('.');
 
-            return GgRouter(
-              {
-                childName: (c2) {
-                  childRouter = GgRouter.of(c2);
-                  rootRouter2 = GgRouter.of(c2, rootRouter: true);
-                  return GgRouteParams(
-                    params: {'param': GgRouteParam(seed: x)},
-                    child: Builder(
-                      builder: (c3) {
-                        lastBuiltParam = GgRouter.of(c3).param('param')?.value;
-                        return Container();
-                      },
-                    ),
-                  );
-                }
-              },
-              key: ValueKey('childRouter_$x'),
-            );
-          };
+                return GgRouter(
+                  {
+                    childName: (c2) {
+                      childRouter = GgRouter.of(c2);
+                      rootRouter2 = GgRouter.of(c2, rootRouter: true);
+                      return GgRouteParams(
+                        params: {'param': GgRouteParam(seed: x)},
+                        child: Builder(
+                          builder: (c3) {
+                            lastBuiltParam =
+                                GgRouter.of(c3).param('param')?.value;
+                            return Container();
+                          },
+                        ),
+                      );
+                    },
+                  },
+                  key: ValueKey('childRouter_$x'),
+                );
+              }
 
-          return GgRouter(
-            {
-              'routeA': (c) => builder(c, 'A'),
-              'routeB': (c) => builder(c, 'B'),
-              'routeC': (c) => builder(c, 'C'),
+              return GgRouter(
+                {
+                  'routeA': (c) => builder(c, 'A'),
+                  'routeB': (c) => builder(c, 'B'),
+                  'routeC': (c) => builder(c, 'C'),
+                },
+                key: const ValueKey('mainRouter'),
+              );
             },
-            key: ValueKey('mainRouter'),
-          );
-        }));
+          ),
+        );
 
         await tester.pumpAndSettle();
 
@@ -509,8 +524,10 @@ main() {
           ),
         );
 
-        expect(tester.takeException().message,
-            GgRouter.noGgRouterDelegateFoundError);
+        expect(
+          tester.takeException().message,
+          GgRouter.noGgRouterDelegateFoundError,
+        );
 
         s.cancel();
 
@@ -526,45 +543,55 @@ main() {
 
       final showAAtFirstPlace = GgValue(seed: false);
 
-      await setUp(tester,
-          child: StreamBuilder(
-              stream: showAAtFirstPlace.stream,
+      await setUp(
+        tester,
+        child: StreamBuilder(
+          stream: showAAtFirstPlace.stream,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Container();
+            }
+
+            // Create route a. Route a will be on first place in variant 1
+            // and on second place in variant 2.
+            Container routeA(_) {
+              final router = GgRouter.of(context);
+              final indexOfStagedChild = router.indexOfActiveChild;
+              if (showAAtFirstPlace.value) {
+                expect(indexOfStagedChild, 0);
+                expect(router.routeNameOfActiveChild, 'a');
+              } else {
+                expect(indexOfStagedChild, 1);
+                expect(router.routeNameOfActiveChild, 'a');
+              }
+
+              return Container();
+            }
+
+            return StreamBuilder(
+              stream: GgRouter.of(context).onActiveChildChange,
               builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Container();
-                }
-
-                // Create route a. Route a will be on first place in variant 1
-                // and on second place in variant 2.
-                final routeA = (_) {
-                  final router = GgRouter.of(context);
-                  final indexOfStagedChild = router.indexOfActiveChild;
-                  if (showAAtFirstPlace.value) {
-                    expect(indexOfStagedChild, 0);
-                    expect(router.routeNameOfActiveChild, 'a');
-                  } else {
-                    expect(indexOfStagedChild, 1);
-                    expect(router.routeNameOfActiveChild, 'a');
-                  }
-
-                  return Container();
-                };
-
-                return StreamBuilder(
-                    stream: GgRouter.of(context).onActiveChildChange,
-                    builder: (context, snapshot) {
-                      // Exchange the places of route 'a'
-                      return showAAtFirstPlace.value
-                          ? GgRouter({
-                              'a': routeA,
-                              'b': (_) => Container(),
-                            }, key: ValueKey('Router1'))
-                          : GgRouter({
-                              'b': (_) => Container(),
-                              'a': routeA,
-                            }, key: ValueKey('Router2'));
-                    });
-              }));
+                // Exchange the places of route 'a'
+                return showAAtFirstPlace.value
+                    ? GgRouter(
+                        {
+                          'a': routeA,
+                          'b': (_) => Container(),
+                        },
+                        key: const ValueKey('Router1'),
+                      )
+                    : GgRouter(
+                        {
+                          'b': (_) => Container(),
+                          'a': routeA,
+                        },
+                        key: const ValueKey('Router2'),
+                      );
+              },
+            );
+          },
+        ),
+      );
 
       await tester.pumpAndSettle();
       showAAtFirstPlace.value = true;
@@ -584,10 +611,10 @@ main() {
 
         final routes = GgValue<Map<String, WidgetBuilder>>(
           seed: {
-            '_INDEX_': (_) => SizedBox(),
-            'a': (_) => SizedBox(),
-            'b': (_) => SizedBox(),
-            'c': (_) => SizedBox(),
+            '_INDEX_': (_) => const SizedBox(),
+            'a': (_) => const SizedBox(),
+            'b': (_) => const SizedBox(),
+            'c': (_) => const SizedBox(),
           },
         );
 
@@ -639,7 +666,7 @@ main() {
         // Add another route
         routes.value = {
           ...routes.value,
-          'd': (context) => SizedBox(),
+          'd': (context) => const SizedBox(),
         };
 
         // Add another semantic label
@@ -667,13 +694,13 @@ main() {
     // #########################################################################
     group('GgRouter.from', () {
       final other = GgRouter(
-        {},
+        const {},
         key: GlobalKey(),
-        animationDuration: Duration(),
+        animationDuration: const Duration(),
         defaultRoute: 'default',
         inAnimation: (c, a, child, size) => Container(),
         outAnimation: (c, a, child, size) => Container(),
-        semanticLabels: {},
+        semanticLabels: const {},
       );
 
       test('should a copy of the router by default', () {
@@ -690,10 +717,10 @@ main() {
       test('should allow to overwrite properties', () {
         final newKey = GlobalKey();
         final newChildren = {'x': (_) => Container()};
-        final newAnimationDuration = Duration();
-        final newDefaultRoute = 'other';
-        final newInAnimation = (c, a, child, size) => Container();
-        final newOutAnimation = (c, a, child, size) => Container();
+        const newAnimationDuration = Duration();
+        const newDefaultRoute = 'other';
+        Container newInAnimation(c, a, child, size) => Container();
+        Container newOutAnimation(c, a, child, size) => Container();
         final newSemanticLabels = {'a': 'bla bla'};
 
         final copy = GgRouter.from(
@@ -723,20 +750,27 @@ main() {
           (WidgetTester tester) async {
         await setUp(
           tester,
-          child: Builder(builder: (context) {
-            return GgRouter(
-              {'a': (_) => Container()},
-              key: GlobalKey(),
-              defaultRoute: 'b',
-            );
-          }),
+          child: Builder(
+            builder: (context) {
+              return GgRouter(
+                {'a': (_) => Container()},
+                key: GlobalKey(),
+                defaultRoute: 'b',
+              );
+            },
+          ),
         );
 
-        expect(tester.takeException(), predicate((ArgumentError f) {
-          expect(f.message,
-              'Error GRC008506: The defaultChild "b" does not exist.');
-          return true;
-        }));
+        expect(
+          tester.takeException(),
+          predicate((ArgumentError f) {
+            expect(
+              f.message,
+              'Error GRC008506: The defaultChild "b" does not exist.',
+            );
+            return true;
+          }),
+        );
       });
 
       // .......................................................................
@@ -747,14 +781,16 @@ main() {
         await setUp(
           tester,
           initialRoute: '/a',
-          child: Builder(builder: (context) {
-            root = GgRouter.of(context).node.root;
-            return GgRouter(
-              {'a': (_) => Container()},
-              key: GlobalKey(),
-              defaultRoute: 'a',
-            );
-          }),
+          child: Builder(
+            builder: (context) {
+              root = GgRouter.of(context).node.root;
+              return GgRouter(
+                {'a': (_) => Container()},
+                key: GlobalKey(),
+                defaultRoute: 'a',
+              );
+            },
+          ),
         );
 
         expect(root.defaultChildName, 'a');
@@ -771,16 +807,18 @@ main() {
         // Define a router with no wild card route
         await setUp(
           tester,
-          child: Builder(builder: (context) {
-            return GgRouter(
-              {
-                'a': (_) => Container(),
-                '_INDEX_': (_) => Container(),
-              },
-              key: GlobalKey(),
-              defaultRoute: 'a',
-            );
-          }),
+          child: Builder(
+            builder: (context) {
+              return GgRouter(
+                {
+                  'a': (_) => Container(),
+                  '_INDEX_': (_) => Container(),
+                },
+                key: GlobalKey(),
+                defaultRoute: 'a',
+              );
+            },
+          ),
         );
 
         // ........................................
@@ -798,8 +836,10 @@ main() {
         routerDelegate.root.navigateTo('/unknown');
 
         await tester.pumpAndSettle();
-        expect(error!.message,
-            'Route "/" has no child named "unknown" nor does your GgRouter define a "*" wild card route.');
+        expect(
+          error!.message,
+          'Route "/" has no child named "unknown" nor does your GgRouter define a "*" wild card route.',
+        );
       });
 
       // .......................................................................
@@ -814,17 +854,19 @@ main() {
 
         await setUp(
           tester,
-          child: Builder(builder: (context) {
-            return GgRouter(
-              {
-                'a': (_) => Container(key: routeAKey),
-                '_INDEX_': (_) => Container(),
-                '*': (_) => Container(key: wildCardKey),
-              },
-              key: GlobalKey(),
-              defaultRoute: 'a',
-            );
-          }),
+          child: Builder(
+            builder: (context) {
+              return GgRouter(
+                {
+                  'a': (_) => Container(key: routeAKey),
+                  '_INDEX_': (_) => Container(),
+                  '*': (_) => Container(key: wildCardKey),
+                },
+                key: GlobalKey(),
+                defaultRoute: 'a',
+              );
+            },
+          ),
         );
 
         // ............................
@@ -840,7 +882,7 @@ main() {
         await tester.pumpAndSettle();
         expect(find.byKey(routeAKey), findsNothing);
         expect(find.byKey(wildCardKey), findsOneWidget);
-        expect(routerDelegate.currentConfiguration.location, 'unknown');
+        expect(routerDelegate.currentConfiguration.uri.toString(), 'unknown');
       });
     });
 
@@ -855,9 +897,9 @@ main() {
 
       update(WidgetTester tester) {
         inAnimationWidget =
-            tester.widget(find.byKey(Key('inAnimation'))) as Text;
+            tester.widget(find.byKey(const Key('inAnimation'))) as Text;
         outAnimationWidget =
-            tester.widget(find.byKey(Key('outAnimation'))) as Text;
+            tester.widget(find.byKey(const Key('outAnimation'))) as Text;
       }
 
       updateAnimationDetails(BuildContext context) {
@@ -869,7 +911,11 @@ main() {
       }
 
       checkAnimationDetails(
-          int? indexIn, int? indexOut, String? nameIn, String? nameOut) {
+        int? indexIn,
+        int? indexOut,
+        String? nameIn,
+        String? nameOut,
+      ) {
         expect(indexOfChildAnimatingIn, indexIn);
         expect(indexOfChildAnimatingOut, indexOut);
         expect(nameOfChildAnimatingIn, nameIn);
@@ -878,8 +924,8 @@ main() {
 
       testWidgets('should animate route transitions',
           (WidgetTester tester) async {
-        final routeAKey = Key('routeA');
-        final routeBKey = Key('routeB');
+        const routeAKey = Key('routeA');
+        const routeBKey = Key('routeB');
 
         // ................................
         // Create a route with two siblings
@@ -888,7 +934,7 @@ main() {
             'routeA': (context) => Container(key: routeAKey),
             'routeB': (context) => Container(key: routeBKey),
           },
-          key: ValueKey('mainRouter'),
+          key: const ValueKey('mainRouter'),
 
           // Wrap animated widgets into a stack showing a text with the
           // animation value
@@ -899,8 +945,8 @@ main() {
                 child,
                 Text(
                   '${animation.value}',
-                  key: Key('inAnimation'),
-                )
+                  key: const Key('inAnimation'),
+                ),
               ],
             );
           },
@@ -911,12 +957,12 @@ main() {
                 child,
                 Text(
                   '${animation.value}',
-                  key: Key('outAnimation'),
-                )
+                  key: const Key('outAnimation'),
+                ),
               ],
             );
           },
-          animationDuration: Duration(milliseconds: 1000),
+          animationDuration: const Duration(milliseconds: 1000),
         );
 
         // ........................
@@ -951,7 +997,7 @@ main() {
         // ..........................
         // At the beginning both, routeA and routeB should be visbible
         // because both are animating
-        await tester.pump(Duration(microseconds: 0));
+        await tester.pump(const Duration(microseconds: 0));
         update(tester);
         expect(find.byKey(routeAKey), findsOneWidget);
         expect(find.byKey(routeBKey), findsOneWidget);
@@ -963,14 +1009,14 @@ main() {
 
         // Now jump to the middle of the animation and check if the
         // right animation values were delivered.
-        await tester.pump(Duration(milliseconds: 500));
+        await tester.pump(const Duration(milliseconds: 500));
         update(tester);
         expect(inAnimationWidget.data, '0.5');
         expect(outAnimationWidget.data, '0.5');
 
         // Once the animation has finished, only the new route should be
         // visible
-        await tester.pump(Duration(milliseconds: 1001));
+        await tester.pump(const Duration(milliseconds: 1001));
         expect(find.byKey(routeAKey), findsNothing);
         expect(find.byKey(routeBKey), findsOneWidget);
 
@@ -984,8 +1030,8 @@ main() {
         // .........................................
         // While animating switch GgShowInForeground
 
-        final routeOutKey = Key('routeOut');
-        final routeInKey = Key('routeIn');
+        const routeOutKey = Key('routeOut');
+        const routeInKey = Key('routeIn');
 
         // .........................................
         // Create an animation deciding if routeA and/or routeB should be shown
@@ -993,7 +1039,7 @@ main() {
         bool showOutRouteOnTheTopWhileAnimating = false;
         bool showInRouteOnTheTopWhileAnimating = false;
 
-        final GgAnimationBuilder animation = (context, animation, child, size) {
+        StatelessWidget animation(context, animation, child, size) {
           final c = child as GgRouterCore;
           expect(size.width, 800);
           expect(size.height, 600);
@@ -1004,7 +1050,7 @@ main() {
                       showInRouteOnTheTopWhileAnimating)
               ? GgShowInForeground(child: child)
               : child;
-        };
+        }
 
         // .........................................
         // Check if widget wrapped into "GgShowInForeground" is shown infront
@@ -1017,13 +1063,13 @@ main() {
             'routeOut': (context) => Container(key: routeOutKey),
             'routeIn': (context) => Container(key: routeInKey),
           },
-          key: ValueKey('mainRouter'),
+          key: const ValueKey('mainRouter'),
 
           // While animating wrap animated child into "GgShowInForeground"
           // if the corresponding flag is set
           inAnimation: animation,
           outAnimation: animation,
-          animationDuration: Duration(milliseconds: 1000),
+          animationDuration: const Duration(milliseconds: 1000),
         );
 
         // ........................
@@ -1054,7 +1100,7 @@ main() {
         late GgRouterCore widgetInForeground;
         late GgRouterCore widgetInBackground;
 
-        final update = () {
+        update() {
           stackFinder = find.byType(Stack);
           expect(stackFinder, findsOneWidget);
           stackWidget = tester.widget(stackFinder);
@@ -1070,12 +1116,12 @@ main() {
           widgetInBackground = (first is GgShowInForeground)
               ? first.child as GgRouterCore
               : first as GgRouterCore;
-        };
+        }
 
         // ..........................
         // Now let's switch to routeIn
         root.findOrCreateChild('routeIn').navigateTo('.');
-        await tester.pump(Duration(microseconds: 0));
+        await tester.pump(const Duration(microseconds: 0));
         update();
 
         // By default the widget animating in is shown in the foreground
@@ -1085,7 +1131,7 @@ main() {
         // ........................................
         // Now let's put routeOut to the foreground
         showOutRouteOnTheTopWhileAnimating = true;
-        await tester.pump(Duration(microseconds: 100));
+        await tester.pump(const Duration(microseconds: 100));
         update();
 
         expect(widgetInForeground.routeName, 'routeOut');
@@ -1096,7 +1142,7 @@ main() {
         showOutRouteOnTheTopWhileAnimating = false;
         showInRouteOnTheTopWhileAnimating = true;
 
-        await tester.pump(Duration(microseconds: 100));
+        await tester.pump(const Duration(microseconds: 100));
         update();
 
         expect(widgetInForeground.routeName, 'routeIn');
@@ -1112,44 +1158,59 @@ main() {
       test(
           'should throw an exception if semantic labels for non existing routes are defined',
           () {
-        expect(() {
-          GgRouter({}, semanticLabels: {'xyz': 'X Y Z'}, key: GlobalKey());
-        }, throwsA(predicate((ArgumentError e) {
-          expect(e.message,
-              'You specified a semantic label for route "xyz", but you did not setup a route with name "xyz".');
-          return true;
-        })));
+        expect(
+          () {
+            GgRouter(
+              const {},
+              semanticLabels: const {'xyz': 'X Y Z'},
+              key: GlobalKey(),
+            );
+          },
+          throwsA(
+            predicate((ArgumentError e) {
+              expect(
+                e.message,
+                'You specified a semantic label for route "xyz", but you did not setup a route with name "xyz".',
+              );
+              return true;
+            }),
+          ),
+        );
       });
 
       test('should pass if semantic labels match the routes', () {
-        GgRouter({'xyz': (_) => Container()},
-            semanticLabels: {'xyz': 'X Y Z'}, key: GlobalKey());
+        GgRouter(
+          {'xyz': (_) => Container()},
+          semanticLabels: const {'xyz': 'X Y Z'},
+          key: GlobalKey(),
+        );
       });
 
       testWidgets(
-        "Semantic labels should be written to route tree",
+        'Semantic labels should be written to route tree',
         (WidgetTester tester) async {
           // ..................
           // Create a root node
-          final root = GgRouteTreeNode.newRoot;
+          final root = GgRouteTreeNode.newRoot();
 
           // ......................
           // Instantiate the router
           await tester.pumpWidget(
             GgRouter.root(
-                child: GgRouter(
-                  {
-                    'xyz': (_) => Container(key: GlobalKey()),
-                    'abc': (_) => Container(key: GlobalKey()),
-                  },
-                  semanticLabels: {
-                    'xyz': 'XYZ Label',
-                    'abc': 'ABC Label',
-                  },
-                  key: GlobalKey(),
-                  defaultRoute: 'xyz',
-                ),
-                node: root),
+              child: GgRouter(
+                {
+                  'xyz': (_) => Container(key: GlobalKey()),
+                  'abc': (_) => Container(key: GlobalKey()),
+                },
+                semanticLabels: const {
+                  'xyz': 'XYZ Label',
+                  'abc': 'ABC Label',
+                },
+                key: GlobalKey(),
+                defaultRoute: 'xyz',
+              ),
+              node: root,
+            ),
           );
 
           // ..............................................................
@@ -1163,17 +1224,18 @@ main() {
           (WidgetTester tester) async {
         // ......................
         // Create a popover route
-        final root = GgRouteTreeNode.newRoot;
+        final root = GgRouteTreeNode.newRoot();
         await tester.pumpWidget(
           GgRouter.root(
-              child: GgPopoverRoute(
-                key: GlobalKey(),
-                name: 'xyz',
-                base: Container(),
-                popover: (_) => Container(),
-                semanticLabel: 'XYZ Label',
-              ),
-              node: root),
+            child: GgPopoverRoute(
+              key: GlobalKey(),
+              name: 'xyz',
+              base: Container(),
+              popover: (_) => Container(),
+              semanticLabel: 'XYZ Label',
+            ),
+            node: root,
+          ),
         );
 
         // ........................................
@@ -1186,52 +1248,53 @@ main() {
           (WidgetTester tester) async {
         // ...................
         // Create a route tree
-        final root = GgRouteTreeNode.newRoot;
+        final root = GgRouteTreeNode.newRoot();
         bool didCheck = false;
         await tester.pumpWidget(
           GgRouter.root(
-              child: GgRouter(
-                {
-                  'childA': (_) {
-                    return GgRouter(
-                      {
-                        'childA0': (context) {
-                          didCheck = true;
+            child: GgRouter(
+              {
+                'childA': (_) {
+                  return GgRouter(
+                    {
+                      'childA0': (context) {
+                        didCheck = true;
 
-                          // ...................................................
-                          // Check if semantic labels can be retrieved correctly
-                          expect(
-                            GgRouter.of(context).semanticLabelForPath('../'),
-                            'childA',
-                          );
+                        // ...................................................
+                        // Check if semantic labels can be retrieved correctly
+                        expect(
+                          GgRouter.of(context).semanticLabelForPath('../'),
+                          'childA',
+                        );
 
-                          expect(
-                            GgRouter.of(context).semanticLabelForPath('../../'),
-                            root.name,
-                          );
+                        expect(
+                          GgRouter.of(context).semanticLabelForPath('../../'),
+                          root.name,
+                        );
 
-                          expect(
-                            GgRouter.of(context)
-                                .semanticLabelForPath('../../childB'),
-                            'childB Label',
-                          );
+                        expect(
+                          GgRouter.of(context)
+                              .semanticLabelForPath('../../childB'),
+                          'childB Label',
+                        );
 
-                          return Container();
-                        }
+                        return Container();
                       },
-                      key: GlobalKey(),
-                      defaultRoute: 'childA0',
-                    );
-                  },
-                  'childB': (_) {
-                    return Container();
-                  },
+                    },
+                    key: GlobalKey(),
+                    defaultRoute: 'childA0',
+                  );
                 },
-                semanticLabels: {'childB': 'childB Label'},
-                key: GlobalKey(),
-                defaultRoute: 'childA',
-              ),
-              node: root),
+                'childB': (_) {
+                  return Container();
+                },
+              },
+              semanticLabels: const {'childB': 'childB Label'},
+              key: GlobalKey(),
+              defaultRoute: 'childA',
+            ),
+            node: root,
+          ),
         );
 
         // .....................
@@ -1240,48 +1303,52 @@ main() {
       });
 
       testWidgets(
-          'GgRouter.of(context).setSemanticLabelForPath(path, label) should allow to set a semantic labe for a given relative path',
+          'GgRouter.of(context).setSemanticLabelForPath(path, label) should '
+          'allow to set a semantic labe for a given relative path',
           (WidgetTester tester) async {
         // ...................
         // Create a route tree
-        final root = GgRouteTreeNode.newRoot;
+        final root = GgRouteTreeNode.newRoot();
         bool didCheck = false;
         await tester.pumpWidget(
           GgRouter.root(
-              child: GgRouter(
-                {
-                  'childA': (_) {
-                    return GgRouter(
-                      {
-                        'childA0': (context) {
-                          didCheck = true;
+            child: GgRouter(
+              {
+                'childA': (_) {
+                  return GgRouter(
+                    {
+                      'childA0': (context) {
+                        didCheck = true;
 
-                          GgRouter.of(context).setSemanticLabelForPath(
-                              path: '../', label: 'CUSTOMLABEL');
+                        GgRouter.of(context).setSemanticLabelForPath(
+                          path: '../',
+                          label: 'CUSTOMLABEL',
+                        );
 
-                          // ...................................................
-                          // Check if semantic labels can be retrieved correctly
-                          expect(
-                            GgRouter.of(context).semanticLabelForPath('../'),
-                            'CUSTOMLABEL',
-                          );
+                        // ...................................................
+                        // Check if semantic labels can be retrieved correctly
+                        expect(
+                          GgRouter.of(context).semanticLabelForPath('../'),
+                          'CUSTOMLABEL',
+                        );
 
-                          return Container();
-                        }
+                        return Container();
                       },
-                      key: GlobalKey(),
-                      defaultRoute: 'childA0',
-                    );
-                  },
-                  'childB': (_) {
-                    return Container();
-                  },
+                    },
+                    key: GlobalKey(),
+                    defaultRoute: 'childA0',
+                  );
                 },
-                semanticLabels: {'childB': 'childB Label'},
-                key: GlobalKey(),
-                defaultRoute: 'childA',
-              ),
-              node: root),
+                'childB': (_) {
+                  return Container();
+                },
+              },
+              semanticLabels: const {'childB': 'childB Label'},
+              key: GlobalKey(),
+              defaultRoute: 'childA',
+            ),
+            node: root,
+          ),
         );
 
         // .....................

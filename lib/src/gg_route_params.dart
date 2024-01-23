@@ -5,7 +5,7 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
-import 'package:gg_router/gg_router.dart';
+import '../gg_router.dart';
 
 // #############################################################################
 /// A single route parameter.
@@ -28,13 +28,11 @@ class GgRouteParams extends StatelessWidget {
   /// Constructor.
   /// - [key] - The widget's key.
 
-  GgRouteParams({
-    Key? key,
+  const GgRouteParams({
+    super.key,
     required this.child,
     required this.params,
-  }) : super(
-          key: key,
-        );
+  });
 
   // ...........................................................................
   /// The parameters that will be assigned to the current route tree node.
@@ -69,13 +67,13 @@ class GgRouteParams extends StatelessWidget {
       if (parentWidget != null) {
         final existingParams = parentWidget.params.keys;
         final ownParams = params.keys;
-        ownParams.forEach((ownParam) {
+        for (var ownParam in ownParams) {
           if (existingParams.contains(ownParam)) {
             throw ArgumentError('Cannot process route param "$ownParam". '
                 'There is already a parent GgRouteParams object, containing a route param with the name "$ownParam". '
                 'Make sure you are using unique param names accross a route and its parents.');
           }
-        });
+        }
       }
 
       return true;
