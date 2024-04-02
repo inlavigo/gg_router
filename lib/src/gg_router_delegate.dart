@@ -137,7 +137,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
     // If yes, navigate
     if (needsNavigate) {
-      super.setInitialRoutePath(configuration);
+      await super.setInitialRoutePath(configuration);
     }
   }
 

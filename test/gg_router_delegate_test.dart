@@ -153,7 +153,7 @@ main() {
 
       // ....................................................
       // Should apply RouteInformation to the route node tree
-      routerDelegate
+      await routerDelegate
           .setNewRoutePath(RouteInformation(uri: Uri.parse('/routeA')));
       expect(router.node.root.stagedChildPath, 'routeA');
       expect(routerDelegate.currentConfiguration.uri.toString(), 'routeA?a=5');
@@ -161,13 +161,13 @@ main() {
 
       // ..............................
       // Should also write query params
-      routerDelegate
+      await routerDelegate
           .setNewRoutePath(RouteInformation(uri: Uri.parse('/routeA?a=123')));
       router.node.param('a')!.value = 6;
 
       // ..............................
       // Should write unknown parameters to uriParams
-      routerDelegate.setNewRoutePath(
+      await routerDelegate.setNewRoutePath(
         RouteInformation(uri: Uri.parse('/routeA?unknown=456')),
       );
       expect(router.node.uriParamForName('unknown'), '456');

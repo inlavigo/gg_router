@@ -98,7 +98,8 @@ class GgRouterExample extends StatelessWidget {
       );
 
       scheduleMicrotask(
-          () => ScaffoldMessenger.of(context).showSnackBar(snackBar),);
+        () => ScaffoldMessenger.of(context).showSnackBar(snackBar),
+      );
     };
   }
 
@@ -129,28 +130,30 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   Widget _routeButton(String title, String route) {
-    return Builder(builder: (context) {
-      final router = GgRouter.of(context);
+    return Builder(
+      builder: (context) {
+        final router = GgRouter.of(context);
 
-      return StreamBuilder(
-        stream: router.onActiveChildChange,
-        builder: (context, snapshot) {
-          final isStaged = router.routeNameOfActiveChild == route;
-          final path = '$route/_LAST_';
-          final semanticLabel = router.semanticLabelForPath(route);
+        return StreamBuilder(
+          stream: router.onActiveChildChange,
+          builder: (context, snapshot) {
+            final isStaged = router.routeNameOfActiveChild == route;
+            final path = '$route/_LAST_';
+            final semanticLabel = router.semanticLabelForPath(route);
 
-          return Semantics(
-            excludeSemantics: true,
-            label: semanticLabel,
-            child: TextButton(
-              key: ValueKey(route),
-              onPressed: () => router.navigateTo(path),
-              child: _text(title, context, isStaged),
-            ),
-          );
-        },
-      );
-    },);
+            return Semantics(
+              excludeSemantics: true,
+              label: semanticLabel,
+              child: TextButton(
+                key: ValueKey(route),
+                onPressed: () => router.navigateTo(path),
+                child: _text(title, context, isStaged),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   // ...........................................................................
@@ -186,9 +189,11 @@ class GgRouterExample extends StatelessWidget {
         pageContent: (ctx2) => Center(
           child: Column(
             children: [
-              const Row(children: [
-                Spacer(),
-              ],),
+              const Row(
+                children: [
+                  Spacer(),
+                ],
+              ),
               const Spacer(),
               _checkBox(context),
               Container(
@@ -208,12 +213,14 @@ class GgRouterExample extends StatelessWidget {
             pageContent: (ctx3) => Container(
               color: const Color(0xFF555555),
               child: Center(
-                  child: TextButton(
-                      key: const ValueKey('More Details Button'),
-                      onPressed: () {
-                        GgRouter.of(ctx3).navigateTo('more-details');
-                      },
-                      child: const Text('More details'),),),
+                child: TextButton(
+                  key: const ValueKey('More Details Button'),
+                  onPressed: () {
+                    GgRouter.of(ctx3).navigateTo('more-details');
+                  },
+                  child: const Text('More details'),
+                ),
+              ),
             ),
             children: {
               'more-details': GgNavigationPage(
@@ -246,27 +253,29 @@ class GgRouterExample extends StatelessWidget {
   Widget _checkBox(BuildContext context) {
     final GgValue param = GgRouter.of(context).param('visit')!;
 
-    return Row(children: [
-      Expanded(child: Container()),
-      SizedBox(
-        width: 200,
-        height: 50,
-        child: Container(
-          color: const Color(0x11FFFFFF),
-          child: StreamBuilder(
-            stream: param.stream,
-            builder: (context, snapshot) {
-              return CheckboxListTile(
-                title: const Text('Visit Event'),
-                value: param.value,
-                onChanged: (newValue) => param.value = newValue as bool,
-              );
-            },
+    return Row(
+      children: [
+        Expanded(child: Container()),
+        SizedBox(
+          width: 200,
+          height: 50,
+          child: Container(
+            color: const Color(0x11FFFFFF),
+            child: StreamBuilder(
+              stream: param.stream,
+              builder: (context, snapshot) {
+                return CheckboxListTile(
+                  title: const Text('Visit Event'),
+                  value: param.value,
+                  onChanged: (newValue) => param.value = newValue as bool,
+                );
+              },
+            ),
           ),
         ),
-      ),
-      Expanded(child: Container()),
-    ],);
+        Expanded(child: Container()),
+      ],
+    );
   }
 
   // ...........................................................................
@@ -301,41 +310,42 @@ class GgRouterExample extends StatelessWidget {
     return Scaffold(
       key: const ValueKey('sportsPage'),
       bottomNavigationBar: StreamBuilder(
-          stream: router.onActiveChildChange,
-          builder: (context, snapshot) {
-            final index = router.indexOfActiveChild ?? 0;
+        stream: router.onActiveChildChange,
+        builder: (context, snapshot) {
+          final index = router.indexOfActiveChild ?? 0;
 
-            return BottomNavigationBar(
-              currentIndex: max(index - 1, 0),
-              items: const [
-                BottomNavigationBarItem(
-                  label: 'Basketball',
-                  icon: Icon(Icons.sports_basketball),
-                ),
-                BottomNavigationBarItem(
-                  label: 'Football',
-                  icon: Icon(Icons.sports_football),
-                ),
-                BottomNavigationBarItem(
-                  label: 'Handball',
-                  icon: Icon(Icons.sports_handball),
-                ),
-              ],
-              onTap: (index) {
-                switch (index) {
-                  case 0:
-                    router.navigateTo('basketball/_LAST_');
-                    break;
-                  case 1:
-                    router.navigateTo('football/_LAST_');
-                    break;
-                  case 2:
-                    router.navigateTo('handball/_LAST_');
-                    break;
-                }
-              },
-            );
-          },),
+          return BottomNavigationBar(
+            currentIndex: max(index - 1, 0),
+            items: const [
+              BottomNavigationBarItem(
+                label: 'Basketball',
+                icon: Icon(Icons.sports_basketball),
+              ),
+              BottomNavigationBarItem(
+                label: 'Football',
+                icon: Icon(Icons.sports_football),
+              ),
+              BottomNavigationBarItem(
+                label: 'Handball',
+                icon: Icon(Icons.sports_handball),
+              ),
+            ],
+            onTap: (index) {
+              switch (index) {
+                case 0:
+                  router.navigateTo('basketball/_LAST_');
+                  break;
+                case 1:
+                  router.navigateTo('football/_LAST_');
+                  break;
+                case 2:
+                  router.navigateTo('handball/_LAST_');
+                  break;
+              }
+            },
+          );
+        },
+      ),
       body: GgRouter(
         {
           'basketball': (context) {
@@ -376,41 +386,42 @@ class GgRouterExample extends StatelessWidget {
     return Scaffold(
       key: const ValueKey('transportationPage'),
       bottomNavigationBar: StreamBuilder(
-          stream: router.onActiveChildChange,
-          builder: (context, snapshot) {
-            final index = router.indexOfActiveChild ?? 0;
+        stream: router.onActiveChildChange,
+        builder: (context, snapshot) {
+          final index = router.indexOfActiveChild ?? 0;
 
-            return BottomNavigationBar(
-              currentIndex: max(index - 1, 0),
-              items: const [
-                BottomNavigationBarItem(
-                  label: 'Bus',
-                  icon: Icon(Icons.directions_bus),
-                ),
-                BottomNavigationBarItem(
-                  label: 'Bike',
-                  icon: Icon(Icons.directions_bike),
-                ),
-                BottomNavigationBarItem(
-                  label: 'Car',
-                  icon: Icon(Icons.directions_car),
-                ),
-              ],
-              onTap: (index) {
-                switch (index) {
-                  case 0:
-                    router.navigateTo('bus');
-                    break;
-                  case 1:
-                    router.navigateTo('bike');
-                    break;
-                  case 2:
-                    router.navigateTo('car');
-                    break;
-                }
-              },
-            );
-          },),
+          return BottomNavigationBar(
+            currentIndex: max(index - 1, 0),
+            items: const [
+              BottomNavigationBarItem(
+                label: 'Bus',
+                icon: Icon(Icons.directions_bus),
+              ),
+              BottomNavigationBarItem(
+                label: 'Bike',
+                icon: Icon(Icons.directions_bike),
+              ),
+              BottomNavigationBarItem(
+                label: 'Car',
+                icon: Icon(Icons.directions_car),
+              ),
+            ],
+            onTap: (index) {
+              switch (index) {
+                case 0:
+                  router.navigateTo('bus');
+                  break;
+                case 1:
+                  router.navigateTo('bike');
+                  break;
+                case 2:
+                  router.navigateTo('car');
+                  break;
+              }
+            },
+          );
+        },
+      ),
       body: GgRouter(
         {
           'bus': (c) => _bigIcon(c, Icons.directions_bus),
@@ -432,42 +443,43 @@ class GgRouterExample extends StatelessWidget {
 
     return Scaffold(
       bottomNavigationBar: StreamBuilder(
-          key: const ValueKey('placesPage'),
-          stream: router.onActiveChildChange,
-          builder: (context, snapshot) {
-            final index = router.indexOfActiveChild ?? 0;
+        key: const ValueKey('placesPage'),
+        stream: router.onActiveChildChange,
+        builder: (context, snapshot) {
+          final index = router.indexOfActiveChild ?? 0;
 
-            return BottomNavigationBar(
-              currentIndex: max(index - 1, 0),
-              items: const [
-                BottomNavigationBarItem(
-                  label: 'Airpot',
-                  icon: Icon(Icons.airplanemode_active),
-                ),
-                BottomNavigationBarItem(
-                  label: 'Park',
-                  icon: Icon(Icons.park),
-                ),
-                BottomNavigationBarItem(
-                  label: 'Hospital',
-                  icon: Icon(Icons.local_hospital),
-                ),
-              ],
-              onTap: (index) {
-                switch (index) {
-                  case 0:
-                    router.navigateTo('airport');
-                    break;
-                  case 1:
-                    router.navigateTo('park');
-                    break;
-                  case 2:
-                    router.navigateTo('hospital');
-                    break;
-                }
-              },
-            );
-          },),
+          return BottomNavigationBar(
+            currentIndex: max(index - 1, 0),
+            items: const [
+              BottomNavigationBarItem(
+                label: 'Airpot',
+                icon: Icon(Icons.airplanemode_active),
+              ),
+              BottomNavigationBarItem(
+                label: 'Park',
+                icon: Icon(Icons.park),
+              ),
+              BottomNavigationBarItem(
+                label: 'Hospital',
+                icon: Icon(Icons.local_hospital),
+              ),
+            ],
+            onTap: (index) {
+              switch (index) {
+                case 0:
+                  router.navigateTo('airport');
+                  break;
+                case 1:
+                  router.navigateTo('park');
+                  break;
+                case 2:
+                  router.navigateTo('hospital');
+                  break;
+              }
+            },
+          );
+        },
+      ),
       body: GgRouter(
         {
           'airport': (c) => _bigIcon(c, Icons.airplanemode_active),
@@ -484,7 +496,7 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   _saveState(String state) async {
-    (await (SharedPreferences.getInstance()))
+    await (await (SharedPreferences.getInstance()))
         .setString('lastApplicationState', state);
   }
 
@@ -639,9 +651,12 @@ class GgRouterExample extends StatelessWidget {
   // ...........................................................................
   Widget _moveInFromRight(Animation animation, Widget child, double width) {
     return Transform.translate(
-        offset: Offset(
-            (1.0 - Curves.easeInOut.transform(animation.value)) * width, 0,),
-        child: child,);
+      offset: Offset(
+        (1.0 - Curves.easeInOut.transform(animation.value)) * width,
+        0,
+      ),
+      child: child,
+    );
   }
 
   // ...........................................................................
@@ -654,26 +669,36 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   GgAnimationBuilder _navigateIn(BuildContext context) {
-    return (BuildContext context, Animation animation, Widget child,
-        Size size,) {
+    return (
+      BuildContext context,
+      Animation animation,
+      Widget child,
+      Size size,
+    ) {
       final currentRoute = GgRouter.of(context).nameOfChildAnimatingIn;
 
       return currentRoute != '_INDEX_'
           ? GgShowInForeground(
-              child: _moveInFromRight(animation, child, size.width),)
+              child: _moveInFromRight(animation, child, size.width),
+            )
           : child;
     };
   }
 
   // ...........................................................................
   GgAnimationBuilder _navigateOut(BuildContext context) {
-    return (BuildContext context, Animation animation, Widget child,
-        Size size,) {
+    return (
+      BuildContext context,
+      Animation animation,
+      Widget child,
+      Size size,
+    ) {
       final currentRoute = GgRouter.of(context).nameOfChildAnimatingOut;
 
       return currentRoute != '_INDEX_'
           ? GgShowInForeground(
-              child: _moveOutToRight(animation, child, size.width),)
+              child: _moveOutToRight(animation, child, size.width),
+            )
           : child;
     };
   }

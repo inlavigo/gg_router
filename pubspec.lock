@@ -164,10 +164,10 @@ packages:
     dependency: transitive
     description:
       name: gg_args
-      sha256: "3a53d7ea8e6861cbefcce6b43a475d7fd1b200cdbead71ba8bf4970b5827ebff"
+      sha256: "7e7c9d2f3ec0c419bf46bcc4ecba8fca67e41d4c8e7849488107dafe26408968"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.9"
+    version: "1.1.10"
   gg_capture_print:
     dependency: transitive
     description:
@@ -180,10 +180,10 @@ packages:
     dependency: transitive
     description:
       name: gg_console_colors
-      sha256: "2b7a7de390e7d8bcfe30d385c9898f9d7f0bd59898f97c020721ed40b46e5e96"
+      sha256: "36deda619f73adb0e2b70c295cf2aa0c43f40b2f0222c74c4417f617efd2b07f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.2"
+    version: "2.0.3"
   gg_easy_widget_test:
     dependency: "direct dev"
     description:
@@ -196,18 +196,18 @@ packages:
     dependency: "direct dev"
     description:
       name: gg_install_gg
-      sha256: "1fb8aa59117590a9ed2f37e4a0182e23b4c0e0efe05a89715aae78a6c4c6ef04"
+      sha256: d77b68cff72dde29ff6b2b4570d646e15366a98e3e6b493fb93c76f1814d15bc
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1"
+    version: "1.0.2"
   gg_log:
     dependency: transitive
     description:
       name: gg_log
-      sha256: "04be88abb1ec7543ee9d5b2382108c89c7d2653f9a23cd553cc6aa1b46d0f0ee"
+      sha256: "8900bca6521a73ceb92d87a5bf139b8ce4d3604338ac45ebbe57a86ace2c47c1"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "1.0.1"
   gg_once_per_cycle:
     dependency: "direct main"
     description:

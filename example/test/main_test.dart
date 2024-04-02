@@ -372,7 +372,7 @@ main() {
       // ..............
       // Change the URI
       // => checkbox should change also
-      routerDelegate.setNewRoutePath(
+      await routerDelegate.setNewRoutePath(
         RouteInformation(
           uri: Uri.parse('sports/basketball/popover?visit=false'),
         ),
@@ -475,7 +475,7 @@ main() {
         (WidgetTester tester) async {
       await setUp(tester);
 
-      routerDelegate.setNewRoutePath(
+      await routerDelegate.setNewRoutePath(
         RouteInformation(uri: Uri.parse('sports/superhero')),
       );
       await tester.pumpAndSettle();
@@ -496,7 +496,8 @@ main() {
         (WidgetTester tester) async {
       await setUp(tester);
 
-      routerDelegate.setNewRoutePath(RouteInformation(uri: Uri.parse('/xyz')));
+      await routerDelegate
+          .setNewRoutePath(RouteInformation(uri: Uri.parse('/xyz')));
       await tester.pumpAndSettle();
 
       // Check if /xyz is the path of the staged child

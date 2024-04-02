@@ -1,5 +1,9 @@
 # Change Log
 
+## 3.1.2
+
+- Update latest dependencies
+
 ## 3.1.1 - Jan, 23rd, 2024
 
 - Update library dependencies

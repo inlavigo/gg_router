@@ -529,7 +529,7 @@ main() {
           GgRouter.noGgRouterDelegateFoundError,
         );
 
-        s.cancel();
+        await s.cancel();
 
         await tearDown(tester);
       },

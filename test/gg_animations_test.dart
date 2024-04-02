@@ -8,11 +8,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/src/gg_animations.dart';
 
-typedef NewGgAnimation = GgAnimation Function(
-    {required Animation<dynamic> animation,
-    required Widget child,
-    Key? key,
-    required Size size,});
+typedef NewGgAnimation = GgAnimation Function({
+  required Animation<dynamic> animation,
+  required Widget child,
+  Key? key,
+  required Size size,
+});
 
 void main() {
   late WidgetTester tester;
@@ -80,13 +81,18 @@ void main() {
     }
 
     // .........................................................................
-    Future<void> expectOpacity(
-        {required double initial, required double finalOpacity,}) async {
+    Future<void> expectOpacity({
+      required double initial,
+      required double finalOpacity,
+    }) async {
       // Initially the animated object is positioned outside the window
       double opacity() => tester
-          .widget<Opacity>(find.ancestor(
+          .widget<Opacity>(
+            find.ancestor(
               of: find.byKey(const ValueKey('Animated Object')),
-              matching: find.byType(Opacity),),)
+              matching: find.byType(Opacity),
+            ),
+          )
           .opacity;
 
       expect(opacity(), initial);
