@@ -386,7 +386,7 @@ main() {
         late GgRouterCore childRouter;
         late String? lastBuiltParam;
 
-        // .............................................................................
+        // .....................................................................
         await setUp(
           tester,
           child: Builder(
@@ -529,7 +529,8 @@ main() {
           GgRouter.noGgRouterDelegateFoundError,
         );
 
-        await s.cancel();
+        // ignore: unawaited_futures
+        s.cancel();
 
         await tearDown(tester);
       },
