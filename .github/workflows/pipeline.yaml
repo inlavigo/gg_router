@@ -1,12 +1,20 @@
 name: Dart Script Execution
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Setup git user
+        run: |
+          git config --global user.email "githubaction@inlavigo.com"
+          git config --global user.name "Github Action"
+
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
@@ -16,6 +24,8 @@ jobs:
 
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Check for Flutter Project
         run: |
@@ -51,13 +61,13 @@ jobs:
         if: env.is_flutter == 'true'
         uses: subosito/flutter-action@v2
         with:
-          channel: "master"
+          channel: "stable"
 
       - name: Set up Dart SDK
         if: env.is_flutter == 'false'
-        uses: dart-lang/setup-dart@v1
+        uses: dart-lang/setup-dart@v1.6.2
         with:
-          sdk: "dev"
+          sdk: "stable"
 
       - name: Install dependencies
         run: |
@@ -67,8 +77,14 @@ jobs:
             dart pub get
           fi
 
-      - name: Make Script Executable
-        run: chmod +x ./check
+      - name: Activate gg
+        run: dart pub global activate gg
 
-      - name: Run Script
-        run: ./check --verbose
+      - name: Did you execute »gg did push«?
+        run: gg did push
+
+      - name: Did you execute »gg did commit«?
+        run: gg did push
+
+      - name: Run »gg can commit --force«
+        run: gg can commit --force
