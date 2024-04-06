@@ -6,6 +6,7 @@
 
 - Rework changelog + repository URL in pubspec.yaml
 - 'Github Actions Pipeline'
+- 'Github Actions Pipeline: Add SDK file containing flutter into .github/workflows to make github installing flutter and not dart SDK'
 
 ## 3.1.2 - 2024-01-01
 
