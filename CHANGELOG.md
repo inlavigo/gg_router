@@ -5,6 +5,7 @@
 ### Changed
 
 - Rework changelog + repository URL in pubspec.yaml
+- 'Github Actions Pipeline'
 
 ## 3.1.2 - 2024-01-01
 
@@ -83,17 +84,21 @@ tree be managed outside the widget hierarchy.
 - Animations
 
 - Route transitions can be animated now.
+
 - Create a separate in and out animation
+
 - Create different animations for different routes
 
 - `GgPopoverRoute`
 
 - was renamed in `GgPopoverRoute`
+
 - Interface was changed slightly
 
 - Index routes
 
 - Index routes must not be named with empty name.
+
 - They must get the name `*INDEX*.
 
 - Renamed several identifiers.
