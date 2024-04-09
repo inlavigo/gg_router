@@ -84,10 +84,10 @@ packages:
     dependency: "direct dev"
     description:
       name: gg_easy_widget_test
-      sha256: "437a0bfadf5f39138cbefce30b565817eac7984d634497feab1866e7100a8545"
+      sha256: "6f16a07d375da16cf671da40c644f472f2c0ee0b8f21855d7a741c3e6d17b1b5"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.2"
   gg_map_animation:
     dependency: "direct main"
     description:
@@ -100,10 +100,10 @@ packages:
     dependency: transitive
     description:
       name: gg_once_per_cycle
-      sha256: a21a2c1a69037d55f5f4659bef96fe9e482e7f9d539959556767b3b58f1966a1
+      sha256: "6b5f437cd7466de574708fc04da85db047990b1de0e48891c40dd530e4250d62"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.2"
+    version: "1.3.3"
   gg_router:
     dependency: "direct main"
     description:
