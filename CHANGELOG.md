@@ -8,6 +8,12 @@
 - 'Github Actions Pipeline'
 - 'Github Actions Pipeline: Add SDK file containing flutter into .github/workflows to make github installing flutter and not dart SDK'
 
+## [Unreleased]
+
+### Removed
+
+- 'Pipline: Disable cache'
+
 ## [3.1.3] - 2024-04-09
 
 ## 3.1.2 - 2024-01-01
@@ -123,4 +129,5 @@ tree be managed outside the widget hierarchy.
 
 - The first public version of GgRouter.
 
+[Unreleased]: "https://github.com/inlavigo/gg_router"/compare/3.1.3...HEAD
 [3.1.3]: "https://github.com/inlavigo/gg_router"/compare/3.1.2...3.1.3

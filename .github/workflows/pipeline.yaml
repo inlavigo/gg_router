@@ -35,27 +35,27 @@ jobs:
             echo "is_flutter=false" >> "$GITHUB_ENV"
           fi
 
-      - name: Cache Flutter Dependencies
-        if: env.is_flutter == 'true'
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-            **/pubspec.lock
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-flutter-
-
-      - name: Cache Dart Dependencies
-        if: env.is_flutter == 'false'
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-            **/pubspec.lock
-          key: ${{ runner.os }}-dart-${{ hashFiles('**/pubspec.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-dart-
+      # - name: Cache Flutter Dependencies
+      #   if: env.is_flutter == 'true'
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/.pub-cache
+      #       **/pubspec.lock
+      #     key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-flutter-
+      #
+      # - name: Cache Dart Dependencies
+      #   if: env.is_flutter == 'false'
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/.pub-cache
+      #       **/pubspec.lock
+      #     key: ${{ runner.os }}-dart-${{ hashFiles('**/pubspec.yaml') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-dart-
 
       - name: Set up Flutter
         if: env.is_flutter == 'true'
