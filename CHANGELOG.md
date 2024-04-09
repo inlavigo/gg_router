@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## Unreleased
 
 ### Changed
 
@@ -24,7 +24,7 @@
 ## 3.0.2 - 2023-02-23
 
 - Breaking change: `GgNavigationPageRoot` takes a `GgNavigationPage` instead of `pageContent`,
-`children` and `semanticLabels`.
+  `children` and `semanticLabels`.
 - Breaking change: Renamed `visibleRoute` -> `stagedDescendants`
 - Hand these parameters over to `GgNavigationPage` constructor.
 - Use `showBackButton` constructor parameter of `GgNavigation` to show or hide back button.
@@ -42,9 +42,9 @@
 - Added `typedef GgNavigationPageBuilder`
 - Simplified widget structure
 - Use `GgShowInForeground` to define which widgets should be shown in the
-foreground: a) the widget animated in or b) the widget animated out.
+  foreground: a) the widget animated in or b) the widget animated out.
 - Added `GgNavigationPage` to create deeply nested navigation pages similar
-to `CupertinoPageScaffold` and `CupertinoNavigationBar`.
+  to `CupertinoPageScaffold` and `CupertinoNavigationBar`.
 - Breaking changes:
 - Animation callbacks are provided with the size of the enclosing widget
 
@@ -67,9 +67,9 @@ to `CupertinoPageScaffold` and `CupertinoNavigationBar`.
 - Renamed `GgRouteTreeNode:child` into `GgRouteTreeNode:findOrCreateChild`
 - Reintroduced `GgRouteTreeNode:child`
 - Refined handling when a root and a default path is submitted to
-GgRouterDelegate.
+  GgRouterDelegate.
 - `GgRouterDelegate` can take a pre-configured root node, which helps the route
-tree be managed outside the widget hierarchy.
+  tree be managed outside the widget hierarchy.
 - `GgRouteTreeNode.newRoot()` was introduced to create root nodes.
 
 ## 1.0.1 - 2021-03-20
@@ -100,10 +100,9 @@ tree be managed outside the widget hierarchy.
 
 - Index routes must not be named with empty name.
 
-- They must get the name `*INDEX*.
+- They must get the name `_INDEX_.
 
 - Renamed several identifiers.
-
 
 ## 1.0.0-beta.4 - 2021-03-13
 
@@ -120,5 +119,3 @@ tree be managed outside the widget hierarchy.
 ## 1.0.0-beta.1 - 2021-03-10
 
 - The first public version of GgRouter.
-
-[Unreleased]: "https://github.com/inlavigo/gg_router"/compare/3.1.2...HEAD
