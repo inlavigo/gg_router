@@ -16,6 +16,12 @@
 
 - 'Pipline: Disable cache'
 
+## [Unreleased]
+
+### Removed
+
+- dependency to gg\_install\_gg, remove ./check script
+
 ## [3.1.4] - 2024-04-10
 
 ## 3.1.2 - 2024-01-01
@@ -131,4 +137,5 @@ tree be managed outside the widget hierarchy.
 
 - The first public version of GgRouter.
 
+[Unreleased]: https://github.com/inlavigo/gg_router/compare/3.1.4...HEAD
 [3.1.4]: https://github.com/inlavigo/gg_router/compare/3.1.2...3.1.4

@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-dart run gg_install_gg
-gg can commit

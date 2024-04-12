@@ -81,14 +81,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
-  colorize:
-    dependency: transitive
-    description:
-      name: colorize
-      sha256: "584746cd6ba1cba0633b6720f494fe6f9601c4170f0666c1579d2aa2a61071ba"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
   convert:
     dependency: transitive
     description:
@@ -160,30 +152,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.0"
-  gg_args:
-    dependency: transitive
-    description:
-      name: gg_args
-      sha256: ded3915d880ffdf5e44565e5e840a4179c3ab596491f571858f4197f996de09a
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.11"
-  gg_capture_print:
-    dependency: transitive
-    description:
-      name: gg_capture_print
-      sha256: afe98d2dc4ae756e88aebce16129d4b65126a9bc83ead911058e524a68953af1
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.5"
-  gg_console_colors:
-    dependency: transitive
-    description:
-      name: gg_console_colors
-      sha256: fd7efda566634b941c070ffd2f93fde0fcae85e8aacb7ebc2b45d322fa530a64
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.1"
   gg_easy_widget_test:
     dependency: "direct dev"
     description:
@@ -192,22 +160,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.2"
-  gg_install_gg:
-    dependency: "direct dev"
-    description:
-      name: gg_install_gg
-      sha256: "3049037682f44ab2794ad803bc2b51e310a466b066ffaaa842fa51ab04d26135"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.3"
-  gg_log:
-    dependency: transitive
-    description:
-      name: gg_log
-      sha256: d850129bc8fdb54a780c0ecf53b2994f960e1b536ea122b2050e4fed577a6084
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
   gg_once_per_cycle:
     dependency: "direct main"
     description:
@@ -216,14 +168,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.3"
-  gg_process:
-    dependency: transitive
-    description:
-      name: gg_process
-      sha256: "72d7c2794b53399b9e0187957762470d043464552ccc93db25cacb3544776047"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.3"
   gg_value:
     dependency: "direct main"
     description:
@@ -376,14 +320,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
-  mocktail:
-    dependency: transitive
-    description:
-      name: mocktail
-      sha256: c4b5007d91ca4f67256e720cb1b6d704e79a510183a12fa551021f652577dce6
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.3"
   node_preamble:
     dependency: transitive
     description:
@@ -440,14 +376,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.3"
-  recase:
-    dependency: transitive
-    description:
-      name: recase
-      sha256: e4eb4ec2dcdee52dcf99cb4ceabaffc631d7424ee55e56f280bc039737f89213
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.1.0"
   retry:
     dependency: transitive
     description:
