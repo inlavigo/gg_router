@@ -1,6 +1,6 @@
 # Changelog
 
-## \[Unreleased\]
+## [3.1.6] - 2024-04-13
 
 ### Changed
 
@@ -15,12 +15,6 @@
 ### Removed
 
 - 'Pipline: Disable cache'
-
-## [3.1.6] - 2024-04-13
-
-### Changed
-
-- Adjusted version
 
 ## [3.1.5] - 2024-04-13
 
