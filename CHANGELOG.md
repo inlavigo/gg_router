@@ -18,6 +18,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- ignore pubspec.lock
+
 ### Removed
 
 - dependency to gg\_install\_gg, remove ./check script
