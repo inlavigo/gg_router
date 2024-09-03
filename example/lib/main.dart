@@ -38,7 +38,11 @@ class GgRouterExample extends StatelessWidget {
       ),
       routeInformationParser: GgRouteInformationParser(),
       themeMode: ThemeMode.dark,
-      darkTheme: ThemeData(brightness: Brightness.dark),
+      darkTheme: ThemeData(brightness: Brightness.dark).copyWith(
+        colorScheme: const ColorScheme.dark().copyWith(
+          onPrimary: Colors.white,
+        ),
+      ),
       theme: ThemeData(brightness: Brightness.light),
       debugShowCheckedModeBanner: debugShowCheckedModeBanner,
       showSemanticsDebugger: false,
@@ -312,10 +316,11 @@ class GgRouterExample extends StatelessWidget {
       bottomNavigationBar: StreamBuilder(
         stream: router.onActiveChildChange,
         builder: (context, snapshot) {
+          final router = GgRouter.of(context);
           final index = router.indexOfActiveChild ?? 0;
 
           return BottomNavigationBar(
-            currentIndex: max(index - 1, 0),
+            currentIndex: max(index, 0),
             items: const [
               BottomNavigationBarItem(
                 label: 'Basketball',
@@ -388,10 +393,11 @@ class GgRouterExample extends StatelessWidget {
       bottomNavigationBar: StreamBuilder(
         stream: router.onActiveChildChange,
         builder: (context, snapshot) {
+          final router = GgRouter.of(context);
           final index = router.indexOfActiveChild ?? 0;
 
           return BottomNavigationBar(
-            currentIndex: max(index - 1, 0),
+            currentIndex: max(index, 0),
             items: const [
               BottomNavigationBarItem(
                 label: 'Bus',
@@ -446,10 +452,11 @@ class GgRouterExample extends StatelessWidget {
         key: const ValueKey('placesPage'),
         stream: router.onActiveChildChange,
         builder: (context, snapshot) {
+          final router = GgRouter.of(context);
           final index = router.indexOfActiveChild ?? 0;
 
           return BottomNavigationBar(
-            currentIndex: max(index - 1, 0),
+            currentIndex: max(index, 0),
             items: const [
               BottomNavigationBarItem(
                 label: 'Airpot',

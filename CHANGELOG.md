@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Update flutter SDK version + Fix some issues in the example
+
 ## [3.1.6] - 2024-04-13
 
 ### Changed
@@ -142,6 +148,7 @@ tree be managed outside the widget hierarchy.
 
 - The first public version of GgRouter.
 
+[Unreleased]: https://github.com/inlavigo/gg_router/compare/3.1.6...HEAD
 [3.1.6]: https://github.com/inlavigo/gg_router/compare/3.1.5...3.1.6
 [3.1.5]: https://github.com/inlavigo/gg_router/compare/3.1.4...3.1.5
 [3.1.4]: https://github.com/inlavigo/gg_router/compare/3.1.2...3.1.4
