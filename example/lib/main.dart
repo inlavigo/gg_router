@@ -38,16 +38,20 @@ class GgRouterExample extends StatelessWidget {
       ),
       routeInformationParser: GgRouteInformationParser(),
       themeMode: ThemeMode.dark,
-      darkTheme: ThemeData(brightness: Brightness.dark).copyWith(
-        colorScheme: const ColorScheme.dark().copyWith(
-          onPrimary: Colors.white,
-        ),
-      ),
+      darkTheme: _darkTheme,
       theme: ThemeData(brightness: Brightness.light),
       debugShowCheckedModeBanner: debugShowCheckedModeBanner,
       showSemanticsDebugger: false,
     );
   }
+
+  // ...........................................................................
+  ThemeData get _darkTheme => ThemeData(brightness: Brightness.dark).copyWith(
+        colorScheme: const ColorScheme.dark().copyWith(
+          onPrimary: Colors.white,
+        ),
+        dialogBackgroundColor: const Color(0xFF222222),
+      );
 
   // ...........................................................................
   Widget get _appContent {
@@ -162,13 +166,16 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   Widget _dialogContent(BuildContext context) {
+    final theme = Theme.of(context);
+    final primary = theme.dialogBackgroundColor;
+
     return GgNavigationPageRoot(
       // Customize animation
       inAnimation: _navigateIn(context),
       outAnimation: _navigateOut(context),
 
       // Customize navigation bar style
-      navigationBarBackgroundColor: null,
+      navigationBarBackgroundColor: primary,
       navigationBarPadding: 10,
 
       // Customize back button
