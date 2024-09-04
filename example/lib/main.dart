@@ -12,9 +12,14 @@ import 'package:gg_router/gg_router.dart';
 import 'package:gg_value/gg_value.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import './l10n/app_localizations.dart';
+
 import 'configure_nonweb.dart' if (dart.library.html) 'configure_web.dart';
+import 'gg_localization.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   configureApp();
   runApp(const GgRouterExample());
 }
@@ -42,6 +47,8 @@ class GgRouterExample extends StatelessWidget {
       theme: ThemeData(brightness: Brightness.light),
       debugShowCheckedModeBanner: debugShowCheckedModeBanner,
       showSemanticsDebugger: false,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
     );
   }
 
@@ -55,42 +62,47 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   Widget get _appContent {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('GgRouter'),
-        actions: <Widget>[
-          _routeButton('Sports', 'sports'),
-          _routeButton('Transportation', 'transportation'),
-          _routeButton('Places', 'places'),
-          Container(
-            width: debugShowCheckedModeBanner ? 50 : 0,
+    return Builder(
+      builder: (context) {
+        final l = ggl(context);
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('GgRouter'),
+            actions: <Widget>[
+              _routeButton(l.sports, 'sports'),
+              _routeButton(l.transportation, 'transportation'),
+              _routeButton(l.places, 'places'),
+              Container(
+                width: debugShowCheckedModeBanner ? 50 : 0,
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Builder(
-        builder: (context) {
-          _initErrorHandler(context);
-          return GgRouter(
-            {
-              '_INDEX_': _indexPage,
-              'sports': _sportsPage,
-              'transportation': _transportationPage,
-              'places': _placesPage,
-              '*': _wildCardPage,
+          body: Builder(
+            builder: (context) {
+              _initErrorHandler(context);
+              return GgRouter(
+                {
+                  '_INDEX_': _indexPage,
+                  'sports': _sportsPage,
+                  'transportation': _transportationPage,
+                  'places': _placesPage,
+                  '*': _wildCardPage,
+                },
+                key: const ValueKey('mainRouter'),
+                inAnimation: _zoomIn,
+                outAnimation: _zoomOut,
+                semanticLabels: {
+                  '_INDEX_': l.navigateToIndexPage,
+                  'sports': l.navigateToSportsPage,
+                  'transportation': l.navigateToTransportationPage,
+                  'places': l.navigateToPlacesPage,
+                  '*': l.navigateToSportsPage,
+                },
+              );
             },
-            key: const ValueKey('mainRouter'),
-            inAnimation: _zoomIn,
-            outAnimation: _zoomOut,
-            semanticLabels: const {
-              '_INDEX_': 'Navigate to Index Page',
-              'sports': 'Navigate to Sports Page',
-              'transportation': 'Navigate to Transportation Page',
-              'places': 'Navigate to Places Page',
-              '*': 'Another Page',
-            },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -325,21 +337,22 @@ class GgRouterExample extends StatelessWidget {
         builder: (context, snapshot) {
           final router = GgRouter.of(context);
           final index = router.indexOfActiveChild ?? 0;
+          final l = ggl(context);
 
           return BottomNavigationBar(
             currentIndex: max(index, 0),
-            items: const [
+            items: [
               BottomNavigationBarItem(
-                label: 'Basketball',
-                icon: Icon(Icons.sports_basketball),
+                label: l.basketball,
+                icon: const Icon(Icons.sports_basketball),
               ),
               BottomNavigationBarItem(
-                label: 'Football',
-                icon: Icon(Icons.sports_football),
+                label: l.football,
+                icon: const Icon(Icons.sports_football),
               ),
               BottomNavigationBarItem(
-                label: 'Handball',
-                icon: Icon(Icons.sports_handball),
+                label: l.handball,
+                icon: const Icon(Icons.sports_handball),
               ),
             ],
             onTap: (index) {
@@ -402,21 +415,22 @@ class GgRouterExample extends StatelessWidget {
         builder: (context, snapshot) {
           final router = GgRouter.of(context);
           final index = router.indexOfActiveChild ?? 0;
+          final l = ggl(context);
 
           return BottomNavigationBar(
             currentIndex: max(index, 0),
-            items: const [
+            items: [
               BottomNavigationBarItem(
-                label: 'Bus',
-                icon: Icon(Icons.directions_bus),
+                label: l.bus,
+                icon: const Icon(Icons.directions_bus),
               ),
               BottomNavigationBarItem(
-                label: 'Bike',
-                icon: Icon(Icons.directions_bike),
+                label: l.bike,
+                icon: const Icon(Icons.directions_bike),
               ),
               BottomNavigationBarItem(
-                label: 'Car',
-                icon: Icon(Icons.directions_car),
+                label: l.car,
+                icon: const Icon(Icons.directions_car),
               ),
             ],
             onTap: (index) {
@@ -461,21 +475,22 @@ class GgRouterExample extends StatelessWidget {
         builder: (context, snapshot) {
           final router = GgRouter.of(context);
           final index = router.indexOfActiveChild ?? 0;
+          final l = ggl(context);
 
           return BottomNavigationBar(
             currentIndex: max(index, 0),
-            items: const [
+            items: [
               BottomNavigationBarItem(
-                label: 'Airpot',
-                icon: Icon(Icons.airplanemode_active),
+                label: l.airport,
+                icon: const Icon(Icons.airplanemode_active),
               ),
               BottomNavigationBarItem(
-                label: 'Park',
-                icon: Icon(Icons.park),
+                label: l.park,
+                icon: const Icon(Icons.park),
               ),
               BottomNavigationBarItem(
-                label: 'Hospital',
-                icon: Icon(Icons.local_hospital),
+                label: l.hospital,
+                icon: const Icon(Icons.local_hospital),
               ),
             ],
             onTap: (index) {

@@ -15,11 +15,15 @@ dependencies:
     path: ../
   gg_value: ^1.0.3-dev.1
   gg_map_animation: ^0.9.0
+  intl: any
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   gg_easy_widget_test: ^1.0.0
+  flutter_localizations:
+    sdk: flutter
 
 flutter:
   uses-material-design: true
+  generate: true

@@ -32,8 +32,8 @@ linter:
     - missing_whitespace_between_adjacent_strings
     - unawaited_futures
 
-#   exclude:
-#     - path/to/excluded/files/**
+exclude:
+  - example/lib/l10n/**
 
 analyzer:
   language:
@@ -42,6 +42,9 @@ analyzer:
     # strict-raw-types: true
   errors:
     always_declare_return_types: true
+
+  exclude:
+    - example/lib/l10n/**
 # For more information about the core and recommended set of lints, see
 # https://dart.dev/go/core-lints
 

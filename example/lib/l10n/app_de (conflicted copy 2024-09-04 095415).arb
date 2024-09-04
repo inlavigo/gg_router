@@ -1,0 +1,18 @@
+{
+  "anotherPage": "Andere Seite",
+  "navigateToIndexPage": "Zur Indexseite navigieren",
+  "navigateToPlacesPage": "Zur Seite \"Orte\" navigieren",
+  "navigateToSportsPage": "Zur Sportseite navigieren",
+  "navigateToTransportationPage": "Navigieren Sie zur Seite Transport",
+  "places": "Orte",
+  "sports": "Sport",
+  "transportation": "Transport",
+  "airport": "Airport",
+  "park": "Park",
+  "hospital": "Hospital",
+  "bus": "Bus",
+  "Bike": "Wheel",
+  "Car": "Car",
+  "Airport": "Airport",
+  "Hospital": "Hospital"
+}

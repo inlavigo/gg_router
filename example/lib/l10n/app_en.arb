@@ -1,0 +1,19 @@
+{
+  "anotherPage": "Another Page",
+  "navigateToIndexPage": "Navigate to index page",
+  "navigateToPlacesPage": "Navigate to Places Page",
+  "navigateToSportsPage": "Navigate to Sports Page",
+  "navigateToTransportationPage": "Navigate to Transportation Page",
+  "places": "Places",
+  "sports": "Sports",
+  "transportation": "Transportation",
+  "airport": "Airport",
+  "park": "Park",
+  "hospital": "Hospital",
+  "bus": "Bus",
+  "bike": "Rad",
+  "car": "Car",
+  "basketball": "Basketball",
+  "football": "Football",
+  "handball": "Handball"
+}

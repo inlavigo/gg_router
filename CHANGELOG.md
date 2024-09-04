@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Add localization
+
 ### Changed
 
 - Adjust some color things
