@@ -49,6 +49,102 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
+  colorize:
+    dependency: transitive
+    description:
+      name: colorize
+      sha256: "584746cd6ba1cba0633b6720f494fe6f9601c4170f0666c1579d2aa2a61071ba"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
+  dna_blog:
+    dependency: transitive
+    description:
+      name: dna_blog
+      sha256: be40ecb067d0d81e981ae19592a5e31d12115814d96e62010d6a62ef6010d812
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  dna_clean_code:
+    dependency: transitive
+    description:
+      name: dna_clean_code
+      sha256: "0a1254c658fbcc9480c0caa336daaccbe74ef7ee5a8e856d466193b3822a7f90"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  dna_gg:
+    dependency: transitive
+    description:
+      name: dna_gg
+      sha256: "6570c97f79e84c4ef5aae92954ad21c0e65edfe710802684df83cefc6f6860ed"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
+  dna_ggsuite:
+    dependency: "direct dev"
+    description:
+      name: dna_ggsuite
+      sha256: "009fc6deeb2665cfb33590948bcc27c841c0dfddadd09eea5023d88b966a72bc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
+  dna_guides:
+    dependency: transitive
+    description:
+      name: dna_guides
+      sha256: "1b02008c52e9d5811bb44bb5fbf457cc6e235777c6cbf966683c3a1eac1b201a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  dna_index:
+    dependency: transitive
+    description:
+      name: dna_index
+      sha256: "34096b10958d2ea3722ffb7be5eae7537a4592175bba2abec823915cb73b664c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  dna_install:
+    dependency: transitive
+    description:
+      name: dna_install
+      sha256: ec338094ed3678c05eb55d8dd1106d09a82af55921089a1c98697ad20dcbf913
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  dna_readme:
+    dependency: transitive
+    description:
+      name: dna_readme
+      sha256: "0844e5590e6a33405ebc76b2931ba5df70eb91a134db37301575dd2c914cd0c0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  dna_scripts:
+    dependency: transitive
+    description:
+      name: dna_scripts
+      sha256: e14ff865c5640323e99fc122961e14b81338f205c65721d3b4d7bdf8763d6b16
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  dna_translate:
+    dependency: transitive
+    description:
+      name: dna_translate
+      sha256: fe66d74e6128916e2855525bc477caa25f818bc433281b2a6b108e32564a6d7e
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  dna_vscode:
+    dependency: transitive
+    description:
+      name: dna_vscode
+      sha256: b9c352cfb3e39a7df7e3a6206f898074579bdff987495d3855f05e848a213153
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   fake_async:
     dependency: "direct dev"
     description:
@@ -72,6 +168,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  gg_args:
+    dependency: transitive
+    description:
+      name: gg_args
+      sha256: aa52bf0322fa315ea552e092a236394edd6ce403edc2cc29776d81bf787c8294
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.0"
   gg_capture_print:
     dependency: "direct overridden"
     description:
@@ -79,12 +183,44 @@ packages:
       relative: true
     source: path
     version: "1.1.0"
+  gg_console_colors:
+    dependency: transitive
+    description:
+      name: gg_console_colors
+      sha256: "35d4607f068e726ddbdd3e1ca2db215aa6497bd01ef72eb626c620ce58cb1888"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.0"
   gg_easy_widget_test:
     dependency: "direct dev"
     description:
       path: "../gg_easy_widget_test"
       relative: true
     source: path
+    version: "1.2.0"
+  gg_hash:
+    dependency: transitive
+    description:
+      name: gg_hash
+      sha256: abdfced31345e21f7bd105461db5544bf48c2ff288429e9dcd43fc693cfa2e28
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.0"
+  gg_json:
+    dependency: transitive
+    description:
+      name: gg_json
+      sha256: "8ad146167a287125173ca0116f76800b41ea0bbd6e946c16861256eba5fd3d18"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.0"
+  gg_log:
+    dependency: transitive
+    description:
+      name: gg_log
+      sha256: dd0d9be07ff9b57e266771bb1cfd0f07f585019ccafe6543def6917a7acd7ae5
+      url: "https://pub.dev"
+    source: hosted
     version: "1.2.0"
   gg_once_per_cycle:
     dependency: "direct main"
@@ -93,6 +229,14 @@ packages:
       relative: true
     source: path
     version: "1.4.0"
+  gg_process:
+    dependency: transitive
+    description:
+      name: gg_process
+      sha256: e94a32b4cbbba4e100f0eaec66083d67814ef79d6c0a3a84e11d7c5456350427
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   gg_value:
     dependency: "direct main"
     description:
@@ -100,6 +244,14 @@ packages:
       relative: true
     source: path
     version: "1.7.0"
+  helix:
+    dependency: "direct dev"
+    description:
+      name: helix
+      sha256: "2df9e65b2d53b43d8ace85914eceeeb7f0f59350fb436e575b7bcfddda41405c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.0"
   leak_tracker:
     dependency: transitive
     description:
@@ -156,6 +308,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.0"
+  mocktail:
+    dependency: transitive
+    description:
+      name: mocktail
+      sha256: "5e1bf53cc7baa8062a33b84424deb61513858ea05c601b8509e683815b5914aa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   path:
     dependency: transitive
     description:
@@ -164,6 +324,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
+  recase:
+    dependency: transitive
+    description:
+      name: recase
+      sha256: e4eb4ec2dcdee52dcf99cb4ceabaffc631d7424ee55e56f280bc039737f89213
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -233,6 +401,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "15.3.0"
+  yaml:
+    dependency: transitive
+    description:
+      name: yaml
+      sha256: f67cdd8e07d3c6329146aaef1ba043542b3134c12489f553ca9a7435d1068aea
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.4"
 sdks:
   dart: ">=3.13.0 <4.0.0"
   flutter: ">=3.47.0"

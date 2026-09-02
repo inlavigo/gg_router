@@ -1,0 +1,26 @@
+// @license
+// Copyright (c) ggsuite
+//
+// Use of this source code is governed by terms that can be
+// found in the LICENSE file in the root of this package.
+
+{
+  // The package name, as declared in pubspec.yaml / package.json.
+  "name": "<pkg>",
+
+  // 1-2 sentence summary about this repo.
+  "summary": "",
+
+  // 1-3 bullet points: the problem space.
+  "domain": [],
+
+  // The repos this one depends on and the repos depending on it.
+  // Keep the reason or the API behind each entry, not just the name.
+  "interfaces": {
+    // "<repo-a>": "why / API"
+    "uses": {},
+
+    // "<repo-b>": "why / API"
+    "usedBy": {}
+  }
+}

@@ -1,0 +1,14 @@
+{
+  // DNA configuration — the only place DNA config lives.
+  // The engine only ever reads this file; dna/_generated.json is its
+  // output. Comments and trailing commas are tolerated.
+  "version": 1,
+
+  // The DNA layers, in application order — later layers win. Package
+  // names as declared in pubspec.yaml / package.json, never paths.
+  // Transitive parents come from each layer's own dna/_dna.json.
+  "layers": ["gg_once_per_cycle", "gg_easy_widget_test", "dna_ggsuite"]
+
+  // "vars": { "dnaProjectName": "my-project" },
+  // "claude": { "claudeMdInclude": ["doc/conventions"] }
+}

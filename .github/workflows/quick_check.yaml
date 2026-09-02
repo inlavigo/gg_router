@@ -1,4 +1,4 @@
-# Runs the gg-js quick check on every push and pull request against main.
+# Runs the gg quick check on every push and pull request against main.
 
 name: Tests
 
@@ -10,20 +10,11 @@ on:
 
 jobs:
   build:
-    name: Quick check
+    name: Quick Check
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [24.x]
 
     steps:
       - uses: actions/checkout@v5
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - run: npx ggwsm one did commit
-
+      # Uses the Node.js preinstalled on the runner image.
+      - run: npx @tssuite/ggwsm one did commit
