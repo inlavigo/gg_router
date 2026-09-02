@@ -29,10 +29,10 @@ packages:
     dependency: transitive
     description:
       name: clock
-      sha256: fddb70d9b5277016c77a80201021d40a2247104d9f4aa7bab7157b7e3f05b84b
+      sha256: e51d50bca3217c9a9fa2b41a30e4a38971133f5f9ec7a3d57bae095007f1d28e
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.2"
+    version: "1.1.3"
   collection:
     dependency: transitive
     description:
@@ -89,10 +89,10 @@ packages:
     dependency: "direct dev"
     description:
       name: gg_easy_widget_test
-      sha256: "8e6b4492e9111ca82e2e4283ecfe468386a863d71d052ec05795ea6e06f350ca"
+      sha256: "3952318f7cd1aaf44eb4b049f3f0798454f9836a9220f87102e40a4c77ef6451"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "1.3.0"
   gg_map_animation:
     dependency: "direct main"
     description:
@@ -105,10 +105,10 @@ packages:
     dependency: transitive
     description:
       name: gg_once_per_cycle
-      sha256: "361cfa28ae1305cc2765704ac3a2bb995aa8d51a94163e0d4b99c6fcaf35c74f"
+      sha256: dab574364c6adc0e5f659bfcacde8a2bfbd0ed1ba53930893a1908bf92d61406
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.0"
+    version: "1.5.0"
   gg_router:
     dependency: "direct main"
     description:
@@ -120,10 +120,10 @@ packages:
     dependency: "direct main"
     description:
       name: gg_value
-      sha256: db0b1ea65fd910aaeffc9b7bb708f13c76df6aea2c4b495c7c373aad07e7bdaa
+      sha256: "7bb82b016b0c127831170c71e02b09cd9ecef059e246069763760e684fdc8984"
       url: "https://pub.dev"
     source: hosted
-    version: "1.7.0"
+    version: "1.8.0"
   intl:
     dependency: "direct main"
     description:
@@ -240,18 +240,18 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: "0634e64bd719f89c012f392938e173521f535d3ecaf66558fa94a056d22b5cc7"
+      sha256: "1e12aafe408aa50da80edfd679a2a6bf63ba7ab37c7fa98286da459a757b3399"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.27"
+    version: "2.4.28"
   shared_preferences_foundation:
     dependency: transitive
     description:
       name: shared_preferences_foundation
-      sha256: "4e7eaffc2b17ba398759f1151415869a34771ba11ebbccd1b0145472a619a64f"
+      sha256: "2ec3934efa51e46117f23031cc141b8fc878e8525b94ec1ea4f7f586cf1b47ea"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.6"
+    version: "2.5.7"
   shared_preferences_linux:
     dependency: transitive
     description:
@@ -301,10 +301,10 @@ packages:
     dependency: transitive
     description:
       name: stack_trace
-      sha256: "8b27215b45d22309b5cddda1aa2b19bdfec9df0e765f2de506401c071d38d1b1"
+      sha256: "277654b3034d17ac6f9f1cb5595db011b1d5d41e8806866db28e0abaa101c490"
       url: "https://pub.dev"
     source: hosted
-    version: "1.12.1"
+    version: "1.12.2"
   stream_channel:
     dependency: transitive
     description:
@@ -349,10 +349,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: "0016aef94fc66495ac78af5859181e3f3bf2026bd8eecc72b9565601e19ab360"
+      sha256: "5f37239c4851efcef929cea7824e76df7f2f0970aef85d66bbc430afa40e72f0"
       url: "https://pub.dev"
     source: hosted
-    version: "15.2.0"
+    version: "15.3.0"
   web:
     dependency: transitive
     description:
