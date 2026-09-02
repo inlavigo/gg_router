@@ -177,27 +177,29 @@ packages:
     source: hosted
     version: "3.2.0"
   gg_capture_print:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "../gg_capture_print"
-      relative: true
-    source: path
-    version: "1.1.0"
+      name: gg_capture_print
+      sha256: fd793824121435fe128619c99bcf4a6fac9398188dcc7dd3def6cfe02d2327f9
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   gg_console_colors:
     dependency: transitive
     description:
       name: gg_console_colors
-      sha256: "35d4607f068e726ddbdd3e1ca2db215aa6497bd01ef72eb626c620ce58cb1888"
+      sha256: "587848a714df37ff255f18e8530b0dc7a49097c62e6692b91c70361ad4df6af2"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.0"
+    version: "2.5.0"
   gg_easy_widget_test:
     dependency: "direct dev"
     description:
-      path: "../gg_easy_widget_test"
-      relative: true
-    source: path
-    version: "1.2.0"
+      name: gg_easy_widget_test
+      sha256: "3952318f7cd1aaf44eb4b049f3f0798454f9836a9220f87102e40a4c77ef6451"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.0"
   gg_hash:
     dependency: transitive
     description:
@@ -210,10 +212,10 @@ packages:
     dependency: transitive
     description:
       name: gg_json
-      sha256: "8ad146167a287125173ca0116f76800b41ea0bbd6e946c16861256eba5fd3d18"
+      sha256: a6094996fcb1aa36f209060f0db1fefcd02fcd11649491763138331eb5dac253
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.0"
+    version: "4.3.0"
   gg_log:
     dependency: transitive
     description:
@@ -225,25 +227,27 @@ packages:
   gg_once_per_cycle:
     dependency: "direct main"
     description:
-      path: "../gg_once_per_cycle"
-      relative: true
-    source: path
-    version: "1.4.0"
+      name: gg_once_per_cycle
+      sha256: dab574364c6adc0e5f659bfcacde8a2bfbd0ed1ba53930893a1908bf92d61406
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.0"
   gg_process:
     dependency: transitive
     description:
       name: gg_process
-      sha256: e94a32b4cbbba4e100f0eaec66083d67814ef79d6c0a3a84e11d7c5456350427
+      sha256: "8d0ba9cb5b4a5b786433605832e10c3c6629a075793a8a2d97d268fa5bdecf42"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "1.3.0"
   gg_value:
     dependency: "direct main"
     description:
-      path: "../gg_value"
-      relative: true
-    source: path
-    version: "1.7.0"
+      name: gg_value
+      sha256: "7bb82b016b0c127831170c71e02b09cd9ecef059e246069763760e684fdc8984"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.8.0"
   helix:
     dependency: "direct dev"
     description:
